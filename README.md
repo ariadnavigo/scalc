@@ -30,7 +30,7 @@ $ scalc test_file
 -6761.000000
 8 7 /
 1.142857
-$ echo '4 5 +' | ./scalc
+$ echo '4 5 +' | scalc
 9.000000
 ```
 
