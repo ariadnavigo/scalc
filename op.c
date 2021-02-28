@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 
+#include <math.h>
 #include <string.h>
 
 #include "op.h"
@@ -44,6 +45,8 @@ float
 		return op_mult;
 	else if (strcmp(oper, "/") == 0)
 		return op_div;
+	else if (strcmp(oper, "^") == 0)
+		return powf; /* From math.h */
 	else
 		return NULL;
 }
