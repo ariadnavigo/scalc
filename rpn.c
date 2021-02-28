@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "op.h"
 #include "rpn.h"
 
 #define MAX_STACK_SIZE 32
@@ -16,12 +17,6 @@ static RPNStack *rpn_stack_init(RPNStack *stack);
 static RPNStack *rpn_stack_push(RPNStack *stack, float elem);
 static int rpn_stack_peek(float *dest, RPNStack stack);
 static int rpn_stack_pop(float *dest, RPNStack *stack);
-
-static float op_add(float a, float b);
-static float op_subst(float a, float b);
-static float op_mult(float a, float b);
-static float op_div(float a, float b);
-static float (*op(const char *oper))(float, float);
 
 static RPNStack *
 rpn_stack_init(RPNStack *stack)
@@ -67,45 +62,6 @@ rpn_stack_pop(float *dest, RPNStack *stack)
 	--stack->sp;
 
 	return 0;
-}
-
-static float
-op_add(float a, float b)
-{
-	return a + b;
-}
-
-static float
-op_subst(float a, float b)
-{
-	return op_add(a, -b);
-}
-
-static float
-op_mult(float a, float b)
-{
-	return a * b;
-}
-
-static float
-op_div(float a, float b)
-{
-	return a / b;
-}
-
-static float 
-(*op(const char *oper))(float, float)
-{
-	if (strcmp(oper, "+") == 0)
-		return op_add;
-	else if (strcmp(oper, "-") == 0)
-		return op_subst;
-	else if (strcmp(oper, "*") == 0)
-		return op_mult;
-	else if (strcmp(oper, "/") == 0)
-		return op_div;
-	else
-		return NULL;
 }
 
 int

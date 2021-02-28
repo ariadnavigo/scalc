@@ -4,7 +4,7 @@
 
 include config.mk
 
-SRC = rpn.c scalc.c
+SRC = op.c rpn.c scalc.c
 OBJ = ${SRC:%.c=%.o}
 
 all: options scalc
@@ -19,6 +19,7 @@ options:
 .c.o:
 	${CC} -c ${CFLAGS} $<
 
+rpn.o: op.h
 scalc.o: rpn.h
 
 ${OBJ}: config.mk
