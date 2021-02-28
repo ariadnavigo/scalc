@@ -12,25 +12,16 @@ typedef struct {
 	float elems[MAX_STACK_SIZE];
 } RPNStack;
 
-static int token_is_op(const char *token);
-
 static RPNStack *rpn_stack_init(RPNStack *stack);
 static RPNStack *rpn_stack_push(RPNStack *stack, float elem);
 static int rpn_stack_peek(float *dest, RPNStack stack);
 static int rpn_stack_pop(float *dest, RPNStack *stack);
 
-static float op(const char *oper, float a, float b);
-
-static int
-token_is_op(const char *token)
-{
-	int res;
-	
-	res = strcmp(token, "+") && strcmp(token, "-") && strcmp(token, "*")
-	      && strcmp(token, "/");
-
-	return (res == 0) ? 1 : 0;
-}
+static float op_add(float a, float b);
+static float op_subst(float a, float b);
+static float op_mult(float a, float b);
+static float op_div(float a, float b);
+static float (*op(const char *oper))(float, float);
 
 static RPNStack *
 rpn_stack_init(RPNStack *stack)
@@ -79,18 +70,42 @@ rpn_stack_pop(float *dest, RPNStack *stack)
 }
 
 static float
-op(const char *oper, float a, float b)
+op_add(float a, float b)
+{
+	return a + b;
+}
+
+static float
+op_subst(float a, float b)
+{
+	return op_add(a, -b);
+}
+
+static float
+op_mult(float a, float b)
+{
+	return a * b;
+}
+
+static float
+op_div(float a, float b)
+{
+	return a / b;
+}
+
+static float 
+(*op(const char *oper))(float, float)
 {
 	if (strcmp(oper, "+") == 0)
-		return a + b;
+		return op_add;
 	else if (strcmp(oper, "-") == 0)
-		return a - b;
+		return op_subst;
 	else if (strcmp(oper, "*") == 0)
-		return a * b;
+		return op_mult;
 	else if (strcmp(oper, "/") == 0)
-		return a / b;
-	else /* Dummy else until we make this extensible and robust */
-		return 0;
+		return op_div;
+	else
+		return NULL;
 }
 
 int
@@ -99,17 +114,18 @@ rpn_calc(float *dest, char *expr)
 	RPNStack stack;
 	float ax, bx, dx;
 	char *ptr, *endptr;
+	float (*op_ptr)(float, float);
 	
 	rpn_stack_init(&stack);
 
 	ptr = strtok(expr, " ");
 	while (ptr != NULL) {
-		if (token_is_op(ptr) > 0) {
+		if ((op_ptr = op(ptr)) != NULL) {
 			if ((rpn_stack_pop(&bx, &stack) < 0) 
 			    || (rpn_stack_pop(&ax, &stack) < 0))
 				return -1;
 
-			dx = op(ptr, ax, bx);
+			dx = (*op_ptr)(ax, bx);
 		} else { 
 			/* strtof() is ISO C99 */
 			dx = strtof(ptr, &endptr);
