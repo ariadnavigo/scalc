@@ -36,7 +36,12 @@ rpn_stack_init(RPNStack *stack)
 static RPNStack *
 rpn_stack_push(RPNStack *stack, float elem)
 {
-	++stack->sp;
+	/* Let's avoid stack overflows */
+	if (++stack->sp == MAX_STACK_SIZE) {
+		--stack->sp;
+		return NULL;
+	}
+
 	stack->elems[stack->sp] = elem;
 
 	return stack;
@@ -79,20 +84,40 @@ rpn_calc(float *dest, char *expr)
 		if ((op_ptr = op(ptr)) != NULL) {
 			if ((rpn_stack_pop(&bx, &stack) < 0) 
 			    || (rpn_stack_pop(&ax, &stack) < 0))
-				return -1;
+				return RPN_ERR_STACK_MIN;
 
 			dx = (*op_ptr)(ax, bx);
 		} else { 
 			/* strtof() is ISO C99 */
 			dx = strtof(ptr, &endptr);
 			if (endptr[0] != '\0')
-				return -1;
+				return RPN_ERR_NAN;
 		}
 
-		rpn_stack_push(&stack, dx);
+		if (rpn_stack_push(&stack, dx) == NULL)
+			return RPN_ERR_STACK_MAX;
 		ptr = strtok(NULL, " ");
 	}
 
-	return rpn_stack_pop(dest, &stack);
+	if (rpn_stack_pop(dest, &stack) < 0)
+		return RPN_ERR_STACK_MIN;
+
+	return RPN_SUCCESS;
 }
 
+const char *
+rpn_strerr(int rpnerr)
+{
+	switch (rpnerr) {
+	case RPN_SUCCESS:
+		return "success.";
+	case RPN_ERR_NAN:
+		return "not a number.";
+	case RPN_ERR_STACK_MAX:
+		return "too many elements stored in stack.";
+	case RPN_ERR_STACK_MIN:
+		return "too few elements in stack.";
+	default:
+		return "unknown error.";
+	}
+}

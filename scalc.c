@@ -54,8 +54,8 @@ main(int argc, char *argv[])
 		if (fp != stdin)
 			printf("%s\n", expr);
 
-		if ((rpnerr = rpn_calc(&res, expr)) < 0)
-			fprintf(stderr, "Syntax error: '%s'\n", expr);
+		if ((rpnerr = rpn_calc(&res, expr)) != RPN_SUCCESS)
+			fprintf(stderr, "%s: %s\n", expr, rpn_strerr(rpnerr));
 		else
 			printf("%f\n", res);
 	}
