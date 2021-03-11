@@ -5,25 +5,19 @@
 
 #include "op.h"
 
-#define OP_NAME_SIZE 16
-
-struct op_reg {
-	char id[OP_NAME_SIZE];
-	float (*op_ptr)(float, float);
-};
-
 static float op_add(float a, float b);
 static float op_subst(float a, float b);
 static float op_mult(float a, float b);
 static float op_div(float a, float b);
 
 static struct op_reg op_catalog[] = {
-	{ "+", op_add },
-	{ "-", op_subst },
-	{ "*", op_mult },
-	{ "/", op_div },
-	{ "^", powf },
-	{ "", NULL }
+	{ "+", 2, { .op2n = op_add }},
+	{ "-", 2, { .op2n = op_subst }},
+	{ "*", 2, { .op2n = op_mult }},
+	{ "/", 2, { .op2n = op_div }},
+	{ "^", 2, { .op2n = powf }},
+	{ "ln", 1, { .op1n = logf }},
+	{ "", 0, { .op1n = NULL }}
 };
 
 static float
@@ -50,14 +44,14 @@ op_div(float a, float b)
 	return op_mult(a, 1 / b);
 }
 
-float 
-(*op(const char *oper))(float, float)
+struct op_reg * 
+op(const char *oper)
 {
 	struct op_reg *ptr;
 
 	for (ptr = op_catalog; strcmp(ptr->id, "") != 0; ++ptr) {
 		if (strcmp(ptr->id, oper) == 0)
-			return ptr->op_ptr;
+			return ptr;
 	}
 
 	return NULL;

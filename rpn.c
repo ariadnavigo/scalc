@@ -76,7 +76,7 @@ rpn_calc(float *dest, const char *expr)
 	float ax, bx, dx;
 	char expr_cpy[RPN_EXPR_SIZE];
 	char *ptr, *endptr;
-	float (*op_ptr)(float, float);
+	struct op_reg *op_ptr;
 	
 	rpn_stack_init(&stack);
 
@@ -88,14 +88,22 @@ rpn_calc(float *dest, const char *expr)
 		dx = strtof(ptr, &endptr);
 		if (endptr[0] != '\0') {
 			if ((op_ptr = op(ptr)) != NULL) {
-				if ((rpn_stack_pop(&bx, &stack) < 0) 
-				    || (rpn_stack_pop(&ax, &stack) < 0))
+				if (op_ptr->argn > 1) {
+					if (rpn_stack_pop(&bx, &stack) < 0)
+						return RPN_ERR_STACK_MIN;
+				}
+
+				if (rpn_stack_pop(&ax, &stack) < 0)
 					return RPN_ERR_STACK_MIN;
+
+				if (op_ptr->argn == 2)
+					dx = (*op_ptr->op_func.op2n)(ax, bx);
+				else if (op_ptr->argn == 1)
+					dx = (*op_ptr->op_func.op1n)(ax);
 			} else {
 				return RPN_ERR_OP_UNDEF;
 			}
 
-			dx = (*op_ptr)(ax, bx);
 		}
 		
 		if (rpn_stack_push(&stack, dx) == NULL)
