@@ -11,13 +11,13 @@ static float op_mult(float a, float b);
 static float op_div(float a, float b);
 
 static struct op_reg op_catalog[] = {
-	{ "+", 2, { .op2n = op_add }},
-	{ "-", 2, { .op2n = op_subst }},
-	{ "*", 2, { .op2n = op_mult }},
-	{ "/", 2, { .op2n = op_div }},
-	{ "^", 2, { .op2n = powf }},
-	{ "ln", 1, { .op1n = logf }},
-	{ "", 0, { .op1n = NULL }}
+	{ "+", 2, { .n2 = op_add }},
+	{ "-", 2, { .n2 = op_subst }},
+	{ "*", 2, { .n2 = op_mult }},
+	{ "/", 2, { .n2 = op_div }},
+	{ "^", 2, { .n2 = powf }},
+	{ "ln", 1, { .n1 = logf }},
+	{ "", 0, { .n1 = NULL }}
 };
 
 static float

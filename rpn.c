@@ -87,23 +87,21 @@ rpn_calc(float *dest, const char *expr)
 		/* strtof() is ISO C99 */
 		dx = strtof(ptr, &endptr);
 		if (endptr[0] != '\0') {
-			if ((op_ptr = op(ptr)) != NULL) {
-				if (op_ptr->argn > 1) {
-					if (rpn_stack_pop(&bx, &stack) < 0)
-						return RPN_ERR_STACK_MIN;
-				}
-
-				if (rpn_stack_pop(&ax, &stack) < 0)
-					return RPN_ERR_STACK_MIN;
-
-				if (op_ptr->argn == 2)
-					dx = (*op_ptr->op_func.op2n)(ax, bx);
-				else if (op_ptr->argn == 1)
-					dx = (*op_ptr->op_func.op1n)(ax);
-			} else {
+			if ((op_ptr = op(ptr)) == NULL)
 				return RPN_ERR_OP_UNDEF;
+			
+			if (op_ptr->argn > 1) {
+				if (rpn_stack_pop(&bx, &stack) < 0)
+					return RPN_ERR_STACK_MIN;
 			}
-
+			
+			if (rpn_stack_pop(&ax, &stack) < 0)
+				return RPN_ERR_STACK_MIN;
+			
+			if (op_ptr->argn == 2)
+				dx = (*op_ptr->func.n2)(ax, bx);
+			else if (op_ptr->argn == 1)
+				dx = (*op_ptr->func.n1)(ax);
 		}
 		
 		if (rpn_stack_push(&stack, dx) == NULL)
