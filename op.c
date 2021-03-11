@@ -10,7 +10,7 @@ static float op_subst(float a, float b);
 static float op_mult(float a, float b);
 static float op_div(float a, float b);
 
-static struct op_reg op_catalog[] = {
+static struct op_reg op_defs[] = {
 	{ "+", 2, { .n2 = op_add }},
 	{ "-", 2, { .n2 = op_subst }},
 	{ "*", 2, { .n2 = op_mult }},
@@ -49,7 +49,7 @@ op(const char *oper)
 {
 	struct op_reg *ptr;
 
-	for (ptr = op_catalog; strcmp(ptr->id, "") != 0; ++ptr) {
+	for (ptr = op_defs; strcmp(ptr->id, "") != 0; ++ptr) {
 		if (strcmp(ptr->id, oper) == 0)
 			return ptr;
 	}
