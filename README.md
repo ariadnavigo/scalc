@@ -34,6 +34,8 @@ $ echo '4 5 +' | scalc
 9.000000
 ```
 
+To exit scalc, hit Ctrl+D (EOF).
+
 ## License
 
 scalc is published under an MIT/X11/Expat-type License. See LICENSE file for 
