@@ -8,8 +8,6 @@
 
 #include "rpn.h"
 
-#define EXPR_SIZE 32
-
 static void die(const char *fmt, ...);
 
 static void
@@ -30,7 +28,7 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp;
-	char expr[EXPR_SIZE];
+	char expr[RPN_EXPR_SIZE];
 	int rpnerr;
 	float res;
 
@@ -42,7 +40,7 @@ main(int argc, char *argv[])
 	}
 
 	while (feof(fp) == 0) { 
-		if (fgets(expr, EXPR_SIZE, fp) == NULL)
+		if (fgets(expr, RPN_EXPR_SIZE, fp) == NULL)
 			break;
 
 		if (expr[strlen(expr) - 1] == '\n')

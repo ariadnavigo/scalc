@@ -70,16 +70,19 @@ rpn_stack_pop(float *dest, RPNStack *stack)
 }
 
 int
-rpn_calc(float *dest, char *expr)
+rpn_calc(float *dest, const char *expr)
 {
 	RPNStack stack;
 	float ax, bx, dx;
+	char expr_cpy[RPN_EXPR_SIZE];
 	char *ptr, *endptr;
 	float (*op_ptr)(float, float);
 	
 	rpn_stack_init(&stack);
 
-	ptr = strtok(expr, " ");
+	/* We need to operate on a copy, as strtok is destructive. */
+	strncpy(expr_cpy, expr, RPN_EXPR_SIZE);
+	ptr = strtok(expr_cpy, " ");
 	while (ptr != NULL) {
 		if ((op_ptr = op(ptr)) != NULL) {
 			if ((rpn_stack_pop(&bx, &stack) < 0) 
