@@ -21,6 +21,7 @@ static struct op_reg op_defs[] = {
 	{ "/", 2, { .n2 = op_div } },
 	{ "^", 2, { .n2 = powf } }, /* From libm, directly */
 	{ "ln", 1, { .n1 = logf } },
+	{ "sqrt", 1, { .n1 = sqrtf } },
 	{ "", 0, { .n1 = NULL } } /* Dummy "terminator" entry */
 };
 
