@@ -11,13 +11,17 @@ static float op_mult(float a, float b);
 static float op_div(float a, float b);
 
 static struct op_reg op_defs[] = {
-	{ "+", 2, { .n2 = op_add }},
-	{ "-", 2, { .n2 = op_subst }},
-	{ "*", 2, { .n2 = op_mult }},
-	{ "/", 2, { .n2 = op_div }},
-	{ "^", 2, { .n2 = powf }},
-	{ "ln", 1, { .n1 = logf }},
-	{ "", 0, { .n1 = NULL }}
+	/* 
+	 * { "name", N of arguments (N = 1 or 2), { .nN = pointer-to-func } } 
+	 */
+
+	{ "+", 2, { .n2 = op_add } },
+	{ "-", 2, { .n2 = op_subst } },
+	{ "*", 2, { .n2 = op_mult } },
+	{ "/", 2, { .n2 = op_div } },
+	{ "^", 2, { .n2 = powf } }, /* From libm, directly */
+	{ "ln", 1, { .n1 = logf } },
+	{ "", 0, { .n1 = NULL } } /* Dummy "terminator" entry */
 };
 
 static float
