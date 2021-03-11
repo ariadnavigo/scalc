@@ -84,19 +84,20 @@ rpn_calc(float *dest, const char *expr)
 	strncpy(expr_cpy, expr, RPN_EXPR_SIZE);
 	ptr = strtok(expr_cpy, " ");
 	while (ptr != NULL) {
-		if ((op_ptr = op(ptr)) != NULL) {
-			if ((rpn_stack_pop(&bx, &stack) < 0) 
-			    || (rpn_stack_pop(&ax, &stack) < 0))
-				return RPN_ERR_STACK_MIN;
+		/* strtof() is ISO C99 */
+		dx = strtof(ptr, &endptr);
+		if (endptr[0] != '\0') {
+			if ((op_ptr = op(ptr)) != NULL) {
+				if ((rpn_stack_pop(&bx, &stack) < 0) 
+				    || (rpn_stack_pop(&ax, &stack) < 0))
+					return RPN_ERR_STACK_MIN;
+			} else {
+				return RPN_ERR_OP_UNDEF;
+			}
 
 			dx = (*op_ptr)(ax, bx);
-		} else { 
-			/* strtof() is ISO C99 */
-			dx = strtof(ptr, &endptr);
-			if (endptr[0] != '\0')
-				return RPN_ERR_NAN;
 		}
-
+		
 		if (rpn_stack_push(&stack, dx) == NULL)
 			return RPN_ERR_STACK_MAX;
 		ptr = strtok(NULL, " ");
@@ -114,8 +115,8 @@ rpn_strerr(int rpnerr)
 	switch (rpnerr) {
 	case RPN_SUCCESS:
 		return "success.";
-	case RPN_ERR_NAN:
-		return "not a number.";
+	case RPN_ERR_OP_UNDEF:
+		return "operation not defined.";
 	case RPN_ERR_STACK_MAX:
 		return "too many elements stored in stack.";
 	case RPN_ERR_STACK_MIN:
