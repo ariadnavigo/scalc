@@ -12,6 +12,7 @@
 
 enum {
 	SCALC_NOP,
+	SCALC_DROP,
 	SCALC_EXIT
 };
 
@@ -25,6 +26,7 @@ static void scalc_output(float res, const char *expr, int rpnerr);
 static int scalc_cmd(const char *cmd);
 
 static struct cmd_reg cmd_defs[] = {
+	{ .id = "drop", .reply = SCALC_DROP },
 	{ .id = "q", .reply = SCALC_EXIT },
 	{ .id = "", .reply = SCALC_NOP }
 };
@@ -104,6 +106,9 @@ main(int argc, char *argv[])
 			status = rpn_calc(&res, expr, &stack);
 		} else {
 			switch (status) {
+			case SCALC_DROP:
+				rpn_stack_init(&stack);
+				continue; /* This is legal 0_0 */
 			case SCALC_EXIT:
 				goto exit;
 				break; /* UNREACHABLE */
