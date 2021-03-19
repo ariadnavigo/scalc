@@ -45,7 +45,29 @@ sqrt
 9.000000
 ```
 
-To exit scalc, hit Ctrl+D (EOF).
+### scalc commands
+
+scalc accepts a series of interactive commands. All commands start with a colon
+(:) and are typed in lowercase (currently it's case **sensitive**).
+
+1. **:q** Quit scalc.
+2. **:p** Peek last element in the stack.
+3. **:drop** Drop the whole stack (essentially AC on a calculator).
+
+### Supported math functions and extensibility
+
+Supported operations can be found in the ``op.c`` file. Currently, scalc only
+supports basic arithmetic functions, square root (sqrt), and natural logs (ln).
+
+Unlike other extension systems you may find elsewhere, scalc adheres to a 
+dwm-inspired[^1] way of extending itself: via source code. You may add new 
+functions by following the instructions in that same source file, but in a 
+nutshell you define your operations as unary or binary functions returning a
+float and register them into the ``op_defs`` array, specifying the information 
+that is required. Don't hesitate sending a patch if you wanna share your 
+function!
+
+[^1]: https://dwm.suckless.org/
 
 ## License
 

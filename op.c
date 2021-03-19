@@ -10,11 +10,25 @@ static float op_subst(float a, float b);
 static float op_mult(float a, float b);
 static float op_div(float a, float b);
 
-static struct op_reg op_defs[] = {
-	/* 
-	 * { "name", N of arguments (N = 1 or 2), { .nN = pointer-to-func } } 
-	 */
+/*
+ * EXTENDING OP.C:
+ *
+ * All mathematical operations take the form of a unary or binary function
+ * (one float argument or two float arguments, respectively), always returning
+ * a float as a result. All functions are to be defined static, unless they're
+ * defined in an external library (e.g. logf() and sqrt(), from libm).
+ *
+ * Once you've written your function, in order for the rpn.c module to actually
+ * know about it, you must add it into the 'op_defs' array below. Leave the
+ * 'dummy' entry at the end.
+ * 
+ * The fields must *strictly* follow this format, where 'name' will be the 
+ * command users will call your function from scalc's prompt or scripts:
+ *
+ * { "name", N of arguments (N = 1 or 2), { .nN = pointer-to-func } } 
+ */
 
+static struct op_reg op_defs[] = {
 	{ "+", 2, { .n2 = op_add } },
 	{ "-", 2, { .n2 = op_subst } },
 	{ "*", 2, { .n2 = op_mult } },
