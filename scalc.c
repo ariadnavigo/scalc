@@ -28,6 +28,7 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp;
+	RPNStack stack;
 	char expr[RPN_EXPR_SIZE];
 	int rpnerr;
 	float res;
@@ -39,6 +40,7 @@ main(int argc, char *argv[])
 			die("Error reading %s: %s", argv[1], strerror(errno));
 	}
 
+	rpn_stack_init(&stack);
 	while (feof(fp) == 0) { 
 		if (fgets(expr, RPN_EXPR_SIZE, fp) == NULL)
 			break;
@@ -52,7 +54,7 @@ main(int argc, char *argv[])
 		if (fp != stdin)
 			printf("%s\n", expr);
 
-		if ((rpnerr = rpn_calc(&res, expr)) != RPN_SUCCESS)
+		if ((rpnerr = rpn_calc(&res, expr, &stack)) != RPN_SUCCESS)
 			fprintf(stderr, "%s: %s\n", expr, rpn_strerr(rpnerr));
 		else
 			printf("%f\n", res);

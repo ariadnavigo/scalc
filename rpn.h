@@ -1,6 +1,12 @@
 /* See LICENSE file for copyright and license details. */
 
 #define RPN_EXPR_SIZE 32
+#define RPN_STACK_SIZE 32
+
+typedef struct {
+	int sp;
+	float elems[RPN_STACK_SIZE];
+} RPNStack;
 
 enum {
 	RPN_SUCCESS, /* Breaking alphabetical order so that it gets = 0 */
@@ -9,5 +15,6 @@ enum {
 	RPN_ERR_STACK_MIN
 };
 
-int rpn_calc(float *dest, const char *expr);
+RPNStack *rpn_stack_init(RPNStack *stack);
+int rpn_calc(float *dest, const char *expr, RPNStack *stack);
 const char *rpn_strerr(int rpnerr);
