@@ -98,7 +98,7 @@ rpn_calc(float *dest, const char *expr, RPNStack *stack)
 		ptr = strtok(NULL, " ");
 	}
 
-	if (rpn_stack_pop(dest, stack) < 0)
+	if (rpn_stack_peek(dest, *stack) < 0)
 		return RPN_ERR_STACK_MIN;
 
 	return RPN_SUCCESS;
