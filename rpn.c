@@ -56,7 +56,7 @@ rpn_stack_peek(float *dest, RPNStack stack)
 		return -1;
 
 	*dest = stack.elems[stack.sp];
-	
+
 	return 0;
 }
 
@@ -67,7 +67,7 @@ rpn_calc(float *dest, const char *expr, RPNStack *stack)
 	char expr_cpy[RPN_EXPR_SIZE];
 	char *ptr, *endptr;
 	struct op_reg *op_ptr;
-	
+
 	/* We need to operate on a copy, as strtok is destructive. */
 	strncpy(expr_cpy, expr, RPN_EXPR_SIZE);
 	ptr = strtok(expr_cpy, " ");
@@ -77,21 +77,21 @@ rpn_calc(float *dest, const char *expr, RPNStack *stack)
 		if (endptr[0] != '\0') {
 			if ((op_ptr = op(ptr)) == NULL)
 				return RPN_ERR_OP_UNDEF;
-			
+
 			if (op_ptr->argn > 1) {
 				if (rpn_stack_pop(&bx, stack) < 0)
 					return RPN_ERR_STACK_MIN;
 			}
-			
+
 			if (rpn_stack_pop(&ax, stack) < 0)
 				return RPN_ERR_STACK_MIN;
-			
+
 			if (op_ptr->argn == 2)
 				dx = (*op_ptr->func.n2)(ax, bx);
 			else if (op_ptr->argn == 1)
 				dx = (*op_ptr->func.n1)(ax);
 		}
-		
+
 		if (rpn_stack_push(stack, dx) == NULL)
 			return RPN_ERR_STACK_MAX;
 		ptr = strtok(NULL, " ");

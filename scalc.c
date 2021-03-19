@@ -96,7 +96,7 @@ main(int argc, char *argv[])
 			break;
 
 		if (expr[strlen(expr) - 1] == '\n')
-			expr[strlen(expr) - 1] = '\0'; 
+			expr[strlen(expr) - 1] = '\0';
 
 		if (strlen(expr) == 0)
 			continue;
@@ -122,7 +122,7 @@ main(int argc, char *argv[])
 				break;
 			}
 		}
-		
+
 		scalc_output(res, expr, rpn_err);
 	}
 

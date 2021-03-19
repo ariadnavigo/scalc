@@ -21,11 +21,11 @@ static float op_div(float a, float b);
  * Once you've written your function, in order for the rpn.c module to actually
  * know about it, you must add it into the 'op_defs' array below. Leave the
  * 'dummy' entry at the end.
- * 
- * The fields must *strictly* follow this format, where 'name' will be the 
+ *
+ * The fields must *strictly* follow this format, where 'name' will be the
  * command users will call your function from scalc's prompt or scripts:
  *
- * { "name", N of arguments (N = 1 or 2), { .nN = pointer-to-func } } 
+ * { "name", N of arguments (N = 1 or 2), { .nN = pointer-to-func } }
  */
 
 static struct op_reg op_defs[] = {
@@ -63,7 +63,7 @@ op_div(float a, float b)
 	return op_mult(a, 1 / b);
 }
 
-struct op_reg * 
+struct op_reg *
 op(const char *oper)
 {
 	struct op_reg *ptr;
