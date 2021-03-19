@@ -13,7 +13,8 @@
 enum {
 	SCALC_NOP,
 	SCALC_DROP,
-	SCALC_EXIT
+	SCALC_EXIT,
+	SCALC_PEEK
 };
 
 struct cmd_reg {
@@ -27,8 +28,9 @@ static int scalc_cmd(const char *cmd);
 
 static struct cmd_reg cmd_defs[] = {
 	{ .id = "drop", .reply = SCALC_DROP },
+	{ .id = "p", .reply = SCALC_PEEK },
 	{ .id = "q", .reply = SCALC_EXIT },
-	{ .id = "", .reply = SCALC_NOP }
+	{ .id = "", .reply = SCALC_NOP } /* Dummy "terminator" */
 };
 
 static void
@@ -78,7 +80,7 @@ main(int argc, char *argv[])
 	FILE *fp;
 	RPNStack stack;
 	char expr[RPN_EXPR_SIZE];
-	int status;
+	int scalc_err, rpn_err;
 	float res;
 
 	if (argc < 2) {
@@ -89,7 +91,7 @@ main(int argc, char *argv[])
 	}
 
 	rpn_stack_init(&stack);
-	while (feof(fp) == 0) { 
+	while (feof(fp) == 0) {
 		if (fgets(expr, RPN_EXPR_SIZE, fp) == NULL)
 			break;
 
@@ -102,22 +104,26 @@ main(int argc, char *argv[])
 		if (fp != stdin)
 			printf("%s\n", expr);
 
-		if ((status = scalc_cmd(expr)) == SCALC_NOP) {
-			status = rpn_calc(&res, expr, &stack);
+		if ((scalc_err = scalc_cmd(expr)) == SCALC_NOP) {
+			rpn_err = rpn_calc(&res, expr, &stack);
 		} else {
-			switch (status) {
+			switch (scalc_err) {
 			case SCALC_DROP:
 				rpn_stack_init(&stack);
 				continue; /* This is legal 0_0 */
 			case SCALC_EXIT:
 				goto exit;
 				break; /* UNREACHABLE */
+			case SCALC_PEEK:
+				if (rpn_stack_peek(&res, stack) < 0)
+					rpn_err = RPN_ERR_STACK_MIN;
+				break;
 			default:
 				break;
 			}
 		}
 		
-		scalc_output(res, expr, status);
+		scalc_output(res, expr, rpn_err);
 	}
 
 exit:

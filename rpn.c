@@ -7,7 +7,6 @@
 #include "rpn.h"
 
 static RPNStack *rpn_stack_push(RPNStack *stack, float elem);
-static int rpn_stack_peek(float *dest, RPNStack stack);
 static int rpn_stack_pop(float *dest, RPNStack *stack);
 
 static RPNStack *
@@ -22,17 +21,6 @@ rpn_stack_push(RPNStack *stack, float elem)
 	stack->elems[stack->sp] = elem;
 
 	return stack;
-}
-
-static int
-rpn_stack_peek(float *dest, RPNStack stack)
-{
-	if (stack.sp < 0)
-		return -1;
-
-	*dest = stack.elems[stack.sp];
-	
-	return 0;
 }
 
 static int
@@ -59,6 +47,17 @@ rpn_stack_init(RPNStack *stack)
 	stack->sp = -1;
 
 	return stack;
+}
+
+int
+rpn_stack_peek(float *dest, RPNStack stack)
+{
+	if (stack.sp < 0)
+		return -1;
+
+	*dest = stack.elems[stack.sp];
+	
+	return 0;
 }
 
 int
