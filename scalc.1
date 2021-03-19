@@ -1,0 +1,70 @@
+.TH SCALC 1 scalc\-VERSION
+.SH NAME
+.PP
+scalc - Simple calculator
+.SH SYNOPSIS
+.PP
+.B scalc
+.RB [ file ]
+.SH DESCRIPTION
+.PP
+scalc is a very simple stack-based calculator that aims to be small, flexible,
+and extensible.
+.SH USAGE
+.PP
+scalc reads RPN expressions from stdin or, optionally, from 
+.I file.
+Results are provided in single-precision floats to stdout. When scalc is given
+a file to read from, only the results are printed to stdout, not echoing any of
+the operations provided in the file itself.
+.PP
+Currently supported mathematical functions include basic arithmetic operations,
+square roots, and natural logarithms. All functions are defined in the
+.B op.c
+module in the source tree.
+.PP
+scalc accepts some commands, listed here for convenience, which modify scalc's 
+behavior during a session:
+.TP
+.B :drop
+Clears the stack.
+.TP
+.B :p
+Shows the last element in the stack.
+.TP
+.B :q
+Quits scalc.
+.SS Extending scalc math functions
+.PP
+scalc can be easily extended with new mathematical functions by adding them to 
+the 
+.B op.c
+source file. The source file itself includes detailed instructions on how to 
+so.
+.SH EXAMPLES
+.PP
+The following example showcases basic operation with scalc:
+.IP "" 4
+.B "$ scalc"
+.br 
+.B "2 3 + 9 / 15 /"
+.br
+0.037037
+.br
+.B "90 *"
+.br
+3.333334
+.br
+.B ln
+.br
+1.203973
+.br
+.B :q
+.SH CONFIGURATION
+.PP
+Currently, scalc does not provide any means of configuration.
+.SH LICENSE
+.PP
+scalc is published under an MIT/X11/Expat-type License. See LICENSE file in the 
+source tarball for copyright and license details.
+

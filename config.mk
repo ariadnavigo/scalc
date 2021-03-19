@@ -5,6 +5,7 @@ VERSION = 0.0.0
 
 # Paths
 PREFIX = /usr/local
+MANPREFIX = ${PREFIX}/man
 
 # Libraries
 LIBS = -lm

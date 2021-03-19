@@ -45,6 +45,8 @@ sqrt
 9.000000
 ```
 
+Refer to the ``scalc(1)`` manual page for further usage information.
+
 ### scalc commands
 
 scalc accepts a series of interactive commands. All commands start with a colon
