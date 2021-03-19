@@ -71,6 +71,16 @@ function!
 
 [^1]: https://dwm.suckless.org/
 
+## Contributing
+
+All contributions are welcome! If you wish to send in patches, ideas, or report
+a bug, you may do so by sending an email to the 
+[scalc-devel](https://lists.sr.ht/~arivigo/scalc-devel) mailing list.
+
+If interested in getting some news from the project, you may also want to 
+subscribe to the low-volume 
+[scalc-announce](https://lists.sr.ht/~arivigo/scalc-announce) mailing list!
+
 ## License
 
 scalc is published under an MIT/X11/Expat-type License. See LICENSE file for 
