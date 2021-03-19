@@ -8,7 +8,26 @@
 
 #include "rpn.h"
 
+#define SCALC_CMD_SIZE 32
+
+enum {
+	SCALC_NOP,
+	SCALC_EXIT
+};
+
+struct cmd_reg {
+	char id[SCALC_CMD_SIZE];
+	int reply;
+};
+
 static void die(const char *fmt, ...);
+static void scalc_output(float res, const char *expr, int rpnerr);
+static int scalc_cmd(const char *cmd);
+
+static struct cmd_reg cmd_defs[] = {
+	{ .id = "q", .reply = SCALC_EXIT },
+	{ .id = "", .reply = SCALC_NOP }
+};
 
 static void
 die(const char *fmt, ...)
@@ -24,13 +43,40 @@ die(const char *fmt, ...)
 	exit(1);
 }
 
+static void
+scalc_output(float res, const char *expr, int rpnerr)
+{
+	if (rpnerr != RPN_SUCCESS)
+		fprintf(stderr, "%s: %s\n", expr, rpn_strerr(rpnerr));
+	else
+		printf("%f\n", res);
+}
+
+static int
+scalc_cmd(const char *cmd)
+{
+	struct cmd_reg *ptr;
+
+	/* All scalc commands shall start with ':' */
+	if (cmd[0] != ':')
+		return SCALC_NOP;
+
+	++cmd; /* Skip leading ':' */
+	for (ptr = cmd_defs; strcmp(ptr->id, "") != 0; ++ptr) {
+		if (strcmp(cmd, ptr->id) == 0)
+			return ptr->reply;
+	}
+
+	return SCALC_NOP;
+}
+
 int
 main(int argc, char *argv[])
 {
 	FILE *fp;
 	RPNStack stack;
 	char expr[RPN_EXPR_SIZE];
-	int rpnerr;
+	int status;
 	float res;
 
 	if (argc < 2) {
@@ -54,12 +100,22 @@ main(int argc, char *argv[])
 		if (fp != stdin)
 			printf("%s\n", expr);
 
-		if ((rpnerr = rpn_calc(&res, expr, &stack)) != RPN_SUCCESS)
-			fprintf(stderr, "%s: %s\n", expr, rpn_strerr(rpnerr));
-		else
-			printf("%f\n", res);
+		if ((status = scalc_cmd(expr)) == SCALC_NOP) {
+			status = rpn_calc(&res, expr, &stack);
+		} else {
+			switch (status) {
+			case SCALC_EXIT:
+				goto exit;
+				break; /* UNREACHABLE */
+			default:
+				break;
+			}
+		}
+		
+		scalc_output(res, expr, status);
 	}
 
+exit:
 	if (fp != stdin)
 		fclose(fp);
 
