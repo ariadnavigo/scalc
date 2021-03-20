@@ -101,9 +101,6 @@ main(int argc, char *argv[])
 		if (strlen(expr) == 0)
 			continue;
 
-		if (fp != stdin)
-			printf("%s\n", expr);
-
 		if ((scalc_err = scalc_cmd(expr)) == SCALC_NOP) {
 			rpn_err = rpn_calc(&res, expr, &stack);
 		} else {
@@ -123,8 +120,15 @@ main(int argc, char *argv[])
 			}
 		}
 
-		scalc_output(res, expr, rpn_err);
+		if (fp == stdin)
+			scalc_output(res, expr, rpn_err);
+	
+		if ((fp != stdin) && (rpn_err != RPN_SUCCESS))
+			break;
 	}
+
+	if (fp != stdin)
+		scalc_output(res, expr, rpn_err);
 
 exit:
 	if (fp != stdin)
