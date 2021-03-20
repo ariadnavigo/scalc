@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "rpn.h"
 
@@ -80,7 +81,7 @@ main(int argc, char *argv[])
 	FILE *fp;
 	RPNStack stack;
 	char expr[RPN_EXPR_SIZE];
-	int scalc_err, rpn_err;
+	int prompt_mode, scalc_err, rpn_err;
 	float res;
 
 	if (argc < 2) {
@@ -90,8 +91,12 @@ main(int argc, char *argv[])
 			die("Error reading %s: %s", argv[1], strerror(errno));
 	}
 
+	prompt_mode = isatty(fileno(fp));
+
 	rpn_stack_init(&stack);
 	while (feof(fp) == 0) {
+		if (prompt_mode > 0)
+			printf("> ");
 		if (fgets(expr, RPN_EXPR_SIZE, fp) == NULL)
 			break;
 
@@ -120,14 +125,14 @@ main(int argc, char *argv[])
 			}
 		}
 
-		if (fp == stdin)
+		if (prompt_mode > 0)
 			scalc_output(res, expr, rpn_err);
 	
-		if ((fp != stdin) && (rpn_err != RPN_SUCCESS))
+		if ((prompt_mode == 0) && (rpn_err != RPN_SUCCESS))
 			break;
 	}
 
-	if (fp != stdin)
+	if (prompt_mode == 0)
 		scalc_output(res, expr, rpn_err);
 
 exit:
