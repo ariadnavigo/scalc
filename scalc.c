@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "config.h"
 #include "rpn.h"
 
 #define SCALC_CMD_SIZE 32
@@ -96,7 +97,7 @@ main(int argc, char *argv[])
 	rpn_stack_init(&stack);
 	while (feof(fp) == 0) {
 		if (prompt_mode > 0)
-			printf("> ");
+			printf(scalc_prompt);
 		if (fgets(expr, RPN_EXPR_SIZE, fp) == NULL)
 			break;
 
@@ -127,7 +128,7 @@ main(int argc, char *argv[])
 
 		if (prompt_mode > 0)
 			scalc_output(res, expr, rpn_err);
-	
+
 		if ((prompt_mode == 0) && (rpn_err != RPN_SUCCESS))
 			break;
 	}

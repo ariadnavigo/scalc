@@ -16,11 +16,14 @@ options:
 	@echo "CC	= ${CC}"
 	@echo
 
+config.h:
+	cp config.def.h $@
+
 .c.o:
 	${CC} -c ${CFLAGS} $<
 
 rpn.o: op.h
-scalc.o: rpn.h
+scalc.o: config.h rpn.h
 
 ${OBJ}: config.mk
 
@@ -32,8 +35,8 @@ clean:
 
 dist: clean
 	mkdir -p scalc-${VERSION}
-	cp -R LICENSE Makefile README.md config.mk op.h rpn.h scalc.1 ${SRC} \
-		scalc-${VERSION}
+	cp -R LICENSE Makefile README.md config.def.h config.mk op.h rpn.h \
+		scalc.1 ${SRC} scalc-${VERSION}
 	tar -cf scalc-${VERSION}.tar scalc-${VERSION}
 	gzip scalc-${VERSION}.tar
 	rm -rf scalc-${VERSION}
