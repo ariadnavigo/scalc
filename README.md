@@ -16,45 +16,51 @@ Build by using:
 $ make
 ```
 
-Customize the build process by changing config.mk to suit your needs.
+Customize the build process by changing ``config.mk`` to suit your needs.
+
+User configuration is performed by modifying ``config.h``. A set of defaults is
+provided in ``config.def.h``.
 
 ## Usage
 
-scalc reads RPN expressions from a file passed as its first argument or, by 
-default, from stdin. It outputs the result as a single-precision float to 
-stdout.
+scalc may be used in interactively and non-interactively. If run without any
+arguments, scalc will present a prompt for the user to input mathematical
+expressions in RPN:
 
 ```
-$ scalc test_file 
-5 6766 -
--6761.000000
-8 7 /
-1.142857
+$ scalc 
+> 8 9 +
+17.000000
+> 1 +
+18.000000
+```
+
+The stack is preserved across expressions, thus partial expressions reusing the
+last result are possible.
+
+When piped some input from another command or by passing a filename as an 
+argument, scalc will only show the result of the last operation and exit:
+
+```
 $ echo '4 5 +' | scalc
 9.000000
-```
-
-The stack is persistent through the whole session, so you can use partial 
-expressions if you need to operate on the last answer you were given!
-
-```
-$ scalc test_file2
-9 9 *
-81.000000
+$ cat scalc_ex 
+67 9 -
 sqrt
-9.000000
+$ scalc scalc_ex 
+7.615773
 ```
 
-Refer to the ``scalc(1)`` manual page for further usage information.
+You may find further usage information in the scalc(1) manual page.
 
 ### scalc commands
 
 scalc accepts a series of interactive commands. All commands start with a colon
 (:) and are typed in lowercase (currently it's case **sensitive**).
 
-1. **:q** Quit scalc.
-2. **:p** Peek last element in the stack.
-3. **:drop** Drop the whole stack (essentially AC on a calculator).
+* **:drop** Drop the whole stack (essentially AC on a calculator).
+* **:p** Peek last element in the stack.
+* **:q** Quit scalc.
 
 ### Supported math functions and extensibility
 
@@ -83,5 +89,5 @@ subscribe to the low-volume
 
 ## License
 
-scalc is published under an MIT/X11/Expat-type License. See LICENSE file for 
-copyright and license details.
+scalc is published under an MIT/X11/Expat-type License. See ``LICENSE'' file
+for copyright and license details.
