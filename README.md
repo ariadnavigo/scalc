@@ -77,6 +77,18 @@ function!
 
 [^1]: https://dwm.suckless.org/
 
+## Install
+
+You may install scalc by running the following command as root:
+
+```
+# make install
+```
+
+This will install the binary under ``$PREFIX/bin``, as defined by your 
+environment, or ``/usr/local/bin`` by default. The Makefile supports the 
+``$DESTDIR`` variable as well.
+
 ## Contributing
 
 All contributions are welcome! If you wish to send in patches, ideas, or report
