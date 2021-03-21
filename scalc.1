@@ -1,29 +1,32 @@
 .TH SCALC 1 scalc\-VERSION
 .SH NAME
 .PP
-scalc - Simple calculator
+scalc \- Simple calculator
 .SH SYNOPSIS
 .PP
 .B scalc
 .RB [ file ]
 .SH DESCRIPTION
 .PP
-scalc is a very simple stack-based calculator that aims to be small, flexible,
+.B scalc 
+is a very simple stack-based calculator that aims to be small, flexible,
 and extensible.
-.SH USAGE
 .PP
-scalc reads RPN expressions from an interactive prompt, from a pipe, or from
+.B scalc 
+reads RPN expressions from an interactive prompt, from a pipe, or from
 .I file.
-Results are provided in single-precision floats to stdout. When scalc is not
-run interactively, only the results are printed to stdout, not echoing any of
-the operations provided in the file itself.
+Results are provided in single-precision floats to stdout. When 
+.B scalc 
+is not run interactively, only the results are printed to stdout, not echoing 
+any of the operations provided in the file itself.
 .PP
 Currently supported mathematical functions include basic arithmetic operations,
 square roots, and natural logarithms. All functions are defined in the
-.B op.c
+.I op.c
 module in the source tree.
 .PP
-scalc accepts some commands, listed here for convenience, which modify scalc's 
+.B scalc 
+accepts some commands, listed here for convenience, which modify scalc's 
 behavior during a session:
 .TP
 .B :drop
@@ -33,20 +36,24 @@ Clears the stack.
 Shows the last element in the stack.
 .TP
 .B :q
-Quits scalc.
+Quits 
+.B scalc.
 .SS Extending scalc math functions
 .PP
-scalc can be easily extended with new mathematical functions by adding them to 
-the 
-.B op.c
+.B scalc 
+can be easily extended with new mathematical functions by adding them to the 
+.I op.c
 source file. The source file itself includes detailed instructions on how to 
 so.
 .SH EXAMPLES
 .PP
-The following example showcases basic operation with scalc.
+The following example showcases basic operation with 
+.B scalc.
 .PP
 Default interactive mode:
-.IP "" 4
+.PP
+.nf
+.RS
 .B "$ scalc"
 .br 
 .B "> 2 3 + 9 / 15 /"
@@ -62,9 +69,13 @@ Default interactive mode:
 1.203973
 .br
 .B "> :q"
+.RE
+.fi
 .PP
 Reading from file:
-.IP "" 4
+.PP
+.nf
+.RS
 .B "$ cat scalc_ex"
 .br
 67 9 -
@@ -74,20 +85,18 @@ sqrt
 .B "$ scalc scalc_ex"
 .br
 7.615773
+.RE
+.fi
 .PP
 Reading from a pipeline:
-.IP "" 4
+.PP
+.nf
+.RS
 .B "$ echo '34 ln' | scalc"
 .br
 3.526361
-.SH CONFIGURATION
-.PP
-scalc is configured by creating a custom 
-.B config.h 
-file and recompiling the source code.
-.SH LICENSE
-.PP
-scalc is published under an MIT/X11/Expat-type License. See 
-.B LICENSE 
-file in the source tarball for copyright and license details.
-
+.RE
+.fi
+.SH SEE ALSO
+.BR bc (1),
+.BR dc (1) 
