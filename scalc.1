@@ -9,25 +9,29 @@ scalc \- Simple calculator
 .SH DESCRIPTION
 .PP
 .B scalc 
-is a very simple stack-based calculator that aims to be small, flexible,
-and extensible.
+is a very simple stack-based calculator that aims to be 
+small, flexible, and extensible.
 .PP
 .B scalc 
 reads RPN expressions from an interactive prompt, from a pipe, or from
 .I file.
-Results are provided in single-precision floats to stdout. When 
+Results are provided in single-precision floats to stdout. 
+When 
 .B scalc 
-is not run interactively, only the results are printed to stdout, not echoing 
-any of the operations provided in the file itself.
+is not run interactively, 
+only the results are printed to stdout, 
+not echoing any of the operations provided in the file itself.
 .PP
-Currently supported mathematical functions include basic arithmetic operations,
-square roots, and natural logarithms. All functions are defined in the
+Currently supported mathematical functions include 
+basic arithmetic operations, square roots, and natural logarithms. 
+All functions are defined in the
 .I op.c
 module in the source tree.
 .PP
 .B scalc 
-accepts some commands, listed here for convenience, which modify scalc's 
-behavior during a session:
+accepts some commands, 
+listed here for convenience, 
+which modify scalc's behavior during a session:
 .TP
 .B :drop
 Clears the stack.
@@ -43,8 +47,8 @@ Quits
 .B scalc 
 can be easily extended with new mathematical functions by adding them to the 
 .I op.c
-source file. The source file itself includes detailed instructions on how to 
-so.
+source file. 
+The source file itself includes detailed instructions on how to do so.
 .SH EXAMPLES
 .PP
 The following example showcases basic operation with 
@@ -98,5 +102,4 @@ Reading from a pipeline:
 .RE
 .fi
 .SH SEE ALSO
-.BR bc (1),
-.BR dc (1) 
+.BR bc (1), dc (1) 
