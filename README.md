@@ -61,4 +61,4 @@ you may also want to subscribe to the low-volume
 ## License
 
 scalc is published under an MIT/X11/Expat-type License. 
-See ``LICENSE'' file for copyright and license details.
+See ``LICENSE`` file for copyright and license details.
