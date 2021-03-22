@@ -78,21 +78,13 @@ scalc_cmd(const char *cmd)
 	return SCALC_NOP;
 }
 
-int
-main(int argc, char *argv[])
+void
+ui_start(FILE *fp)
 {
-	FILE *fp;
 	RPNStack stack;
 	char expr[RPN_EXPR_SIZE];
 	int prompt_mode, output, scalc_err, rpn_err;
 	float res;
-
-	if (argc < 2) {
-		fp = stdin;
-	} else {
-		if ((fp = fopen(argv[1], "r")) == NULL)
-			die("Error reading %s: %s", argv[1], strerror(errno));
-	}
 
 	prompt_mode = isatty(fileno(fp));
 
@@ -126,8 +118,7 @@ main(int argc, char *argv[])
 				rpn_stack_init(&stack);
 				break;
 			case SCALC_EXIT:
-				goto exit;
-				break; /* UNREACHABLE */
+				return;
 			case SCALC_PEEK:
 				if (rpn_stack_peek(&res, stack) < 0)
 					rpn_err = RPN_ERR_STACK_MIN;
@@ -147,8 +138,22 @@ main(int argc, char *argv[])
 
 	if (prompt_mode == 0)
 		scalc_output(res, expr, rpn_err);
+}
 
-exit:
+int
+main(int argc, char *argv[])
+{
+	FILE *fp;
+	
+	if (argc < 2) {
+		fp = stdin;
+	} else {
+		if ((fp = fopen(argv[1], "r")) == NULL)
+			die("Error reading %s: %s", argv[1], strerror(errno));
+	}
+
+	ui_start(fp);
+
 	if (fp != stdin)
 		fclose(fp);
 
