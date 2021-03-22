@@ -15,6 +15,7 @@
 enum {
 	SCALC_NOP,
 	SCALC_DROP,
+	SCALC_DROP_ALL,
 	SCALC_EXIT,
 	SCALC_PEEK
 };
@@ -29,7 +30,8 @@ static void scalc_output(float res, const char *expr, int rpnerr);
 static int scalc_cmd(const char *cmd);
 
 static struct cmd_reg cmd_defs[] = {
-	{ .id = "drop", .reply = SCALC_DROP },
+	{ .id = "d", .reply = SCALC_DROP },
+	{ .id = "D", .reply = SCALC_DROP_ALL },
 	{ .id = "p", .reply = SCALC_PEEK },
 	{ .id = "q", .reply = SCALC_EXIT },
 	{ .id = "", .reply = SCALC_NOP } /* Dummy "terminator" */
@@ -82,7 +84,7 @@ main(int argc, char *argv[])
 	FILE *fp;
 	RPNStack stack;
 	char expr[RPN_EXPR_SIZE];
-	int prompt_mode, scalc_err, rpn_err;
+	int prompt_mode, output, scalc_err, rpn_err;
 	float res;
 
 	if (argc < 2) {
@@ -96,6 +98,8 @@ main(int argc, char *argv[])
 
 	rpn_stack_init(&stack);
 	while (feof(fp) == 0) {
+		output = 0; /* We assume output is not needed */
+
 		if (prompt_mode > 0)
 			printf(scalc_prompt);
 		if (fgets(expr, RPN_EXPR_SIZE, fp) == NULL)
@@ -109,24 +113,32 @@ main(int argc, char *argv[])
 
 		if ((scalc_err = scalc_cmd(expr)) == SCALC_NOP) {
 			rpn_err = rpn_calc(&res, expr, &stack);
+			output = 1;
 		} else {
 			switch (scalc_err) {
 			case SCALC_DROP:
+				if (rpn_stack_drop(&stack) < 0) {
+					rpn_err = RPN_ERR_STACK_MIN;
+					output = 1;
+				}
+				break;
+			case SCALC_DROP_ALL:
 				rpn_stack_init(&stack);
-				continue; /* This is legal 0_0 */
+				break;
 			case SCALC_EXIT:
 				goto exit;
 				break; /* UNREACHABLE */
 			case SCALC_PEEK:
 				if (rpn_stack_peek(&res, stack) < 0)
 					rpn_err = RPN_ERR_STACK_MIN;
+				output = 1;
 				break;
 			default:
 				break;
 			}
 		}
 
-		if (prompt_mode > 0)
+		if ((prompt_mode > 0) && (output > 0))
 			scalc_output(res, expr, rpn_err);
 
 		if ((prompt_mode == 0) && (rpn_err != RPN_SUCCESS))

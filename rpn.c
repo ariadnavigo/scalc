@@ -50,6 +50,17 @@ rpn_stack_init(RPNStack *stack)
 }
 
 int
+rpn_stack_drop(RPNStack *stack)
+{
+	if (stack->sp < 0)
+		return -1;
+	
+	--stack->sp;
+
+	return 0;
+}
+
+int
 rpn_stack_peek(float *dest, RPNStack stack)
 {
 	if (stack.sp < 0)
