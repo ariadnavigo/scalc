@@ -103,30 +103,28 @@ ui_start(FILE *fp)
 		if (strlen(expr) == 0)
 			continue;
 
-		if ((scalc_err = scalc_cmd(expr)) == SCALC_NOP) {
+		scalc_err = scalc_cmd(expr);
+		switch (scalc_err) {
+		case SCALC_DROP:
+			if (rpn_stack_drop(&stack) < 0) {
+				rpn_err = RPN_ERR_STACK_MIN;
+				output = 1;
+			}
+			break;
+		case SCALC_DROP_ALL:
+			rpn_stack_init(&stack);
+			break;
+		case SCALC_EXIT:
+			return;
+		case SCALC_PEEK:
+			if (rpn_stack_peek(&res, stack) < 0)
+				rpn_err = RPN_ERR_STACK_MIN;
+			output = 1;
+			break;
+		default:
 			rpn_err = rpn_calc(&res, expr, &stack);
 			output = 1;
-		} else {
-			switch (scalc_err) {
-			case SCALC_DROP:
-				if (rpn_stack_drop(&stack) < 0) {
-					rpn_err = RPN_ERR_STACK_MIN;
-					output = 1;
-				}
-				break;
-			case SCALC_DROP_ALL:
-				rpn_stack_init(&stack);
-				break;
-			case SCALC_EXIT:
-				return;
-			case SCALC_PEEK:
-				if (rpn_stack_peek(&res, stack) < 0)
-					rpn_err = RPN_ERR_STACK_MIN;
-				output = 1;
-				break;
-			default:
-				break;
-			}
+			break;
 		}
 
 		if ((prompt_mode > 0) && (output > 0))
