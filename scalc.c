@@ -117,7 +117,9 @@ scalc_ui(FILE *fp)
 			rpn_stack_init(&stack);
 			break;
 		case SCALC_DUP:
-			rpn_stack_dup(&stack);
+			rpn_err = rpn_stack_dup(&stack);
+			if (rpn_err != RPN_SUCCESS)
+				output = 1;
 			break;
 		case SCALC_EXIT:
 			return;
