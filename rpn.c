@@ -91,6 +91,23 @@ rpn_stack_peek(float *dest, RPNStack stack)
 }
 
 int
+rpn_stack_swap(RPNStack *stack)
+{
+	int rpn_err;
+	float ax, bx;
+
+	if (((rpn_err = rpn_stack_pop(&ax, stack)) != RPN_SUCCESS)
+	    || ((rpn_err = rpn_stack_pop(&bx, stack)) != RPN_SUCCESS))
+		return rpn_err;
+
+	if ((rpn_stack_push(stack, ax) == NULL)
+	    || (rpn_stack_push(stack, bx) == NULL))
+		return RPN_ERR_STACK_MAX;
+
+	return RPN_SUCCESS;
+}
+
+int
 rpn_calc(float *dest, const char *expr, RPNStack *stack)
 {
 	int rpn_err;

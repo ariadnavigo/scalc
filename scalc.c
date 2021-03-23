@@ -18,7 +18,8 @@ enum {
 	SCALC_DROP_ALL,
 	SCALC_DUP,
 	SCALC_EXIT,
-	SCALC_PEEK
+	SCALC_PEEK,
+	SCALC_SWAP
 };
 
 struct cmd_reg {
@@ -37,6 +38,7 @@ static struct cmd_reg cmd_defs[] = {
 	{ .id = "dup", .reply = SCALC_DUP },
 	{ .id = "p", .reply = SCALC_PEEK },
 	{ .id = "q", .reply = SCALC_EXIT },
+	{ .id = "swp", .reply = SCALC_SWAP },
 	{ .id = "", .reply = SCALC_NOP } /* Dummy "terminator" */
 };
 
@@ -126,6 +128,11 @@ scalc_ui(FILE *fp)
 		case SCALC_PEEK:
 			rpn_err = rpn_stack_peek(&res, stack);
 			output = 1;
+			break;
+		case SCALC_SWAP:
+			rpn_err = rpn_stack_swap(&stack);
+			if (rpn_err != RPN_SUCCESS)
+				output = 1;
 			break;
 		default:
 			rpn_err = rpn_calc(&res, expr, &stack);

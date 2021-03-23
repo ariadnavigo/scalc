@@ -20,5 +20,6 @@ RPNStack *rpn_stack_init(RPNStack *stack);
 int rpn_stack_drop(RPNStack *stack);
 int rpn_stack_dup(RPNStack *stack);
 int rpn_stack_peek(float *dest, RPNStack stack);
+int rpn_stack_swap(RPNStack *stack);
 int rpn_calc(float *dest, const char *expr, RPNStack *stack);
 const char *rpn_strerr(int rpnerr);
