@@ -26,12 +26,15 @@ rpn_stack_push(RPNStack *stack, float elem)
 static int
 rpn_stack_pop(float *dest, RPNStack *stack)
 {
-	if (rpn_stack_peek(dest, *stack) < 0)
-		return -1;
+	int rpn_err;
+
+	rpn_err = rpn_stack_peek(dest, *stack);
+	if (rpn_err != RPN_SUCCESS)
+		return rpn_err;
 
 	--stack->sp;
 
-	return 0;
+	return RPN_SUCCESS;
 }
 
 RPNStack *
@@ -53,27 +56,28 @@ int
 rpn_stack_drop(RPNStack *stack)
 {
 	if (stack->sp < 0)
-		return -1;
+		return RPN_ERR_STACK_MIN;
 	
 	--stack->sp;
 
-	return 0;
+	return RPN_SUCCESS;
 }
 
 int
 rpn_stack_peek(float *dest, RPNStack stack)
 {
 	if (stack.sp < 0)
-		return -1;
+		return RPN_ERR_STACK_MIN;
 
 	*dest = stack.elems[stack.sp];
 
-	return 0;
+	return RPN_SUCCESS;
 }
 
 int
 rpn_calc(float *dest, const char *expr, RPNStack *stack)
 {
+	int rpn_err;
 	float ax, bx, dx;
 	char expr_cpy[RPN_EXPR_SIZE];
 	char *ptr, *endptr;
@@ -90,12 +94,14 @@ rpn_calc(float *dest, const char *expr, RPNStack *stack)
 				return RPN_ERR_OP_UNDEF;
 
 			if (op_ptr->argn > 1) {
-				if (rpn_stack_pop(&bx, stack) < 0)
-					return RPN_ERR_STACK_MIN;
+				rpn_err = rpn_stack_pop(&bx, stack);
+				if (rpn_err != RPN_SUCCESS)
+					return rpn_err;
 			}
 
-			if (rpn_stack_pop(&ax, stack) < 0)
-				return RPN_ERR_STACK_MIN;
+			rpn_err = rpn_stack_pop(&ax, stack);
+			if (rpn_err != RPN_SUCCESS)
+				return rpn_err;
 
 			if (op_ptr->argn == 2)
 				dx = (*op_ptr->func.n2)(ax, bx);
@@ -108,10 +114,7 @@ rpn_calc(float *dest, const char *expr, RPNStack *stack)
 		ptr = strtok(NULL, " ");
 	}
 
-	if (rpn_stack_peek(dest, *stack) < 0)
-		return RPN_ERR_STACK_MIN;
-
-	return RPN_SUCCESS;
+	return rpn_stack_peek(dest, *stack);
 }
 
 const char *

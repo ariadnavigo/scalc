@@ -107,10 +107,9 @@ scalc_ui(FILE *fp)
 		scalc_err = scalc_cmd(expr);
 		switch (scalc_err) {
 		case SCALC_DROP:
-			if (rpn_stack_drop(&stack) < 0) {
-				rpn_err = RPN_ERR_STACK_MIN;
+			rpn_err = rpn_stack_drop(&stack);
+			if (rpn_err != RPN_SUCCESS)
 				output = 1;
-			}
 			break;
 		case SCALC_DROP_ALL:
 			rpn_stack_init(&stack);
@@ -118,8 +117,7 @@ scalc_ui(FILE *fp)
 		case SCALC_EXIT:
 			return;
 		case SCALC_PEEK:
-			if (rpn_stack_peek(&res, stack) < 0)
-				rpn_err = RPN_ERR_STACK_MIN;
+			rpn_err = rpn_stack_peek(&res, stack);
 			output = 1;
 			break;
 		default:
