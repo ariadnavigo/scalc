@@ -64,6 +64,22 @@ rpn_stack_drop(RPNStack *stack)
 }
 
 int
+rpn_stack_dup(RPNStack *stack)
+{
+	float dup;
+	int rpn_err;
+
+	rpn_err = rpn_stack_peek(&dup, *stack);
+	if (rpn_err != RPN_SUCCESS)
+		return rpn_err;
+
+	if (rpn_stack_push(stack, dup) == NULL)
+		return RPN_ERR_STACK_MAX;
+
+	return RPN_SUCCESS; 
+}
+
+int
 rpn_stack_peek(float *dest, RPNStack stack)
 {
 	if (stack.sp < 0)

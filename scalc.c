@@ -16,6 +16,7 @@ enum {
 	SCALC_NOP,
 	SCALC_DROP,
 	SCALC_DROP_ALL,
+	SCALC_DUP,
 	SCALC_EXIT,
 	SCALC_PEEK
 };
@@ -33,6 +34,7 @@ static void scalc_ui(FILE *fp);
 static struct cmd_reg cmd_defs[] = {
 	{ .id = "d", .reply = SCALC_DROP },
 	{ .id = "D", .reply = SCALC_DROP_ALL },
+	{ .id = "dup", .reply = SCALC_DUP },
 	{ .id = "p", .reply = SCALC_PEEK },
 	{ .id = "q", .reply = SCALC_EXIT },
 	{ .id = "", .reply = SCALC_NOP } /* Dummy "terminator" */
@@ -113,6 +115,9 @@ scalc_ui(FILE *fp)
 			break;
 		case SCALC_DROP_ALL:
 			rpn_stack_init(&stack);
+			break;
+		case SCALC_DUP:
+			rpn_stack_dup(&stack);
 			break;
 		case SCALC_EXIT:
 			return;
