@@ -107,6 +107,8 @@ rpn_calc(float *dest, const char *expr, RPNStack *stack)
 				dx = (*op_ptr->func.n2)(ax, bx);
 			else if (op_ptr->argn == 1)
 				dx = (*op_ptr->func.n1)(ax);
+			else
+				return RPN_ERR_OP_INV;
 		}
 
 		if (rpn_stack_push(stack, dx) == NULL)
@@ -123,6 +125,8 @@ rpn_strerr(int rpnerr)
 	switch (rpnerr) {
 	case RPN_SUCCESS:
 		return "success.";
+	case RPN_ERR_OP_INV:
+		return "operation invalidly defined.";
 	case RPN_ERR_OP_UNDEF:
 		return "operation not defined.";
 	case RPN_ERR_STACK_MAX:

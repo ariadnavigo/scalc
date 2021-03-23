@@ -10,6 +10,7 @@ typedef struct {
 
 enum {
 	RPN_SUCCESS, /* Breaking alphabetical order so that it gets = 0 */
+	RPN_ERR_OP_INV,
 	RPN_ERR_OP_UNDEF,
 	RPN_ERR_STACK_MAX,
 	RPN_ERR_STACK_MIN
