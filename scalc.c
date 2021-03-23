@@ -28,6 +28,7 @@ struct cmd_reg {
 static void die(const char *fmt, ...);
 static void scalc_output(float res, const char *expr, int rpnerr);
 static int scalc_cmd(const char *cmd);
+static void scalc_ui(FILE *fp);
 
 static struct cmd_reg cmd_defs[] = {
 	{ .id = "d", .reply = SCALC_DROP },
@@ -78,8 +79,8 @@ scalc_cmd(const char *cmd)
 	return SCALC_NOP;
 }
 
-void
-ui_start(FILE *fp)
+static void
+scalc_ui(FILE *fp)
 {
 	RPNStack stack;
 	char expr[RPN_EXPR_SIZE];
@@ -150,7 +151,7 @@ main(int argc, char *argv[])
 			die("Error reading %s: %s", argv[1], strerror(errno));
 	}
 
-	ui_start(fp);
+	scalc_ui(fp);
 
 	if (fp != stdin)
 		fclose(fp);
