@@ -62,7 +62,7 @@ scalc_output(double res, const char *expr, int rpnerr)
 	if (rpnerr != RPN_SUCCESS)
 		fprintf(stderr, "%s: %s\n", expr, rpn_strerr(rpnerr));
 	else
-		printf("%.9f\n", res);
+		printf("%." SCALC_PREC "f\n", res);
 }
 
 static int
