@@ -9,9 +9,10 @@
  * EXTENDING OP.C:
  *
  * All mathematical operations take the form of a unary or binary function
- * (one double argument or two double arguments, respectively), always returning
- * a double as a result. All functions are to be defined static, unless they're
- * defined in an external library (e.g. logf() and sqrtf(), from libm).
+ * (one double argument or two double arguments, respectively), always 
+ * returning a double as a result. All functions are to be defined static, 
+ * unless they're defined in an external library (e.g. log() and sqrt(), from 
+ * libm).
  *
  * Once you've written your function, in order for the rpn.c module to actually
  * know about it, you must add it into the 'op_defs' array below. Leave the
