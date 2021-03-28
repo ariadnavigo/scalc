@@ -28,7 +28,7 @@ struct cmd_reg {
 };
 
 static void die(const char *fmt, ...);
-static void scalc_output(float res, const char *expr, int rpnerr);
+static void scalc_output(double res, const char *expr, int rpnerr);
 static int scalc_cmd(const char *cmd);
 static void scalc_ui(FILE *fp);
 
@@ -57,12 +57,12 @@ die(const char *fmt, ...)
 }
 
 static void
-scalc_output(float res, const char *expr, int rpnerr)
+scalc_output(double res, const char *expr, int rpnerr)
 {
 	if (rpnerr != RPN_SUCCESS)
 		fprintf(stderr, "%s: %s\n", expr, rpn_strerr(rpnerr));
 	else
-		printf("%f\n", res);
+		printf("%.9f\n", res);
 }
 
 static int
@@ -89,7 +89,7 @@ scalc_ui(FILE *fp)
 	RPNStack stack;
 	char expr[RPN_EXPR_SIZE];
 	int prompt_mode, output, scalc_err, rpn_err;
-	float res;
+	double res;
 
 	prompt_mode = isatty(fileno(fp));
 

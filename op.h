@@ -6,8 +6,8 @@ struct op_reg {
 	char id[OP_NAME_SIZE];
 	int argn;
 	union {
-		float (*n1)(float);
-		float (*n2)(float, float);
+		double (*n1)(double);
+		double (*n2)(double, double);
 	} func;
 };
 

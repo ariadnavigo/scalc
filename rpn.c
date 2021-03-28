@@ -6,11 +6,11 @@
 #include "op.h"
 #include "rpn.h"
 
-static RPNStack *rpn_stack_push(RPNStack *stack, float elem);
-static int rpn_stack_pop(float *dest, RPNStack *stack);
+static RPNStack *rpn_stack_push(RPNStack *stack, double elem);
+static int rpn_stack_pop(double *dest, RPNStack *stack);
 
 static RPNStack *
-rpn_stack_push(RPNStack *stack, float elem)
+rpn_stack_push(RPNStack *stack, double elem)
 {
 	/* Let's avoid stack overflows */
 	if (++stack->sp == RPN_STACK_SIZE) {
@@ -24,7 +24,7 @@ rpn_stack_push(RPNStack *stack, float elem)
 }
 
 static int
-rpn_stack_pop(float *dest, RPNStack *stack)
+rpn_stack_pop(double *dest, RPNStack *stack)
 {
 	int rpn_err;
 
@@ -66,7 +66,7 @@ rpn_stack_drop(RPNStack *stack)
 int
 rpn_stack_dup(RPNStack *stack)
 {
-	float dup;
+	double dup;
 	int rpn_err;
 
 	rpn_err = rpn_stack_peek(&dup, *stack);
@@ -80,7 +80,7 @@ rpn_stack_dup(RPNStack *stack)
 }
 
 int
-rpn_stack_peek(float *dest, RPNStack stack)
+rpn_stack_peek(double *dest, RPNStack stack)
 {
 	if (stack.sp < 0)
 		return RPN_ERR_STACK_MIN;
@@ -94,7 +94,7 @@ int
 rpn_stack_swap(RPNStack *stack)
 {
 	int rpn_err;
-	float ax, bx;
+	double ax, bx;
 
 	if (((rpn_err = rpn_stack_pop(&ax, stack)) != RPN_SUCCESS)
 	    || ((rpn_err = rpn_stack_pop(&bx, stack)) != RPN_SUCCESS))
@@ -108,10 +108,10 @@ rpn_stack_swap(RPNStack *stack)
 }
 
 int
-rpn_calc(float *dest, const char *expr, RPNStack *stack)
+rpn_calc(double *dest, const char *expr, RPNStack *stack)
 {
 	int rpn_err;
-	float ax, bx, dx;
+	double ax, bx, dx;
 	char expr_cpy[RPN_EXPR_SIZE];
 	char *ptr, *endptr;
 	struct op_reg *op_ptr;

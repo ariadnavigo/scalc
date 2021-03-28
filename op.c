@@ -9,8 +9,8 @@
  * EXTENDING OP.C:
  *
  * All mathematical operations take the form of a unary or binary function
- * (one float argument or two float arguments, respectively), always returning
- * a float as a result. All functions are to be defined static, unless they're
+ * (one double argument or two double arguments, respectively), always returning
+ * a double as a result. All functions are to be defined static, unless they're
  * defined in an external library (e.g. logf() and sqrtf(), from libm).
  *
  * Once you've written your function, in order for the rpn.c module to actually
@@ -23,42 +23,42 @@
  * { "name", N of arguments (N = 1 or 2), { .nN = pointer-to-func } }
  */
 
-static float op_add(float a, float b);
-static float op_subst(float a, float b);
-static float op_mult(float a, float b);
-static float op_div(float a, float b);
+static double op_add(double a, double b);
+static double op_subst(double a, double b);
+static double op_mult(double a, double b);
+static double op_div(double a, double b);
 
 static struct op_reg op_defs[] = {
 	{ "+", 2, { .n2 = op_add } },
 	{ "-", 2, { .n2 = op_subst } },
 	{ "*", 2, { .n2 = op_mult } },
 	{ "/", 2, { .n2 = op_div } },
-	{ "^", 2, { .n2 = powf } }, /* From libm, directly */
-	{ "ln", 1, { .n1 = logf } },
-	{ "sqrt", 1, { .n1 = sqrtf } },
+	{ "^", 2, { .n2 = pow } }, /* From libm, directly */
+	{ "ln", 1, { .n1 = log } },
+	{ "sqrt", 1, { .n1 = sqrt } },
 	{ "", 0, { .n1 = NULL } } /* Dummy "terminator" entry */
 };
 
-static float
-op_add(float a, float b)
+static double
+op_add(double a, double b)
 {
 	return a + b;
 }
 
-static float
-op_subst(float a, float b)
+static double
+op_subst(double a, double b)
 {
 	return op_add(a, -b);
 }
 
-static float
-op_mult(float a, float b)
+static double
+op_mult(double a, double b)
 {
 	return a * b;
 }
 
-static float
-op_div(float a, float b)
+static double
+op_div(double a, double b)
 {
 	return op_mult(a, 1 / b);
 }
