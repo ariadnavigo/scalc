@@ -49,7 +49,7 @@ op_add(double a, double b)
 static double
 op_subst(double a, double b)
 {
-	return op_add(a, -b);
+	return a - b;
 }
 
 static double
@@ -61,7 +61,7 @@ op_mult(double a, double b)
 static double
 op_div(double a, double b)
 {
-	return op_mult(a, 1 / b);
+	return a / b;
 }
 
 struct op_reg *
