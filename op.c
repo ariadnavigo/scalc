@@ -28,6 +28,7 @@ static double op_add(double a, double b);
 static double op_subst(double a, double b);
 static double op_mult(double a, double b);
 static double op_div(double a, double b);
+static double op_fact(double n);
 
 static struct op_reg op_defs[] = {
 	{ "+", 2, { .n2 = op_add } },
@@ -37,6 +38,7 @@ static struct op_reg op_defs[] = {
 	{ "^", 2, { .n2 = pow } }, /* From libm, directly */
 	{ "ln", 1, { .n1 = log } },
 	{ "sqrt", 1, { .n1 = sqrt } },
+	{ "!", 1, { .n1 = op_fact } },
 	{ "", 0, { .n1 = NULL } } /* Dummy "terminator" entry */
 };
 
@@ -62,6 +64,18 @@ static double
 op_div(double a, double b)
 {
 	return a / b;
+}
+
+static double
+op_fact(double n)
+{
+	double res, i;
+
+	res = 1;
+	for (i = n; i > 1; --i)
+		res *= i;
+
+	return res;
 }
 
 struct op_reg *
