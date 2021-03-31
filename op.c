@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 
+#include <inttypes.h>
 #include <math.h>
 #include <string.h>
 
@@ -29,6 +30,7 @@ static double op_subst(double a, double b);
 static double op_mult(double a, double b);
 static double op_div(double a, double b);
 static double op_fact(double n);
+static double op_mod(double a, double b);
 
 static struct op_reg op_defs[] = {
 	{ "+", 2, { .n2 = op_add } },
@@ -39,6 +41,7 @@ static struct op_reg op_defs[] = {
 	{ "ln", 1, { .n1 = log } },
 	{ "sqrt", 1, { .n1 = sqrt } },
 	{ "!", 1, { .n1 = op_fact } },
+	{ "%", 2, { .n2 = op_mod } },
 	{ "", 0, { .n1 = NULL } } /* Dummy "terminator" entry */
 };
 
@@ -76,6 +79,12 @@ op_fact(double n)
 		res *= i;
 
 	return res;
+}
+
+static double
+op_mod(double a, double b)
+{
+	return (double)((int64_t)a % (int64_t)b);
 }
 
 struct op_reg *
