@@ -8,7 +8,10 @@ changes in the near future!**
 
 ## Build
 
-scalc doesn't require any external dependencies.
+scalc requires:
+
+1. A POSIX-like system
+2. A C99 compiler
 
 Build by using:
 
