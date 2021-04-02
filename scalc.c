@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "config.h"
+#include "op.h"
 #include "rpn.h"
 
 #define SCALC_CMD_SIZE 32
@@ -18,6 +19,7 @@ enum {
 	SCALC_DROP_ALL,
 	SCALC_DUP,
 	SCALC_EXIT,
+	SCALC_LIST,
 	SCALC_PEEK,
 	SCALC_SWAP
 };
@@ -29,6 +31,7 @@ struct cmd_reg {
 
 static void die(const char *fmt, ...);
 static void scalc_output(double res, const char *expr, int rpnerr);
+static void scalc_list_ops(void);
 static int scalc_cmd(const char *cmd);
 static void scalc_ui(FILE *fp);
 
@@ -36,6 +39,7 @@ static struct cmd_reg cmd_defs[] = {
 	{ .id = "d", .reply = SCALC_DROP },
 	{ .id = "D", .reply = SCALC_DROP_ALL },
 	{ .id = "dup", .reply = SCALC_DUP },
+	{ .id = "list", .reply = SCALC_LIST },
 	{ .id = "p", .reply = SCALC_PEEK },
 	{ .id = "q", .reply = SCALC_EXIT },
 	{ .id = "swp", .reply = SCALC_SWAP },
@@ -63,6 +67,16 @@ scalc_output(double res, const char *expr, int rpnerr)
 		fprintf(stderr, "%s: %s\n", expr, rpn_strerr(rpnerr));
 	else
 		printf("%." SCALC_PREC "f\n", res);
+}
+
+static void
+scalc_list_ops(void)
+{
+	const OpReg *ptr;
+
+	for (ptr = op_defs; strcmp(ptr->id, ""); ++ptr)
+		printf("%s ", ptr->id);
+	putchar('\n');
 }
 
 static int
@@ -125,6 +139,9 @@ scalc_ui(FILE *fp)
 			break;
 		case SCALC_EXIT:
 			return;
+		case SCALC_LIST:
+			scalc_list_ops();
+			break;
 		case SCALC_PEEK:
 			rpn_err = rpn_stack_peek(&res, stack);
 			output = 1;
@@ -155,7 +172,7 @@ int
 main(int argc, char *argv[])
 {
 	FILE *fp;
-	
+
 	if (argc < 2) {
 		fp = stdin;
 	} else {

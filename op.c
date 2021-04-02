@@ -32,7 +32,7 @@ static double op_div(double a, double b);
 static double op_fact(double n);
 static double op_mod(double a, double b);
 
-static const OpReg op_defs[] = {
+const OpReg op_defs[] = {
 	{ "+", 2, { .n2 = op_add } },
 	{ "-", 2, { .n2 = op_subst } },
 	{ "*", 2, { .n2 = op_mult } },
