@@ -114,7 +114,7 @@ rpn_calc(double *dest, const char *expr, RPNStack *stack)
 	double ax, bx, dx;
 	char expr_cpy[RPN_EXPR_SIZE];
 	char *ptr, *endptr;
-	struct op_reg *op_ptr;
+	const struct op_reg *op_ptr;
 
 	/* We need to operate on a copy, as strtok is destructive. */
 	strncpy(expr_cpy, expr, RPN_EXPR_SIZE);

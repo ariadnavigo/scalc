@@ -32,7 +32,7 @@ static double op_div(double a, double b);
 static double op_fact(double n);
 static double op_mod(double a, double b);
 
-static struct op_reg op_defs[] = {
+static const struct op_reg op_defs[] = {
 	{ "+", 2, { .n2 = op_add } },
 	{ "-", 2, { .n2 = op_subst } },
 	{ "*", 2, { .n2 = op_mult } },
@@ -87,10 +87,10 @@ op_mod(double a, double b)
 	return (double)((int64_t)a % (int64_t)b);
 }
 
-struct op_reg *
+const struct op_reg *
 op(const char *oper)
 {
-	struct op_reg *ptr;
+	const struct op_reg *ptr;
 
 	for (ptr = op_defs; strcmp(ptr->id, "") != 0; ++ptr) {
 		if (strcmp(ptr->id, oper) == 0)

@@ -11,4 +11,4 @@ struct op_reg {
 	} func;
 };
 
-struct op_reg *op(const char *oper);
+const struct op_reg *op(const char *oper);
