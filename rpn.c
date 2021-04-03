@@ -122,28 +122,30 @@ rpn_calc(double *dest, const char *expr, RPNStack *stack)
 	while (ptr != NULL) {
 		/* strtof() is ISO C99 */
 		dx = strtof(ptr, &endptr);
-		if (endptr[0] != '\0') {
-			if ((op_ptr = op(ptr)) == NULL)
-				return RPN_ERR_OP_UNDEF;
+		if (endptr[0] == '\0')
+			goto pushnum; /* If number, skip further parsing */
 
-			if (op_ptr->argn > 1) {
-				rpn_err = rpn_stack_pop(&bx, stack);
-				if (rpn_err != RPN_SUCCESS)
-					return rpn_err;
-			}
+		if ((op_ptr = op(ptr)) == NULL)
+			return RPN_ERR_OP_UNDEF;
 
-			rpn_err = rpn_stack_pop(&ax, stack);
+		if (op_ptr->argn > 1) {
+			rpn_err = rpn_stack_pop(&bx, stack);
 			if (rpn_err != RPN_SUCCESS)
 				return rpn_err;
-
-			if (op_ptr->argn == 2)
-				dx = (*op_ptr->func.n2)(ax, bx);
-			else if (op_ptr->argn == 1)
-				dx = (*op_ptr->func.n1)(ax);
-			else
-				return RPN_ERR_OP_INV;
 		}
 
+		rpn_err = rpn_stack_pop(&ax, stack);
+		if (rpn_err != RPN_SUCCESS)
+			return rpn_err;
+
+		if (op_ptr->argn == 2)
+			dx = (*op_ptr->func.n2)(ax, bx);
+		else if (op_ptr->argn == 1)
+			dx = (*op_ptr->func.n1)(ax);
+		else
+			return RPN_ERR_OP_INV;
+
+pushnum:
 		if (rpn_stack_push(stack, dx) == NULL)
 			return RPN_ERR_STACK_MAX;
 		ptr = strtok(NULL, " ");
