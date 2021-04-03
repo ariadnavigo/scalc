@@ -29,8 +29,8 @@ static double op_add(double a, double b);
 static double op_subst(double a, double b);
 static double op_mult(double a, double b);
 static double op_div(double a, double b);
-static double op_fact(double n);
 static double op_mod(double a, double b);
+static double op_fact(double n);
 static double op_npr(double n, double r);
 static double op_ncr(double n, double r);
 
@@ -42,8 +42,8 @@ const OpReg op_defs[] = {
 	{ "^", 2, { .n2 = pow } }, /* From libm, directly */
 	{ "ln", 1, { .n1 = log } },
 	{ "sqrt", 1, { .n1 = sqrt } },
-	{ "!", 1, { .n1 = op_fact } },
 	{ "%", 2, { .n2 = op_mod } },
+	{ "!", 1, { .n1 = op_fact } },
 	{ "P", 2, { .n2 = op_npr } },
 	{ "C", 2, { .n2 = op_ncr } },
 	{ "", 0, { .n1 = NULL } } /* Dummy "terminator" entry */
@@ -74,6 +74,12 @@ op_div(double a, double b)
 }
 
 static double
+op_mod(double a, double b)
+{
+	return (double)((int64_t)a % (int64_t)b);
+}
+
+static double
 op_fact(double n)
 {
 	double res, i;
@@ -83,12 +89,6 @@ op_fact(double n)
 		res *= i;
 
 	return res;
-}
-
-static double
-op_mod(double a, double b)
-{
-	return (double)((int64_t)a % (int64_t)b);
 }
 
 static double
