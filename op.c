@@ -49,6 +49,9 @@ const OpReg op_defs[] = {
 	{ "sin", 1, { .n1 = sin } },
 	{ "cos", 1, { .n1 = cos } },
 	{ "tan", 1, { .n1 = tan } },
+	{ "asin", 1, { .n1 = asin } },
+	{ "acos", 1, { .n1 = acos } },
+	{ "atan", 1, { .n1 = atan } },
 	{ "", 0, { .n1 = NULL } } /* Dummy "terminator" entry */
 };
 
