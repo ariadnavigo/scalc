@@ -120,7 +120,6 @@ rpn_calc(double *dest, const char *expr, RPNStack *stack)
 	strncpy(expr_cpy, expr, RPN_EXPR_SIZE);
 	ptr = strtok(expr_cpy, " ");
 	while (ptr != NULL) {
-		/* strtof() is ISO C99 */
 		dx = strtof(ptr, &endptr);
 		if (endptr[0] == '\0')
 			goto pushnum; /* If number, skip further parsing */
