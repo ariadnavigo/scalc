@@ -31,6 +31,7 @@ static double op_mult(double a, double b);
 static double op_div(double a, double b);
 static double op_fact(double n);
 static double op_mod(double a, double b);
+static double op_npr(double n, double r);
 
 const OpReg op_defs[] = {
 	{ "+", 2, { .n2 = op_add } },
@@ -42,6 +43,7 @@ const OpReg op_defs[] = {
 	{ "sqrt", 1, { .n1 = sqrt } },
 	{ "!", 1, { .n1 = op_fact } },
 	{ "%", 2, { .n2 = op_mod } },
+	{ "P", 2, { .n2 = op_npr } },
 	{ "", 0, { .n1 = NULL } } /* Dummy "terminator" entry */
 };
 
@@ -85,6 +87,15 @@ static double
 op_mod(double a, double b)
 {
 	return (double)((int64_t)a % (int64_t)b);
+}
+
+static double
+op_npr(double n, double r)
+{
+	if (r > n)
+		return 0;
+
+	return op_fact(n) / op_fact(n - r);
 }
 
 const OpReg *
