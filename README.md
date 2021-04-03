@@ -28,9 +28,9 @@ provided in ``config.def.h``.
 
 Unlike other extension systems you may find elsewhere, scalc adheres to a 
 dwm-inspired[^1] way of extending itself: via source code. You may add new 
-functions by following the instructions in that same source file, but in a 
+functions by following the instructions in the ``op.c`` source file, but in a 
 nutshell you define your operations as unary or binary functions returning a 
-float and register them into the ``op_defs`` array, specifying the information 
+double and register them into the ``op_defs`` array, specifying the information 
 that is required. Don't hesitate sending a patch if you wanna share your 
 function!
 
