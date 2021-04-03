@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
-#include <inttypes.h>
 #include <math.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "op.h"
