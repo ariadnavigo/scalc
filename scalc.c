@@ -111,8 +111,11 @@ scalc_ui(FILE *fp)
 	while (feof(fp) == 0) {
 		output = 0; /* We assume output is not needed */
 
-		if (prompt_mode > 0)
+		if (prompt_mode > 0) {
 			printf(scalc_prompt);
+			fflush(stdout);
+		}
+
 		if (fgets(expr, RPN_EXPR_SIZE, fp) == NULL)
 			break;
 
