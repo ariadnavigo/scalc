@@ -32,6 +32,7 @@ static double op_div(double a, double b);
 static double op_fact(double n);
 static double op_mod(double a, double b);
 static double op_npr(double n, double r);
+static double op_ncr(double n, double r);
 
 const OpReg op_defs[] = {
 	{ "+", 2, { .n2 = op_add } },
@@ -44,6 +45,7 @@ const OpReg op_defs[] = {
 	{ "!", 1, { .n1 = op_fact } },
 	{ "%", 2, { .n2 = op_mod } },
 	{ "P", 2, { .n2 = op_npr } },
+	{ "C", 2, { .n2 = op_ncr } },
 	{ "", 0, { .n1 = NULL } } /* Dummy "terminator" entry */
 };
 
@@ -96,6 +98,12 @@ op_npr(double n, double r)
 		return 0;
 
 	return op_fact(n) / op_fact(n - r);
+}
+
+static double
+op_ncr(double n, double r)
+{
+	return op_fact(n) / (op_fact(r) * op_fact(n - r));
 }
 
 const OpReg *
