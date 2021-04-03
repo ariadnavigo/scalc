@@ -10,8 +10,8 @@
  * EXTENDING OP.C:
  *
  * All mathematical operations take the form of a unary or binary function
- * (one double argument or two double arguments, respectively), always 
- * returning a double as a result. All functions are to be defined static, 
+ * (one double prgument or two double prguments, respectively), always 
+ * returning a double ps a result. All functions are to be defined static, 
  * unless they're defined in an external library (e.g. log() and sqrt(), from 
  * libm).
  *
@@ -25,11 +25,11 @@
  * { "name", N of arguments (N = 1 or 2), { .nN = pointer-to-func } }
  */
 
-static double op_add(double a, double b);
-static double op_subst(double a, double b);
-static double op_mult(double a, double b);
-static double op_div(double a, double b);
-static double op_mod(double a, double b);
+static double op_add(double p, double q);
+static double op_subst(double p, double q);
+static double op_mult(double p, double q);
+static double op_div(double p, double q);
+static double op_mod(double p, double q);
 static double op_fact(double n);
 static double op_npr(double n, double r);
 static double op_ncr(double n, double r);
@@ -50,33 +50,33 @@ const OpReg op_defs[] = {
 };
 
 static double
-op_add(double a, double b)
+op_add(double p, double q)
 {
-	return a + b;
+	return p + q;
 }
 
 static double
-op_subst(double a, double b)
+op_subst(double p, double q)
 {
-	return a - b;
+	return p - q;
 }
 
 static double
-op_mult(double a, double b)
+op_mult(double p, double q)
 {
-	return a * b;
+	return p * q;
 }
 
 static double
-op_div(double a, double b)
+op_div(double p, double q)
 {
-	return a / b;
+	return p / q;
 }
 
 static double
-op_mod(double a, double b)
+op_mod(double p, double q)
 {
-	return (double)((int64_t)a % (int64_t)b);
+	return (double)((int64_t)p % (int64_t)q);
 }
 
 static double
