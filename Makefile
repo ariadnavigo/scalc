@@ -22,7 +22,8 @@ config.h:
 .c.o:
 	${CC} -c ${CFLAGS} $<
 
-rpn.o: op.h
+rpn.o: op.h rpn.h
+
 scalc.o: config.h op.h rpn.h
 
 ${OBJ}: config.mk
