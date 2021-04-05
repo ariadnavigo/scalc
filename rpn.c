@@ -133,14 +133,18 @@ rpn_calc(double *dest, const char *expr, RPNStack *stack)
 				return rpn_err;
 		}
 
-		rpn_err = rpn_stack_pop(&ax, stack);
-		if (rpn_err != RPN_SUCCESS)
-			return rpn_err;
+		if (op_ptr->argn > 0) {
+			rpn_err = rpn_stack_pop(&ax, stack);
+			if (rpn_err != RPN_SUCCESS)
+				return rpn_err;
+		}
 
 		if (op_ptr->argn == 2)
 			dx = (*op_ptr->func.n2)(ax, bx);
 		else if (op_ptr->argn == 1)
 			dx = (*op_ptr->func.n1)(ax);
+		else if (op_ptr->argn == 0)
+			dx = (*op_ptr->func.n0)();
 		else
 			return RPN_ERR_OP_INV;
 

@@ -6,6 +6,7 @@ typedef struct {
 	char id[OP_NAME_SIZE];
 	int argn;
 	union {
+		double (*n0)(void);
 		double (*n1)(double);
 		double (*n2)(double, double);
 	} func;
