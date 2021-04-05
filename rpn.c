@@ -110,8 +110,9 @@ rpn_stack_swap(RPNStack *stack)
 int
 rpn_calc(double *dest, const char *expr, RPNStack *stack)
 {
-	int rpn_err;
-	double ax, bx, dx;
+	int arg_i, rpn_err;
+	double args[2];
+	double dx;
 	char expr_cpy[RPN_EXPR_SIZE];
 	char *ptr, *endptr;
 	const OpReg *op_ptr;
@@ -127,22 +128,17 @@ rpn_calc(double *dest, const char *expr, RPNStack *stack)
 		if ((op_ptr = op(ptr)) == NULL)
 			return RPN_ERR_OP_UNDEF;
 
-		if (op_ptr->argn > 1) {
-			rpn_err = rpn_stack_pop(&bx, stack);
-			if (rpn_err != RPN_SUCCESS)
-				return rpn_err;
-		}
-
-		if (op_ptr->argn > 0) {
-			rpn_err = rpn_stack_pop(&ax, stack);
+		/* Traversing backwards because we're poping off the stack */
+		for (arg_i = op_ptr->argn - 1; arg_i >= 0; --arg_i) {
+			rpn_err = rpn_stack_pop(&args[arg_i], stack);
 			if (rpn_err != RPN_SUCCESS)
 				return rpn_err;
 		}
 
 		if (op_ptr->argn == 2)
-			dx = (*op_ptr->func.n2)(ax, bx);
+			dx = (*op_ptr->func.n2)(args[0], args[1]);
 		else if (op_ptr->argn == 1)
-			dx = (*op_ptr->func.n1)(ax);
+			dx = (*op_ptr->func.n1)(args[0]);
 		else if (op_ptr->argn == 0)
 			dx = (*op_ptr->func.n0)();
 		else
