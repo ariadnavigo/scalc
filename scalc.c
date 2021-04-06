@@ -74,7 +74,7 @@ scalc_list_ops(void)
 {
 	const OpReg *ptr;
 
-	for (ptr = op_defs; strcmp(ptr->id, ""); ++ptr)
+	for (ptr = op_defs; strncmp(ptr->id, "", OP_NAME_SIZE); ++ptr)
 		printf("%s ", ptr->id);
 	putchar('\n');
 }
@@ -89,8 +89,9 @@ scalc_cmd(const char *cmd)
 		return SCALC_NOP;
 
 	++cmd; /* Skip leading ':' */
-	for (ptr = cmd_defs; strcmp(ptr->id, "") != 0; ++ptr) {
-		if (strcmp(cmd, ptr->id) == 0)
+	for (ptr = cmd_defs; strncmp(ptr->id, "", SCALC_CMD_SIZE) != 0; 
+	     ++ptr) {
+		if (strncmp(cmd, ptr->id, SCALC_CMD_SIZE) == 0)
 			return ptr->reply;
 	}
 

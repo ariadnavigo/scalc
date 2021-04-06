@@ -140,8 +140,8 @@ op(const char *oper)
 {
 	const OpReg *ptr;
 
-	for (ptr = op_defs; strcmp(ptr->id, "") != 0; ++ptr) {
-		if (strcmp(ptr->id, oper) == 0)
+	for (ptr = op_defs; strncmp(ptr->id, "", OP_NAME_SIZE) != 0; ++ptr) {
+		if (strncmp(ptr->id, oper, OP_NAME_SIZE) == 0)
 			return ptr;
 	}
 
