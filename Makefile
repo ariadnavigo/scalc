@@ -4,7 +4,7 @@
 
 include config.mk
 
-SRC = op.c rpn.c scalc.c
+SRC = op.c rpn.c scalc.c strlcpy.c
 OBJ = ${SRC:%.c=%.o}
 
 all: options scalc
@@ -22,7 +22,7 @@ config.h:
 .c.o:
 	${CC} -c ${CFLAGS} $<
 
-rpn.o: op.h rpn.h
+rpn.o: op.h rpn.h strlcpy.h
 
 scalc.o: config.h op.h rpn.h
 
@@ -37,7 +37,7 @@ clean:
 dist: clean
 	mkdir -p scalc-${VERSION}
 	cp -R LICENSE Makefile README.md config.def.h config.mk op.h rpn.h \
-		scalc.1 ${SRC} scalc-${VERSION}
+	   strlcpy.h scalc.1 ${SRC} scalc-${VERSION}
 	tar -cf scalc-${VERSION}.tar scalc-${VERSION}
 	gzip scalc-${VERSION}.tar
 	rm -rf scalc-${VERSION}
@@ -47,8 +47,8 @@ install: all
 	cp -f scalc ${DESTDIR}${PREFIX}/bin
 	chmod 755 ${DESTDIR}${PREFIX}/bin/scalc
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1
-	sed "s/VERSION/${VERSION}/g" scalc.1\
-		> ${DESTDIR}${MANPREFIX}/man1/scalc.1
+	sed "s/VERSION/${VERSION}/g" scalc.1 \
+	    > ${DESTDIR}${MANPREFIX}/man1/scalc.1
 	chmod 644 ${DESTDIR}${MANPREFIX}/man1/scalc.1
 
 uninstall:

@@ -5,6 +5,7 @@
 
 #include "op.h"
 #include "rpn.h"
+#include "strlcpy.h"
 
 static RPNStack *rpn_stack_push(RPNStack *stack, double elem);
 static int rpn_stack_pop(double *dest, RPNStack *stack);
@@ -118,7 +119,7 @@ rpn_calc(double *dest, const char *expr, RPNStack *stack)
 	const OpReg *op_ptr;
 
 	/* We need to operate on a copy, as strtok is destructive. */
-	strncpy(expr_cpy, expr, RPN_EXPR_SIZE);
+	strlcpy(expr_cpy, expr, RPN_EXPR_SIZE);
 	ptr = strtok(expr_cpy, " ");
 	while (ptr != NULL) {
 		dx = strtof(ptr, &endptr);
