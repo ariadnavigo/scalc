@@ -35,7 +35,7 @@ static void scalc_list_ops(void);
 static int scalc_cmd(const char *cmd);
 static void scalc_ui(FILE *fp);
 
-static struct cmd_reg cmd_defs[] = {
+static struct cmd_reg cmd_dfs[] = {
 	{ .id = "d", .reply = SCALC_DROP },
 	{ .id = "D", .reply = SCALC_DROP_ALL },
 	{ .id = "dup", .reply = SCALC_DUP },
@@ -74,7 +74,7 @@ scalc_list_ops(void)
 {
 	const OpReg *ptr;
 
-	for (ptr = op_defs; strncmp(ptr->id, "", OP_NAME_SIZE); ++ptr)
+	for (ptr = op_defs; strncmp(ptr->id, "", OP_NAME_SIZE) != 0; ++ptr)
 		printf("%s ", ptr->id);
 	putchar('\n');
 }
@@ -89,8 +89,7 @@ scalc_cmd(const char *cmd)
 		return SCALC_NOP;
 
 	++cmd; /* Skip leading ':' */
-	for (ptr = cmd_defs; strncmp(ptr->id, "", SCALC_CMD_SIZE) != 0; 
-	     ++ptr) {
+	for (ptr = cmd_dfs; strncmp(ptr->id, "", SCALC_CMD_SIZE) != 0; ++ptr) {
 		if (strncmp(cmd, ptr->id, SCALC_CMD_SIZE) == 0)
 			return ptr->reply;
 	}
