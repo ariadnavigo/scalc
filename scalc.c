@@ -9,7 +9,7 @@
 
 #include "config.h"
 #include "op.h"
-#include "rpn.h"
+#include "stack.h"
 
 #define SCALC_CMD_SIZE 32
 
@@ -30,7 +30,7 @@ struct cmd_reg {
 };
 
 static void die(const char *fmt, ...);
-static void scalc_output(double res, const char *expr, int rpnerr);
+static void scalc_output(double res, const char *expr, int stack_err);
 static void scalc_list_ops(void);
 static int scalc_cmd(const char *cmd);
 static void scalc_ui(FILE *fp);
@@ -61,10 +61,10 @@ die(const char *fmt, ...)
 }
 
 static void
-scalc_output(double res, const char *expr, int rpnerr)
+scalc_output(double res, const char *expr, int stack_err)
 {
-	if (rpnerr != RPN_SUCCESS)
-		fprintf(stderr, "%s: %s\n", expr, rpn_strerr(rpnerr));
+	if (stack_err != STK_SUCCESS)
+		fprintf(stderr, "%s: %s\n", expr, stack_strerr(stack_err));
 	else
 		printf("%." SCALC_PREC "f\n", res);
 }
@@ -100,14 +100,14 @@ scalc_cmd(const char *cmd)
 static void
 scalc_ui(FILE *fp)
 {
-	RPNStack stack;
-	char expr[RPN_EXPR_SIZE];
-	int prompt_mode, output, scalc_err, rpn_err;
+	Stack stack;
+	char expr[STK_EXPR_SIZE];
+	int prompt_mode, output, scalc_err, stack_err;
 	double res;
 
 	prompt_mode = isatty(fileno(fp));
 
-	rpn_stack_init(&stack);
+	stack_init(&stack);
 	while (feof(fp) == 0) {
 		output = 0; /* We assume output is not needed */
 
@@ -116,7 +116,7 @@ scalc_ui(FILE *fp)
 			fflush(stdout);
 		}
 
-		if (fgets(expr, RPN_EXPR_SIZE, fp) == NULL)
+		if (fgets(expr, STK_EXPR_SIZE, fp) == NULL)
 			break;
 
 		if (expr[strlen(expr) - 1] == '\n')
@@ -128,16 +128,16 @@ scalc_ui(FILE *fp)
 		scalc_err = scalc_cmd(expr);
 		switch (scalc_err) {
 		case SCALC_DROP:
-			rpn_err = rpn_stack_drop(&stack);
-			if (rpn_err != RPN_SUCCESS)
+			stack_err = stack_drop(&stack);
+			if (stack_err != STK_SUCCESS)
 				output = 1;
 			break;
 		case SCALC_DROP_ALL:
-			rpn_stack_init(&stack);
+			stack_init(&stack);
 			break;
 		case SCALC_DUP:
-			rpn_err = rpn_stack_dup(&stack);
-			if (rpn_err != RPN_SUCCESS)
+			stack_err = stack_dup(&stack);
+			if (stack_err != STK_SUCCESS)
 				output = 1;
 			break;
 		case SCALC_EXIT:
@@ -146,29 +146,29 @@ scalc_ui(FILE *fp)
 			scalc_list_ops();
 			break;
 		case SCALC_PEEK:
-			rpn_err = rpn_stack_peek(&res, stack);
+			stack_err = stack_peek(&res, stack);
 			output = 1;
 			break;
 		case SCALC_SWAP:
-			rpn_err = rpn_stack_swap(&stack);
-			if (rpn_err != RPN_SUCCESS)
+			stack_err = stack_swap(&stack);
+			if (stack_err != STK_SUCCESS)
 				output = 1;
 			break;
 		default:
-			rpn_err = rpn_calc(&res, expr, &stack);
+			stack_err = stack_calc(&res, expr, &stack);
 			output = 1;
 			break;
 		}
 
 		if ((prompt_mode > 0) && (output > 0))
-			scalc_output(res, expr, rpn_err);
+			scalc_output(res, expr, stack_err);
 
-		if ((prompt_mode == 0) && (rpn_err != RPN_SUCCESS))
+		if ((prompt_mode == 0) && (stack_err != STK_SUCCESS))
 			break;
 	}
 
 	if (prompt_mode == 0)
-		scalc_output(res, expr, rpn_err);
+		scalc_output(res, expr, stack_err);
 }
 
 int

@@ -4,7 +4,7 @@
 
 include config.mk
 
-SRC = op.c rpn.c scalc.c strlcpy.c
+SRC = op.c scalc.c stack.c strlcpy.c
 OBJ = ${SRC:%.c=%.o}
 
 all: options scalc
@@ -22,9 +22,9 @@ config.h:
 .c.o:
 	${CC} -c ${CFLAGS} $<
 
-rpn.o: op.h rpn.h strlcpy.h
+stack.o: op.h stack.h strlcpy.h
 
-scalc.o: config.h op.h rpn.h
+scalc.o: config.h op.h stack.h
 
 ${OBJ}: config.mk
 
@@ -36,7 +36,7 @@ clean:
 
 dist: clean
 	mkdir -p scalc-${VERSION}
-	cp -R LICENSE Makefile README.md config.def.h config.mk op.h rpn.h \
+	cp -R LICENSE Makefile README.md config.def.h config.mk op.h stack.h \
 	   strlcpy.h scalc.1 ${SRC} scalc-${VERSION}
 	tar -cf scalc-${VERSION}.tar scalc-${VERSION}
 	gzip scalc-${VERSION}.tar
