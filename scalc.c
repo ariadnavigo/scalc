@@ -10,6 +10,7 @@
 #include "config.h"
 #include "op.h"
 #include "stack.h"
+#include "strlcpy.h"
 
 #define SCALC_CMD_SIZE 32
 
@@ -34,6 +35,9 @@ static void scalc_output(double res, const char *expr, int stack_err);
 static void scalc_list_ops(void);
 static int scalc_cmd(const char *cmd);
 static void scalc_ui(FILE *fp);
+
+static int stack_calc(double *dest, const char *expr, Stack *stack);
+static const char *stack_strerr(int err);
 
 static struct cmd_reg cmd_dfs[] = {
 	{ .id = "d", .reply = SCALC_DROP },
@@ -169,6 +173,71 @@ scalc_ui(FILE *fp)
 
 	if (prompt_mode == 0)
 		scalc_output(res, expr, stack_err);
+}
+
+static int
+stack_calc(double *dest, const char *expr, Stack *stack)
+{
+	int arg_i, err;
+	double args[2];
+	double dx;
+	char expr_cpy[STK_EXPR_SIZE];
+	char *ptr, *endptr;
+	const OpReg *op_ptr;
+
+	/* We need to operate on a copy, as strtok is destructive. */
+	strlcpy(expr_cpy, expr, STK_EXPR_SIZE);
+	ptr = strtok(expr_cpy, " ");
+	while (ptr != NULL) {
+		dx = strtof(ptr, &endptr);
+		if (endptr[0] == '\0')
+			goto pushnum; /* If number, skip further parsing */
+
+		if ((op_ptr = op(ptr)) == NULL)
+			return STK_ERR_OP_UNDEF;
+
+		/* Traversing backwards because we're poping off the stack */
+		for (arg_i = op_ptr->argn - 1; arg_i >= 0; --arg_i) {
+			err = stack_pop(&args[arg_i], stack);
+			if (err != STK_SUCCESS)
+				return err;
+		}
+
+		if (op_ptr->argn == 2)
+			dx = (*op_ptr->func.n2)(args[0], args[1]);
+		else if (op_ptr->argn == 1)
+			dx = (*op_ptr->func.n1)(args[0]);
+		else if (op_ptr->argn == 0)
+			dx = (*op_ptr->func.n0)();
+		else
+			return STK_ERR_OP_INV;
+
+pushnum:
+		if (stack_push(stack, dx) == NULL)
+			return STK_ERR_STACK_MAX;
+		ptr = strtok(NULL, " ");
+	}
+
+	return stack_peek(dest, *stack);
+}
+
+static const char *
+stack_strerr(int err)
+{
+	switch (err) {
+	case STK_SUCCESS:
+		return "success.";
+	case STK_ERR_OP_INV:
+		return "operation invalidly defined.";
+	case STK_ERR_OP_UNDEF:
+		return "operation not defined.";
+	case STK_ERR_STACK_MAX:
+		return "too many elements stored in stack.";
+	case STK_ERR_STACK_MIN:
+		return "too few elements in stack.";
+	default:
+		return "unknown error.";
+	}
 }
 
 int
