@@ -31,7 +31,7 @@ struct cmd_reg {
 };
 
 static void die(const char *fmt, ...);
-static void scalc_output(double res, const char *expr, int stack_err);
+static void scalc_output(double res, const char *expr, int err);
 static void scalc_list_ops(void);
 static int scalc_cmd(const char *cmd);
 static void scalc_ui(FILE *fp);
@@ -65,10 +65,10 @@ die(const char *fmt, ...)
 }
 
 static void
-scalc_output(double res, const char *expr, int stack_err)
+scalc_output(double res, const char *expr, int err)
 {
-	if (stack_err != STK_SUCCESS)
-		fprintf(stderr, "%s: %s\n", expr, stack_strerr(stack_err));
+	if (err != STK_SUCCESS)
+		fprintf(stderr, "%s: %s\n", expr, stack_strerr(err));
 	else
 		printf("%." SCALC_PREC "f\n", res);
 }
@@ -106,7 +106,7 @@ scalc_ui(FILE *fp)
 {
 	Stack stack;
 	char expr[STK_EXPR_SIZE];
-	int prompt_mode, output, scalc_err, stack_err;
+	int prompt_mode, output, err;
 	double res;
 
 	prompt_mode = isatty(fileno(fp));
@@ -129,19 +129,19 @@ scalc_ui(FILE *fp)
 		if (strlen(expr) == 0)
 			continue;
 
-		scalc_err = scalc_cmd(expr);
-		switch (scalc_err) {
+		err = scalc_cmd(expr);
+		switch (err) {
 		case SCALC_DROP:
-			stack_err = stack_drop(&stack);
-			if (stack_err != STK_SUCCESS)
+			err = stack_drop(&stack);
+			if (err != STK_SUCCESS)
 				output = 1;
 			break;
 		case SCALC_DROP_ALL:
 			stack_init(&stack);
 			break;
 		case SCALC_DUP:
-			stack_err = stack_dup(&stack);
-			if (stack_err != STK_SUCCESS)
+			err = stack_dup(&stack);
+			if (err != STK_SUCCESS)
 				output = 1;
 			break;
 		case SCALC_EXIT:
@@ -150,29 +150,29 @@ scalc_ui(FILE *fp)
 			scalc_list_ops();
 			break;
 		case SCALC_PEEK:
-			stack_err = stack_peek(&res, stack);
+			err = stack_peek(&res, stack);
 			output = 1;
 			break;
 		case SCALC_SWAP:
-			stack_err = stack_swap(&stack);
-			if (stack_err != STK_SUCCESS)
+			err = stack_swap(&stack);
+			if (err != STK_SUCCESS)
 				output = 1;
 			break;
 		default:
-			stack_err = stack_calc(&res, expr, &stack);
+			err = stack_calc(&res, expr, &stack);
 			output = 1;
 			break;
 		}
 
 		if ((prompt_mode > 0) && (output > 0))
-			scalc_output(res, expr, stack_err);
+			scalc_output(res, expr, err);
 
-		if ((prompt_mode == 0) && (stack_err != STK_SUCCESS))
+		if ((prompt_mode == 0) && (err != STK_SUCCESS))
 			break;
 	}
 
 	if (prompt_mode == 0)
-		scalc_output(res, expr, stack_err);
+		scalc_output(res, expr, err);
 }
 
 static int
