@@ -25,10 +25,10 @@ enum {
 	CMD_SWAP
 };
 
-struct cmd_reg {
+typedef struct {
 	char id[CMD_SIZE];
 	int reply;
-};
+} CmdReg;
 
 static void die(const char *fmt, ...);
 static const char *errmsg(int err);
@@ -40,7 +40,7 @@ static void ui(FILE *fp);
 static int parse_cmd(const char *cmd);
 static int parse_calc(double *dest, const char *expr, Stack *stack);
 
-static struct cmd_reg cmd_dfs[] = {
+static CmdReg cmd_dfs[] = {
 	{ .id = "d", .reply = CMD_DROP },
 	{ .id = "D", .reply = CMD_DROP_ALL },
 	{ .id = "dup", .reply = CMD_DUP },
@@ -180,7 +180,7 @@ ui(FILE *fp)
 static int
 parse_cmd(const char *cmd)
 {
-	struct cmd_reg *ptr;
+	CmdReg *ptr;
 
 	/* All scalc commands shall start with ':' */
 	if (cmd[0] != ':')
