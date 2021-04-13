@@ -37,8 +37,8 @@ static void reply(double res, const char *expr, int err);
 static void list_ops(void);
 static void ui(FILE *fp);
 
-static int parse_cmd(const char *cmd);
-static int parse_calc(double *dest, const char *expr, Stack *stack);
+static int eval_cmd(const char *cmd);
+static int eval_calc(double *dest, const char *expr, Stack *stack);
 
 static CmdReg cmd_dfs[] = {
 	{ .id = "d", .reply = CMD_DROP },
@@ -131,7 +131,7 @@ ui(FILE *fp)
 		if (strlen(expr) == 0)
 			continue;
 
-		err = parse_cmd(expr);
+		err = eval_cmd(expr);
 		switch (err) {
 		case CMD_DROP:
 			err = stack_drop(&stack);
@@ -161,7 +161,7 @@ ui(FILE *fp)
 				output = 1;
 			break;
 		default:
-			err = parse_calc(&res, expr, &stack);
+			err = eval_calc(&res, expr, &stack);
 			output = 1;
 			break;
 		}
@@ -178,7 +178,7 @@ ui(FILE *fp)
 }
 
 static int
-parse_cmd(const char *cmd)
+eval_cmd(const char *cmd)
 {
 	CmdReg *ptr;
 
@@ -196,7 +196,7 @@ parse_cmd(const char *cmd)
 }
 
 static int
-parse_calc(double *dest, const char *expr, Stack *stack)
+eval_calc(double *dest, const char *expr, Stack *stack)
 {
 	int arg_i, err;
 	double args[2];
