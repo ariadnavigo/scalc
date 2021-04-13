@@ -31,13 +31,14 @@ struct cmd_reg {
 };
 
 static void die(const char *fmt, ...);
+static const char *errmsg(int err);
+
 static void reply(double res, const char *expr, int err);
 static void list_ops(void);
-static int parse_cmd(const char *cmd);
 static void ui(FILE *fp);
 
+static int parse_cmd(const char *cmd);
 static int parse_calc(double *dest, const char *expr, Stack *stack);
-static const char *errmsg(int err);
 
 static struct cmd_reg cmd_dfs[] = {
 	{ .id = "d", .reply = CMD_DROP },
@@ -64,6 +65,25 @@ die(const char *fmt, ...)
 	exit(1);
 }
 
+static const char *
+errmsg(int err)
+{
+	switch (err) {
+	case STK_SUCCESS:
+		return "success.";
+	case STK_ERR_OP_INV:
+		return "operation invalidly defined.";
+	case STK_ERR_OP_UNDEF:
+		return "operation not defined.";
+	case STK_ERR_STACK_MAX:
+		return "too many elements stored in stack.";
+	case STK_ERR_STACK_MIN:
+		return "too few elements in stack.";
+	default:
+		return "unknown error.";
+	}
+}
+
 static void
 reply(double res, const char *expr, int err)
 {
@@ -81,24 +101,6 @@ list_ops(void)
 	for (ptr = op_defs; strncmp(ptr->id, "", OP_NAME_SIZE) != 0; ++ptr)
 		printf("%s ", ptr->id);
 	putchar('\n');
-}
-
-static int
-parse_cmd(const char *cmd)
-{
-	struct cmd_reg *ptr;
-
-	/* All scalc commands shall start with ':' */
-	if (cmd[0] != ':')
-		return CMD_NOP;
-
-	++cmd; /* Skip leading ':' */
-	for (ptr = cmd_dfs; strncmp(ptr->id, "", CMD_SIZE) != 0; ++ptr) {
-		if (strncmp(cmd, ptr->id, CMD_SIZE) == 0)
-			return ptr->reply;
-	}
-
-	return CMD_NOP;
 }
 
 static void
@@ -176,6 +178,24 @@ ui(FILE *fp)
 }
 
 static int
+parse_cmd(const char *cmd)
+{
+	struct cmd_reg *ptr;
+
+	/* All scalc commands shall start with ':' */
+	if (cmd[0] != ':')
+		return CMD_NOP;
+
+	++cmd; /* Skip leading ':' */
+	for (ptr = cmd_dfs; strncmp(ptr->id, "", CMD_SIZE) != 0; ++ptr) {
+		if (strncmp(cmd, ptr->id, CMD_SIZE) == 0)
+			return ptr->reply;
+	}
+
+	return CMD_NOP;
+}
+
+static int
 parse_calc(double *dest, const char *expr, Stack *stack)
 {
 	int arg_i, err;
@@ -219,25 +239,6 @@ pushnum:
 	}
 
 	return stack_peek(dest, *stack);
-}
-
-static const char *
-errmsg(int err)
-{
-	switch (err) {
-	case STK_SUCCESS:
-		return "success.";
-	case STK_ERR_OP_INV:
-		return "operation invalidly defined.";
-	case STK_ERR_OP_UNDEF:
-		return "operation not defined.";
-	case STK_ERR_STACK_MAX:
-		return "too many elements stored in stack.";
-	case STK_ERR_STACK_MIN:
-		return "too few elements in stack.";
-	default:
-		return "unknown error.";
-	}
 }
 
 int
