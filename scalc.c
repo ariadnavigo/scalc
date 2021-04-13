@@ -12,21 +12,21 @@
 #include "stack.h"
 #include "strlcpy.h"
 
-#define SCALC_CMD_SIZE 32
+#define CMD_SIZE 32
 
 enum {
-	SCALC_NOP,
-	SCALC_DROP,
-	SCALC_DROP_ALL,
-	SCALC_DUP,
-	SCALC_EXIT,
-	SCALC_LIST,
-	SCALC_PEEK,
-	SCALC_SWAP
+	CMD_NOP,
+	CMD_DROP,
+	CMD_DROP_ALL,
+	CMD_DUP,
+	CMD_EXIT,
+	CMD_LIST,
+	CMD_PEEK,
+	CMD_SWAP
 };
 
 struct cmd_reg {
-	char id[SCALC_CMD_SIZE];
+	char id[CMD_SIZE];
 	int reply;
 };
 
@@ -40,14 +40,14 @@ static int parse_calc(double *dest, const char *expr, Stack *stack);
 static const char *errmsg(int err);
 
 static struct cmd_reg cmd_dfs[] = {
-	{ .id = "d", .reply = SCALC_DROP },
-	{ .id = "D", .reply = SCALC_DROP_ALL },
-	{ .id = "dup", .reply = SCALC_DUP },
-	{ .id = "list", .reply = SCALC_LIST },
-	{ .id = "p", .reply = SCALC_PEEK },
-	{ .id = "q", .reply = SCALC_EXIT },
-	{ .id = "swp", .reply = SCALC_SWAP },
-	{ .id = "", .reply = SCALC_NOP } /* Dummy "terminator" */
+	{ .id = "d", .reply = CMD_DROP },
+	{ .id = "D", .reply = CMD_DROP_ALL },
+	{ .id = "dup", .reply = CMD_DUP },
+	{ .id = "list", .reply = CMD_LIST },
+	{ .id = "p", .reply = CMD_PEEK },
+	{ .id = "q", .reply = CMD_EXIT },
+	{ .id = "swp", .reply = CMD_SWAP },
+	{ .id = "", .reply = CMD_NOP } /* Dummy "terminator" */
 };
 
 static void
@@ -90,15 +90,15 @@ parse_cmd(const char *cmd)
 
 	/* All scalc commands shall start with ':' */
 	if (cmd[0] != ':')
-		return SCALC_NOP;
+		return CMD_NOP;
 
 	++cmd; /* Skip leading ':' */
-	for (ptr = cmd_dfs; strncmp(ptr->id, "", SCALC_CMD_SIZE) != 0; ++ptr) {
-		if (strncmp(cmd, ptr->id, SCALC_CMD_SIZE) == 0)
+	for (ptr = cmd_dfs; strncmp(ptr->id, "", CMD_SIZE) != 0; ++ptr) {
+		if (strncmp(cmd, ptr->id, CMD_SIZE) == 0)
 			return ptr->reply;
 	}
 
-	return SCALC_NOP;
+	return CMD_NOP;
 }
 
 static void
@@ -131,29 +131,29 @@ ui(FILE *fp)
 
 		err = parse_cmd(expr);
 		switch (err) {
-		case SCALC_DROP:
+		case CMD_DROP:
 			err = stack_drop(&stack);
 			if (err != STK_SUCCESS)
 				output = 1;
 			break;
-		case SCALC_DROP_ALL:
+		case CMD_DROP_ALL:
 			stack_init(&stack);
 			break;
-		case SCALC_DUP:
+		case CMD_DUP:
 			err = stack_dup(&stack);
 			if (err != STK_SUCCESS)
 				output = 1;
 			break;
-		case SCALC_EXIT:
+		case CMD_EXIT:
 			return;
-		case SCALC_LIST:
+		case CMD_LIST:
 			list_ops();
 			break;
-		case SCALC_PEEK:
+		case CMD_PEEK:
 			err = stack_peek(&res, stack);
 			output = 1;
 			break;
-		case SCALC_SWAP:
+		case CMD_SWAP:
 			err = stack_swap(&stack);
 			if (err != STK_SUCCESS)
 				output = 1;
