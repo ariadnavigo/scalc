@@ -31,13 +31,13 @@ struct cmd_reg {
 };
 
 static void die(const char *fmt, ...);
-static void scalc_output(double res, const char *expr, int err);
-static void scalc_list_ops(void);
-static int scalc_cmd(const char *cmd);
-static void scalc_ui(FILE *fp);
+static void reply(double res, const char *expr, int err);
+static void list_ops(void);
+static int parse_cmd(const char *cmd);
+static void ui(FILE *fp);
 
-static int stack_calc(double *dest, const char *expr, Stack *stack);
-static const char *stack_strerr(int err);
+static int parse_calc(double *dest, const char *expr, Stack *stack);
+static const char *errmsg(int err);
 
 static struct cmd_reg cmd_dfs[] = {
 	{ .id = "d", .reply = SCALC_DROP },
@@ -65,16 +65,16 @@ die(const char *fmt, ...)
 }
 
 static void
-scalc_output(double res, const char *expr, int err)
+reply(double res, const char *expr, int err)
 {
 	if (err != STK_SUCCESS)
-		fprintf(stderr, "%s: %s\n", expr, stack_strerr(err));
+		fprintf(stderr, "%s: %s\n", expr, errmsg(err));
 	else
 		printf("%." SCALC_PREC "f\n", res);
 }
 
 static void
-scalc_list_ops(void)
+list_ops(void)
 {
 	const OpReg *ptr;
 
@@ -84,7 +84,7 @@ scalc_list_ops(void)
 }
 
 static int
-scalc_cmd(const char *cmd)
+parse_cmd(const char *cmd)
 {
 	struct cmd_reg *ptr;
 
@@ -102,7 +102,7 @@ scalc_cmd(const char *cmd)
 }
 
 static void
-scalc_ui(FILE *fp)
+ui(FILE *fp)
 {
 	Stack stack;
 	char expr[STK_EXPR_SIZE];
@@ -129,7 +129,7 @@ scalc_ui(FILE *fp)
 		if (strlen(expr) == 0)
 			continue;
 
-		err = scalc_cmd(expr);
+		err = parse_cmd(expr);
 		switch (err) {
 		case SCALC_DROP:
 			err = stack_drop(&stack);
@@ -147,7 +147,7 @@ scalc_ui(FILE *fp)
 		case SCALC_EXIT:
 			return;
 		case SCALC_LIST:
-			scalc_list_ops();
+			list_ops();
 			break;
 		case SCALC_PEEK:
 			err = stack_peek(&res, stack);
@@ -159,24 +159,24 @@ scalc_ui(FILE *fp)
 				output = 1;
 			break;
 		default:
-			err = stack_calc(&res, expr, &stack);
+			err = parse_calc(&res, expr, &stack);
 			output = 1;
 			break;
 		}
 
 		if ((prompt_mode > 0) && (output > 0))
-			scalc_output(res, expr, err);
+			reply(res, expr, err);
 
 		if ((prompt_mode == 0) && (err != STK_SUCCESS))
 			break;
 	}
 
 	if (prompt_mode == 0)
-		scalc_output(res, expr, err);
+		reply(res, expr, err);
 }
 
 static int
-stack_calc(double *dest, const char *expr, Stack *stack)
+parse_calc(double *dest, const char *expr, Stack *stack)
 {
 	int arg_i, err;
 	double args[2];
@@ -222,7 +222,7 @@ pushnum:
 }
 
 static const char *
-stack_strerr(int err)
+errmsg(int err)
 {
 	switch (err) {
 	case STK_SUCCESS:
@@ -252,7 +252,7 @@ main(int argc, char *argv[])
 			die("Error reading %s: %s", argv[1], strerror(errno));
 	}
 
-	scalc_ui(fp);
+	ui(fp);
 
 	if (fp != stdin)
 		fclose(fp);
