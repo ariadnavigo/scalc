@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "op.h"
 #include "stack.h"
 
 Stack *

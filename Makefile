@@ -22,7 +22,7 @@ config.h:
 .c.o:
 	${CC} -c ${CFLAGS} $<
 
-stack.o: op.h stack.h
+stack.o: stack.h
 
 scalc.o: config.h op.h stack.h strlcpy.h
 
