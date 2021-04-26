@@ -40,7 +40,7 @@ static void ui(FILE *fp);
 static int eval_cmd(const char *cmd);
 static int eval_calc(double *dest, const char *expr, Stack *stack);
 
-static CmdReg cmd_dfs[] = {
+static const CmdReg cmd_dfs[] = {
 	{ .id = "d", .reply = CMD_DROP },
 	{ .id = "D", .reply = CMD_DROP_ALL },
 	{ .id = "dup", .reply = CMD_DUP },
@@ -180,7 +180,7 @@ ui(FILE *fp)
 static int
 eval_cmd(const char *cmd)
 {
-	CmdReg *ptr;
+	const CmdReg *ptr;
 
 	/* All scalc commands shall start with ':' */
 	if (cmd[0] != ':')
