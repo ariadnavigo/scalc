@@ -33,12 +33,12 @@ typedef struct {
 static void die(const char *fmt, ...);
 static const char *errmsg(int err);
 
+static int eval_cmd(const char *cmd);
+static int eval_calc(double *dest, const char *expr, Stack *stack);
+
 static void reply(double res, const char *expr, int err);
 static void list_ops(void);
 static void ui(FILE *fp);
-
-static int eval_cmd(const char *cmd);
-static int eval_calc(double *dest, const char *expr, Stack *stack);
 
 static const CmdReg cmd_dfs[] = {
 	{ .id = "d", .reply = CMD_DROP },
@@ -82,6 +82,70 @@ errmsg(int err)
 	default:
 		return "unknown error.";
 	}
+}
+
+static int
+eval_cmd(const char *cmd)
+{
+	const CmdReg *ptr;
+
+	/* All scalc commands shall start with ':' */
+	if (cmd[0] != ':')
+		return CMD_NOP;
+
+	++cmd; /* Skip leading ':' */
+	for (ptr = cmd_dfs; strncmp(ptr->id, "", CMD_SIZE) != 0; ++ptr) {
+		if (strncmp(cmd, ptr->id, CMD_SIZE) == 0)
+			return ptr->reply;
+	}
+
+	return CMD_NOP;
+}
+
+static int
+eval_calc(double *dest, const char *expr, Stack *stack)
+{
+	int arg_i, err;
+	double args[2];
+	double dx;
+	char expr_cpy[STK_EXPR_SIZE];
+	char *ptr, *endptr;
+	const OpReg *op_ptr;
+
+	/* We need to operate on a copy, as strtok is destructive. */
+	strlcpy(expr_cpy, expr, STK_EXPR_SIZE);
+	ptr = strtok(expr_cpy, " ");
+	while (ptr != NULL) {
+		dx = strtof(ptr, &endptr);
+		if (endptr[0] == '\0')
+			goto pushnum; /* If number, skip further parsing */
+
+		if ((op_ptr = op(ptr)) == NULL)
+			return STK_ERR_OP_UNDEF;
+
+		/* Traversing backwards because we're poping off the stack */
+		for (arg_i = op_ptr->argn - 1; arg_i >= 0; --arg_i) {
+			err = stack_pop(&args[arg_i], stack);
+			if (err != STK_SUCCESS)
+				return err;
+		}
+
+		if (op_ptr->argn == 2)
+			dx = (*op_ptr->func.n2)(args[0], args[1]);
+		else if (op_ptr->argn == 1)
+			dx = (*op_ptr->func.n1)(args[0]);
+		else if (op_ptr->argn == 0)
+			dx = (*op_ptr->func.n0)();
+		else
+			return STK_ERR_OP_INV;
+
+pushnum:
+		if (stack_push(stack, dx) == NULL)
+			return STK_ERR_STACK_MAX;
+		ptr = strtok(NULL, " ");
+	}
+
+	return stack_peek(dest, *stack);
 }
 
 static void
@@ -175,70 +239,6 @@ ui(FILE *fp)
 
 	if (prompt_mode == 0)
 		reply(res, expr, err);
-}
-
-static int
-eval_cmd(const char *cmd)
-{
-	const CmdReg *ptr;
-
-	/* All scalc commands shall start with ':' */
-	if (cmd[0] != ':')
-		return CMD_NOP;
-
-	++cmd; /* Skip leading ':' */
-	for (ptr = cmd_dfs; strncmp(ptr->id, "", CMD_SIZE) != 0; ++ptr) {
-		if (strncmp(cmd, ptr->id, CMD_SIZE) == 0)
-			return ptr->reply;
-	}
-
-	return CMD_NOP;
-}
-
-static int
-eval_calc(double *dest, const char *expr, Stack *stack)
-{
-	int arg_i, err;
-	double args[2];
-	double dx;
-	char expr_cpy[STK_EXPR_SIZE];
-	char *ptr, *endptr;
-	const OpReg *op_ptr;
-
-	/* We need to operate on a copy, as strtok is destructive. */
-	strlcpy(expr_cpy, expr, STK_EXPR_SIZE);
-	ptr = strtok(expr_cpy, " ");
-	while (ptr != NULL) {
-		dx = strtof(ptr, &endptr);
-		if (endptr[0] == '\0')
-			goto pushnum; /* If number, skip further parsing */
-
-		if ((op_ptr = op(ptr)) == NULL)
-			return STK_ERR_OP_UNDEF;
-
-		/* Traversing backwards because we're poping off the stack */
-		for (arg_i = op_ptr->argn - 1; arg_i >= 0; --arg_i) {
-			err = stack_pop(&args[arg_i], stack);
-			if (err != STK_SUCCESS)
-				return err;
-		}
-
-		if (op_ptr->argn == 2)
-			dx = (*op_ptr->func.n2)(args[0], args[1]);
-		else if (op_ptr->argn == 1)
-			dx = (*op_ptr->func.n1)(args[0]);
-		else if (op_ptr->argn == 0)
-			dx = (*op_ptr->func.n0)();
-		else
-			return STK_ERR_OP_INV;
-
-pushnum:
-		if (stack_push(stack, dx) == NULL)
-			return STK_ERR_STACK_MAX;
-		ptr = strtok(NULL, " ");
-	}
-
-	return stack_peek(dest, *stack);
 }
 
 int
