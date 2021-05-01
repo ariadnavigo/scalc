@@ -1,7 +1,5 @@
 /* See LICENSE file for copyright and license details. */
 
-#include <errno.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,27 +10,9 @@
 #include "stack.h"
 #include "strlcpy.h"
 
-static void die(const char *fmt, ...);
 static const char *errmsg(int err);
-
 static int eval(double *dest, const char *expr, Stack *stack);
-
-static void reply(double res, const char *expr, int err);
 static void list_ops(void);
-
-static void
-die(const char *fmt, ...)
-{
-	va_list ap;
-	va_start(ap, fmt);
-
-	vfprintf(stderr, fmt, ap);
-	fputc('\n', stderr);
-
-	va_end(ap);
-
-	exit(1);
-}
 
 static const char *
 errmsg(int err)
@@ -100,15 +80,6 @@ pushnum:
 }
 
 static void
-reply(double res, const char *expr, int err)
-{
-	if (err != STK_SUCCESS)
-		fprintf(stderr, "%s: %s\n", expr, errmsg(err));
-	else
-		printf("%." SCALC_PREC "f\n", res);
-}
-
-static void
 list_ops(void)
 {
 	const OpReg *ptr;
@@ -119,32 +90,25 @@ list_ops(void)
 }
 
 int
-main(int argc, char *argv[])
+main(void)
 {
 	Stack stack;
 	char expr[STK_EXPR_SIZE];
-	int prompt_mode, err;
+	int prompt_mode, output, err;
 	double res;
 
-	FILE *fp;
-
-	if (argc < 2) {
-		fp = stdin;
-	} else {
-		if ((fp = fopen(argv[1], "r")) == NULL)
-			die("Error reading %s: %s", argv[1], strerror(errno));
-	}
-
-	prompt_mode = isatty(fileno(fp));
+	prompt_mode = isatty(fileno(stdin));
 
 	stack_init(&stack);
-	while (feof(fp) == 0) {
+	while (feof(stdin) == 0) {
+		output = 0; /* We assume no output is wanted */
+
 		if (prompt_mode > 0) {
 			printf(scalc_prompt);
 			fflush(stdout);
 		}
 
-		if (fgets(expr, STK_EXPR_SIZE, fp) == NULL)
+		if (fgets(expr, STK_EXPR_SIZE, stdin) == NULL)
 			break;
 
 		if (expr[strlen(expr) - 1] == '\n')
@@ -159,33 +123,28 @@ main(int argc, char *argv[])
 			err = stack_dup(&stack);
 		} else if (strncmp(expr, ":D", STK_EXPR_SIZE) == 0) {
 			stack_init(&stack);
-			continue;
 		} else if (strncmp(expr, ":list", STK_EXPR_SIZE) == 0) {
 			list_ops();
-			continue;
 		} else if (strncmp(expr, ":p", STK_EXPR_SIZE) == 0) {
 			err = stack_peek(&res, stack);
+			output = 1;
 		} else if (strncmp(expr, ":swp", STK_EXPR_SIZE) == 0) {
 			err = stack_swap(&stack);
 		} else if (strncmp(expr, ":q", STK_EXPR_SIZE) == 0) {
-			goto exit;
+			return 0;
 		} else {
 			err = eval(&res, expr, &stack);
+			output = 1;
 		}
 
-		if (prompt_mode > 0)
-			reply(res, expr, err);
+		if (err != STK_SUCCESS) {
+			fprintf(stderr, "%s: %s\n", expr, errmsg(err));
+			continue;
+		}
 
-		if ((prompt_mode == 0) && (err != STK_SUCCESS))
-			break;
+		if (output > 0)
+			printf("%." SCALC_PREC "f\n", res);
 	}
-
-	if (prompt_mode == 0)
-		reply(res, expr, err);
-
-exit:
-	if (fp != stdin)
-		fclose(fp);
 
 	return 0;
 }

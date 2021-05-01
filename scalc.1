@@ -5,7 +5,6 @@ scalc \- Simple calculator
 .SH SYNOPSIS
 .PP
 .B scalc
-.RB [ file ]
 .SH DESCRIPTION
 .PP
 .B scalc 
@@ -13,14 +12,8 @@ is a very simple stack-based calculator
 that aims to be small, flexible, and extensible.
 .PP
 .B scalc 
-reads RPN expressions from an interactive prompt, a pipe, or
-.I file.
+reads RPN expressions from standard input.
 Results are provided in double-precision floats to stdout. 
-When 
-.B scalc 
-is not run interactively, 
-only the results are printed to stdout, 
-not echoing any of the operations provided in the file itself.
 .PP
 Currently supported mathematical functions include 
 basic arithmetic operations, square roots, and natural logarithms. 
@@ -85,22 +78,6 @@ Default interactive mode:
 1.203973
 .br
 .B "> :q"
-.RE
-.fi
-.PP
-Reading from file:
-.PP
-.nf
-.RS
-.B "$ cat scalc_ex"
-.br
-67 9 -
-.br
-sqrt
-.br
-.B "$ scalc scalc_ex"
-.br
-7.615773
 .RE
 .fi
 .PP
