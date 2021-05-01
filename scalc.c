@@ -169,7 +169,7 @@ main(int argc, char *argv[])
 			continue;
 		} else if (strncmp(expr, ":swp", STK_EXPR_SIZE) == 0) {
 			err = stack_swap(&stack);
-		} else if (strncmp(expr, ":q", 1) == 0) {
+		} else if (strncmp(expr, ":q", STK_EXPR_SIZE) == 0) {
 			goto exit;
 		} else {
 			err = eval(&res, expr, &stack);
