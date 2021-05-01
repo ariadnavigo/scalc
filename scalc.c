@@ -11,8 +11,8 @@
 #include "strlcpy.h"
 
 static const char *errmsg(int err);
-static int eval(double *dest, const char *expr, Stack *stack);
 static void list_ops(void);
+static int eval(double *dest, const char *expr, Stack *stack);
 
 static const char *
 errmsg(int err)
@@ -31,6 +31,16 @@ errmsg(int err)
 	default:
 		return "unknown error.";
 	}
+}
+
+static void
+list_ops(void)
+{
+	const OpReg *ptr;
+
+	for (ptr = op_defs; strncmp(ptr->id, "", OP_NAME_SIZE) != 0; ++ptr)
+		printf("%s ", ptr->id);
+	putchar('\n');
 }
 
 static int
@@ -77,16 +87,6 @@ pushnum:
 	}
 
 	return stack_peek(dest, *stack);
-}
-
-static void
-list_ops(void)
-{
-	const OpReg *ptr;
-
-	for (ptr = op_defs; strncmp(ptr->id, "", OP_NAME_SIZE) != 0; ++ptr)
-		printf("%s ", ptr->id);
-	putchar('\n');
 }
 
 int
