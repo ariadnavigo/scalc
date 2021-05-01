@@ -165,8 +165,6 @@ main(int argc, char *argv[])
 			continue;
 		} else if (strncmp(expr, ":p", STK_EXPR_SIZE) == 0) {
 			err = stack_peek(&res, stack);
-			reply(res, expr, err);
-			continue;
 		} else if (strncmp(expr, ":swp", STK_EXPR_SIZE) == 0) {
 			err = stack_swap(&stack);
 		} else if (strncmp(expr, ":q", STK_EXPR_SIZE) == 0) {
