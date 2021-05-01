@@ -5,7 +5,7 @@
 
 #include "stack.h"
 
-Stack *
+int
 stack_init(Stack *stack)
 {
 	/*
@@ -17,21 +17,21 @@ stack_init(Stack *stack)
 
 	stack->sp = -1;
 
-	return stack;
+	return STK_SUCCESS; /* Never fails */
 }
 
-Stack *
+int
 stack_push(Stack *stack, double elem)
 {
 	/* Let's avoid stack overflows */
 	if (++stack->sp == STK_STACK_SIZE) {
 		--stack->sp;
-		return NULL;
+		return STK_ERR_STACK_MAX;
 	}
 
 	stack->elems[stack->sp] = elem;
 
-	return stack;
+	return STK_SUCCESS;
 }
 
 int
@@ -69,8 +69,8 @@ stack_dup(Stack *stack)
 	if (err != STK_SUCCESS)
 		return err;
 
-	if (stack_push(stack, dup) == NULL)
-		return STK_ERR_STACK_MAX;
+	if ((err = stack_push(stack, dup)) != STK_SUCCESS)
+		return err;
 
 	return STK_SUCCESS; 
 }
@@ -96,9 +96,9 @@ stack_swap(Stack *stack)
 	    || ((err = stack_pop(&bx, stack)) != STK_SUCCESS))
 		return err;
 
-	if ((stack_push(stack, ax) == NULL)
-	    || (stack_push(stack, bx) == NULL))
-		return STK_ERR_STACK_MAX;
+	if (((err = stack_push(stack, ax)) != STK_SUCCESS)
+	    || ((err = stack_push(stack, bx)) != STK_SUCCESS))
+		return err;
 
 	return STK_SUCCESS;
 }

@@ -12,44 +12,13 @@
 #include "stack.h"
 #include "strlcpy.h"
 
-#define CMD_SIZE 32
-
-enum {
-	CMD_NOP,
-	CMD_DROP,
-	CMD_DROP_ALL,
-	CMD_DUP,
-	CMD_EXIT,
-	CMD_LIST,
-	CMD_PEEK,
-	CMD_SWAP
-};
-
-typedef struct {
-	char id[CMD_SIZE];
-	int reply;
-} CmdReg;
-
 static void die(const char *fmt, ...);
 static const char *errmsg(int err);
 
-static int eval_cmd(const char *cmd);
-static int eval_calc(double *dest, const char *expr, Stack *stack);
+static int eval(double *dest, const char *expr, Stack *stack);
 
 static void reply(double res, const char *expr, int err);
 static void list_ops(void);
-static void ui(FILE *fp);
-
-static const CmdReg cmd_dfs[] = {
-	{ .id = "d", .reply = CMD_DROP },
-	{ .id = "D", .reply = CMD_DROP_ALL },
-	{ .id = "dup", .reply = CMD_DUP },
-	{ .id = "list", .reply = CMD_LIST },
-	{ .id = "p", .reply = CMD_PEEK },
-	{ .id = "q", .reply = CMD_EXIT },
-	{ .id = "swp", .reply = CMD_SWAP },
-	{ .id = "", .reply = CMD_NOP } /* Dummy "terminator" */
-};
 
 static void
 die(const char *fmt, ...)
@@ -85,25 +54,7 @@ errmsg(int err)
 }
 
 static int
-eval_cmd(const char *cmd)
-{
-	const CmdReg *ptr;
-
-	/* All scalc commands shall start with ':' */
-	if (cmd[0] != ':')
-		return CMD_NOP;
-
-	++cmd; /* Skip leading ':' */
-	for (ptr = cmd_dfs; strncmp(ptr->id, "", CMD_SIZE) != 0; ++ptr) {
-		if (strncmp(cmd, ptr->id, CMD_SIZE) == 0)
-			return ptr->reply;
-	}
-
-	return CMD_NOP;
-}
-
-static int
-eval_calc(double *dest, const char *expr, Stack *stack)
+eval(double *dest, const char *expr, Stack *stack)
 {
 	int arg_i, err;
 	double args[2];
@@ -140,8 +91,8 @@ eval_calc(double *dest, const char *expr, Stack *stack)
 			return STK_ERR_OP_INV;
 
 pushnum:
-		if (stack_push(stack, dx) == NULL)
-			return STK_ERR_STACK_MAX;
+		if ((err = stack_push(stack, dx)) != STK_SUCCESS)
+			return err;
 		ptr = strtok(NULL, " ");
 	}
 
@@ -167,20 +118,27 @@ list_ops(void)
 	putchar('\n');
 }
 
-static void
-ui(FILE *fp)
+int
+main(int argc, char *argv[])
 {
 	Stack stack;
 	char expr[STK_EXPR_SIZE];
-	int prompt_mode, output, err;
+	int prompt_mode, err;
 	double res;
+
+	FILE *fp;
+
+	if (argc < 2) {
+		fp = stdin;
+	} else {
+		if ((fp = fopen(argv[1], "r")) == NULL)
+			die("Error reading %s: %s", argv[1], strerror(errno));
+	}
 
 	prompt_mode = isatty(fileno(fp));
 
 	stack_init(&stack);
 	while (feof(fp) == 0) {
-		output = 0; /* We assume output is not needed */
-
 		if (prompt_mode > 0) {
 			printf(scalc_prompt);
 			fflush(stdout);
@@ -195,42 +153,29 @@ ui(FILE *fp)
 		if (strlen(expr) == 0)
 			continue;
 
-		err = eval_cmd(expr);
-		switch (err) {
-		case CMD_DROP:
+		if (strncmp(expr, ":d", STK_EXPR_SIZE) == 0) {
 			err = stack_drop(&stack);
-			if (err != STK_SUCCESS)
-				output = 1;
-			break;
-		case CMD_DROP_ALL:
-			stack_init(&stack);
-			break;
-		case CMD_DUP:
+		} else if (strncmp(expr, ":dup", STK_EXPR_SIZE) == 0) {
 			err = stack_dup(&stack);
-			if (err != STK_SUCCESS)
-				output = 1;
-			break;
-		case CMD_EXIT:
-			return;
-		case CMD_LIST:
+		} else if (strncmp(expr, ":D", STK_EXPR_SIZE) == 0) {
+			stack_init(&stack);
+			continue;
+		} else if (strncmp(expr, ":list", STK_EXPR_SIZE) == 0) {
 			list_ops();
-			break;
-		case CMD_PEEK:
+			continue;
+		} else if (strncmp(expr, ":p", STK_EXPR_SIZE) == 0) {
 			err = stack_peek(&res, stack);
-			output = 1;
-			break;
-		case CMD_SWAP:
+			reply(res, expr, err);
+			continue;
+		} else if (strncmp(expr, ":swp", STK_EXPR_SIZE) == 0) {
 			err = stack_swap(&stack);
-			if (err != STK_SUCCESS)
-				output = 1;
-			break;
-		default:
-			err = eval_calc(&res, expr, &stack);
-			output = 1;
-			break;
+		} else if (strncmp(expr, ":q", 1) == 0) {
+			goto exit;
+		} else {
+			err = eval(&res, expr, &stack);
 		}
 
-		if ((prompt_mode > 0) && (output > 0))
+		if (prompt_mode > 0)
 			reply(res, expr, err);
 
 		if ((prompt_mode == 0) && (err != STK_SUCCESS))
@@ -239,22 +184,8 @@ ui(FILE *fp)
 
 	if (prompt_mode == 0)
 		reply(res, expr, err);
-}
 
-int
-main(int argc, char *argv[])
-{
-	FILE *fp;
-
-	if (argc < 2) {
-		fp = stdin;
-	} else {
-		if ((fp = fopen(argv[1], "r")) == NULL)
-			die("Error reading %s: %s", argv[1], strerror(errno));
-	}
-
-	ui(fp);
-
+exit:
 	if (fp != stdin)
 		fclose(fp);
 
