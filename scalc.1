@@ -5,6 +5,7 @@ scalc \- Simple calculator
 .SH SYNOPSIS
 .PP
 .B scalc
+.RB [ \-v ]
 .SH DESCRIPTION
 .PP
 .B scalc 
@@ -54,6 +55,10 @@ can be easily extended with new mathematical functions by adding them to the
 .I op.c
 source file. 
 The source file itself includes detailed instructions on how to do so.
+.SH OPTIONS
+.TP
+.B \-v
+Show version information and exit.
 .SH EXAMPLES
 .PP
 The following example showcases basic operation with 
@@ -63,21 +68,21 @@ Default interactive mode:
 .PP
 .nf
 .RS
-.B "$ scalc"
+.RB $ " scalc"
 .br 
-.B "> 2 3 + 9 / 15 /"
+.RB > " 2 3 + 9 / 15 /"
 .br
 0.037037
 .br
-.B "> 90 *"
+.RB > " 90 *"
 .br
 3.333334
 .br
-.B "> ln"
+.RB > " ln"
 .br
 1.203973
 .br
-.B "> :q"
+.RB > " :q"
 .RE
 .fi
 .PP
@@ -85,7 +90,7 @@ Reading from a pipeline:
 .PP
 .nf
 .RS
-.B "$ echo '34 ln' | scalc"
+.RB $ " echo '34 ln' | scalc"
 .br
 3.526361
 .RE

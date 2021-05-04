@@ -1,18 +1,44 @@
 /* See LICENSE file for copyright and license details. */
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+static char *argv0; /* Required here by arg.h */
+#include "arg.h"
 #include "config.h"
 #include "op.h"
 #include "stack.h"
 #include "strlcpy.h"
 
+static void die(const char *fmt, ...);
+static void usage(void);
+
 static const char *errmsg(int err);
 static void list_ops(void);
 static int eval(double *dest, const char *expr, Stack *stack);
+
+static void
+die(const char *fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+
+	vfprintf(stderr, fmt, ap);
+	fputc('\n', stderr);
+
+	va_end(ap);
+
+	exit(1);
+}
+
+static void
+usage(void)
+{
+	die("usage: scalc [-v]");
+}
 
 static const char *
 errmsg(int err)
@@ -88,12 +114,20 @@ pushnum:
 }
 
 int
-main(void)
+main(int argc, char *argv[])
 {
 	Stack stack;
 	char expr[STK_EXPR_SIZE];
 	int prompt_mode, output, err;
 	double res;
+
+	ARGBEGIN {
+	case 'v':
+		die("scalc %s", VERSION);
+		break; /* UNREACHABLE */
+	default:
+		usage(); /* die()'s */
+	} ARGEND;
 
 	prompt_mode = isatty(fileno(stdin));
 
