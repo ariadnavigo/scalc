@@ -18,8 +18,6 @@ static const char *
 errmsg(int err)
 {
 	switch (err) {
-	case STK_SUCCESS:
-		return "success.";
 	case STK_ERR_OP_INV:
 		return "operation invalidly defined.";
 	case STK_ERR_OP_UNDEF:
