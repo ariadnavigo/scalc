@@ -133,6 +133,7 @@ main(int argc, char *argv[])
 
 	stack_init(&stack);
 	while (feof(stdin) == 0) {
+		err = STK_SUCCESS;
 		output = 0; /* We assume no output is wanted */
 
 		if (prompt_mode > 0) {
