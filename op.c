@@ -34,6 +34,7 @@ static double op_add(double p, double q);
 static double op_subst(double p, double q);
 static double op_mult(double p, double q);
 static double op_div(double p, double q);
+static double op_prcnt(double n);
 static double op_mod(double p, double q);
 static double op_fact(double n);
 static double op_npr(double n, double r);
@@ -49,6 +50,7 @@ const OpReg op_defs[] = {
 	{ "*", 2, { .n2 = op_mult } },
 	{ "/", 2, { .n2 = op_div } },
 	{ "^", 2, { .n2 = pow } }, /* From libm, directly */
+	{ "%", 1, { .n1 = op_prcnt } },
 	{ "ln", 1, { .n1 = log } },
 	{ "sqrt", 1, { .n1 = sqrt } },
 	{ "mod", 2, { .n2 = op_mod } },
@@ -88,6 +90,12 @@ static double
 op_div(double p, double q)
 {
 	return p / q;
+}
+
+static double
+op_prcnt(double n)
+{
+	return n / 100;
 }
 
 static double
