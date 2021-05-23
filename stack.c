@@ -93,11 +93,17 @@ stack_swap(Stack *stack)
 {
 	double ax, bx;
 
-	if ((stack_pop(&ax, stack) < 0) || (stack_pop(&bx, stack) < 0))
+	/* If less than 2 elements in stack */
+	if (stack->sp < 1) {
+		stack_err = STK_ERR_STACK_MIN;
 		return -1;
+	}
 
-	if ((stack_push(stack, ax) < 0) || (stack_push(stack, bx) < 0))
-		return -1;
+	/* This is totally safe after the test above */
+	stack_pop(&ax, stack);
+	stack_pop(&bx, stack);
+	stack_push(stack, ax);
+	stack_push(stack, bx);
 
 	return 0;
 }
