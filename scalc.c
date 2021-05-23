@@ -16,7 +16,6 @@ static char *argv0; /* Required here by arg.h */
 static void die(const char *fmt, ...);
 static void usage(void);
 
-static const char *errmsg(int err);
 static void print_num(double num);
 static void list_ops(void);
 static int expr_is_cmd(const char *expr);
@@ -42,19 +41,6 @@ static void
 usage(void)
 {
 	die("usage: scalc [-v]");
-}
-
-static const char *
-errmsg(int err)
-{
-	switch (err) {
-	case STK_ERR_STACK_MAX:
-		return "too many elements stored in stack.";
-	case STK_ERR_STACK_MIN:
-		return "too few elements in stack.";
-	default:
-		return "unknown error.";
-	}
 }
 
 static void
@@ -111,7 +97,7 @@ run_cmd(Stack *stack, const char *expr)
 	}
 
 	if (err < 0)
-		fprintf(stderr, "%s: %s\n", expr, errmsg(stack_err));
+		fprintf(stderr, "%s: %s\n", expr, stack_errmsg());
 }
 
 static int
@@ -160,20 +146,20 @@ eval(const char *expr, Stack *stack)
 		}
 		
 		if (apply(&dx, op_ptr, stack) < 0) {
-			fprintf(stderr, "%s: %s\n", expr, errmsg(stack_err));
+			fprintf(stderr, "%s: %s\n", expr, stack_errmsg());
 			return;
 		}
 
 pushnum:
 		if (stack_push(stack, dx) < 0) {
-			fprintf(stderr, "%s: %s\n", expr, errmsg(stack_err));
+			fprintf(stderr, "%s: %s\n", expr, stack_errmsg());
 			return;
 		}
 		ptr = strtok(NULL, " ");
 	}
 
 	if (stack_peek(&dest, *stack) < 0) {
-		fprintf(stderr, "%s: %s\n", expr, errmsg(stack_err));
+		fprintf(stderr, "%s: %s\n", expr, stack_errmsg());
 		return;
 	}
 

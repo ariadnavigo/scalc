@@ -5,7 +5,13 @@
 
 #include "stack.h"
 
-int stack_err = STK_SUCCESS;
+enum {
+	STK_SUCCESS,
+	STK_ERR_STACK_MAX,
+	STK_ERR_STACK_MIN
+};
+
+static int stack_err = STK_SUCCESS;
 
 int
 stack_init(Stack *stack)
@@ -108,3 +114,15 @@ stack_swap(Stack *stack)
 	return 0;
 }
 
+const char *
+stack_errmsg(void)
+{
+	switch (stack_err) {
+	case STK_ERR_STACK_MAX:
+		return "too many elements stored in stack.";
+	case STK_ERR_STACK_MIN:
+		return "too few elements in stack.";
+	default:
+		return "unknown error.";
+	}
+}

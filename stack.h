@@ -3,12 +3,6 @@
 #define STK_EXPR_SIZE 32
 #define STK_STACK_SIZE 32
 
-enum {
-	STK_SUCCESS,
-	STK_ERR_STACK_MAX,
-	STK_ERR_STACK_MIN
-};
-
 typedef struct {
 	int sp;
 	double elems[STK_STACK_SIZE];
@@ -21,5 +15,4 @@ int stack_drop(Stack *stack);
 int stack_dup(Stack *stack);
 int stack_peek(double *dest, Stack stack);
 int stack_swap(Stack *stack);
-
-extern int stack_err;
+const char *stack_errmsg(void);
