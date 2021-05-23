@@ -5,6 +5,8 @@
 
 #include "stack.h"
 
+int stack_err = STK_SUCCESS;
+
 int
 stack_init(Stack *stack)
 {
@@ -17,7 +19,7 @@ stack_init(Stack *stack)
 
 	stack->sp = -1;
 
-	return STK_SUCCESS; /* Never fails */
+	return 0;
 }
 
 int
@@ -26,80 +28,77 @@ stack_push(Stack *stack, double elem)
 	/* Let's avoid stack overflows */
 	if (++stack->sp == STK_STACK_SIZE) {
 		--stack->sp;
-		return STK_ERR_STACK_MAX;
+		stack_err = STK_ERR_STACK_MAX;
+		return -1;
 	}
 
 	stack->elems[stack->sp] = elem;
 
-	return STK_SUCCESS;
+	return 0;
 }
 
 int
 stack_pop(double *dest, Stack *stack)
 {
-	int err;
-
-	err = stack_peek(dest, *stack);
-	if (err != STK_SUCCESS)
-		return err;
+	if (stack_peek(dest, *stack) < 0)
+		return -1;
 
 	--stack->sp;
 
-	return STK_SUCCESS;
+	return 0;
 }
 
 int
 stack_drop(Stack *stack)
 {
-	if (stack->sp < 0)
-		return STK_ERR_STACK_MIN;
+	if (stack->sp < 0) {
+		stack_err = STK_ERR_STACK_MIN;
+		return -1;
+	}
 	
 	--stack->sp;
 
-	return STK_SUCCESS;
+	return 0;
 }
 
 int
 stack_dup(Stack *stack)
 {
 	double dup;
-	int err;
 
-	err = stack_peek(&dup, *stack);
-	if (err != STK_SUCCESS)
-		return err;
+	if (stack_peek(&dup, *stack) < 0)
+		return -1;
 
-	if ((err = stack_push(stack, dup)) != STK_SUCCESS)
-		return err;
+	if (stack_push(stack, dup) < 0)
+		return -1;
 
-	return STK_SUCCESS; 
+	return 0; 
 }
 
 int
 stack_peek(double *dest, Stack stack)
 {
-	if (stack.sp < 0)
-		return STK_ERR_STACK_MIN;
+	if (stack.sp < 0) {
+		stack_err = STK_ERR_STACK_MIN;
+		return -1;
+	}
 
 	*dest = stack.elems[stack.sp];
 
-	return STK_SUCCESS;
+	return 0;
 }
 
 int
 stack_swap(Stack *stack)
 {
-	int err;
 	double ax, bx;
 
-	if (((err = stack_pop(&ax, stack)) != STK_SUCCESS)
-	    || ((err = stack_pop(&bx, stack)) != STK_SUCCESS))
-		return err;
+	if ((stack_pop(&ax, stack) < 0) || (stack_pop(&bx, stack) < 0))
+		return -1;
 
-	if (((err = stack_push(stack, ax)) != STK_SUCCESS)
-	    || ((err = stack_push(stack, bx)) != STK_SUCCESS))
-		return err;
+	if ((stack_push(stack, ax) < 0) || (stack_push(stack, bx) < 0))
+		return -1;
 
-	return STK_SUCCESS;
+	return 0;
 }
 

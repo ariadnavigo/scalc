@@ -70,7 +70,7 @@ list_ops(void)
 static int
 eval(double *dest, const char *expr, Stack *stack)
 {
-	int arg_i, err;
+	int arg_i;
 	double args[2];
 	double dx;
 	char expr_cpy[STK_EXPR_SIZE];
@@ -90,9 +90,8 @@ eval(double *dest, const char *expr, Stack *stack)
 
 		/* Traversing backwards because we're poping off the stack */
 		for (arg_i = op_ptr->argn - 1; arg_i >= 0; --arg_i) {
-			err = stack_pop(&args[arg_i], stack);
-			if (err != STK_SUCCESS)
-				return err;
+			if (stack_pop(&args[arg_i], stack) < 0)
+				return stack_err;
 		}
 
 		if (op_ptr->argn == 2)
@@ -102,15 +101,16 @@ eval(double *dest, const char *expr, Stack *stack)
 		else if (op_ptr->argn == 0)
 			dx = (*op_ptr->func.n0)();
 		else
-			return STK_ERR_OP_INV;
+			return stack_err;
 
 pushnum:
-		if ((err = stack_push(stack, dx)) != STK_SUCCESS)
-			return err;
+		if (stack_push(stack, dx) < 0)
+			return stack_err;
 		ptr = strtok(NULL, " ");
 	}
 
-	return stack_peek(dest, *stack);
+	stack_peek(dest, *stack);
+	return stack_err;
 }
 
 int
