@@ -17,6 +17,7 @@ static void die(const char *fmt, ...);
 static void usage(void);
 
 static const char *errmsg(int err);
+static void print_num(double num);
 static void list_ops(void);
 static int expr_is_cmd(const char *expr);
 static void run_cmd(Stack *stack, const char *expr);
@@ -47,10 +48,6 @@ static const char *
 errmsg(int err)
 {
 	switch (err) {
-	case STK_ERR_OP_INV:
-		return "operation invalidly defined.";
-	case STK_ERR_OP_UNDEF:
-		return "operation not defined.";
 	case STK_ERR_STACK_MAX:
 		return "too many elements stored in stack.";
 	case STK_ERR_STACK_MIN:
@@ -58,6 +55,12 @@ errmsg(int err)
 	default:
 		return "unknown error.";
 	}
+}
+
+static void
+print_num(double num)
+{
+	printf("%." SCALC_PREC "f\n", num);
 }
 
 static void
@@ -95,7 +98,7 @@ run_cmd(Stack *stack, const char *expr)
 	} else if (strncmp(expr, ":p", STK_EXPR_SIZE) == 0) {
 		err = stack_peek(&buf, *stack);
 		if (err == 0) {
-			printf("%." SCALC_PREC "f\n", buf);
+			print_num(buf);
 			return;
 		}
 	} else if (strncmp(expr, ":swp", STK_EXPR_SIZE) == 0) {
@@ -152,7 +155,7 @@ eval(const char *expr, Stack *stack)
 			goto pushnum; /* If number, skip further parsing */
 
 		if ((op_ptr = op(ptr)) == NULL) {
-			fprintf(stderr, "%s: %s\n", ptr, errmsg(stack_err));
+			fprintf(stderr, "%s: undefined operation.\n", ptr);
 			return;
 		}
 		
@@ -174,7 +177,7 @@ pushnum:
 		return;
 	}
 
-	printf("%." SCALC_PREC "f\n", dest);
+	print_num(dest);
 }
 
 int
