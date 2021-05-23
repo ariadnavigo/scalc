@@ -18,7 +18,10 @@ static void usage(void);
 
 static const char *errmsg(int err);
 static void list_ops(void);
-static int eval(double *dest, const char *expr, Stack *stack);
+static int expr_is_cmd(const char *expr);
+static void run_cmd(Stack *stack, const char *expr);
+static int apply(double *dx, const OpReg *op_ptr, Stack *stack);
+static void eval(const char *expr, Stack *stack);
 
 static void
 die(const char *fmt, ...)
@@ -68,11 +71,74 @@ list_ops(void)
 }
 
 static int
-eval(double *dest, const char *expr, Stack *stack)
+expr_is_cmd(const char *expr)
+{
+	return expr[0] == ':';
+}
+
+static void
+run_cmd(Stack *stack, const char *expr)
+{
+	int err;
+	double buf;
+
+	err = 0;
+	buf = 0.0;
+	if (strncmp(expr, ":d", STK_EXPR_SIZE) == 0) {
+		err = stack_drop(stack);
+	} else if (strncmp(expr, ":dup", STK_EXPR_SIZE) == 0) {
+		err = stack_dup(stack);
+	} else if (strncmp(expr, ":D", STK_EXPR_SIZE) == 0) {
+		stack_init(stack);
+	} else if (strncmp(expr, ":list", STK_EXPR_SIZE) == 0) {
+		list_ops();
+	} else if (strncmp(expr, ":p", STK_EXPR_SIZE) == 0) {
+		err = stack_peek(&buf, *stack);
+		if (err == 0) {
+			printf("%." SCALC_PREC "f\n", buf);
+			return;
+		}
+	} else if (strncmp(expr, ":swp", STK_EXPR_SIZE) == 0) {
+		err = stack_swap(stack);
+	} else if (strncmp(expr, ":q", STK_EXPR_SIZE) == 0) {
+		exit(0); /* No return */
+	} else {
+		fprintf(stderr, "%s: invalid command.\n", expr);
+		return;
+	}
+
+	if (err < 0)
+		fprintf(stderr, "%s: %s\n", expr, errmsg(stack_err));
+}
+
+static int
+apply(double *dx, const OpReg *op_ptr, Stack *stack)
 {
 	int arg_i;
 	double args[2];
-	double dx;
+
+	/* Traversing backwards because we're poping off the stack */
+	for (arg_i = op_ptr->argn - 1; arg_i >= 0; --arg_i) {
+		if (stack_pop(&args[arg_i], stack) < 0)
+			return -1;
+	}
+
+	if (op_ptr->argn == 2)
+		*dx = (*op_ptr->func.n2)(args[0], args[1]);
+	else if (op_ptr->argn == 1)
+		*dx = (*op_ptr->func.n1)(args[0]);
+	else if (op_ptr->argn == 0)
+		*dx = (*op_ptr->func.n0)();
+	else
+		return -1;
+
+	return 0;
+}
+
+static void
+eval(const char *expr, Stack *stack)
+{
+	double dest, dx;
 	char expr_cpy[STK_EXPR_SIZE];
 	char *ptr, *endptr;
 	const OpReg *op_ptr;
@@ -85,32 +151,30 @@ eval(double *dest, const char *expr, Stack *stack)
 		if (endptr[0] == '\0')
 			goto pushnum; /* If number, skip further parsing */
 
-		if ((op_ptr = op(ptr)) == NULL)
-			return STK_ERR_OP_UNDEF;
-
-		/* Traversing backwards because we're poping off the stack */
-		for (arg_i = op_ptr->argn - 1; arg_i >= 0; --arg_i) {
-			if (stack_pop(&args[arg_i], stack) < 0)
-				return stack_err;
+		if ((op_ptr = op(ptr)) == NULL) {
+			fprintf(stderr, "%s: %s\n", ptr, errmsg(stack_err));
+			return;
+		}
+		
+		if (apply(&dx, op_ptr, stack) < 0) {
+			fprintf(stderr, "%s: %s\n", expr, errmsg(stack_err));
+			return;
 		}
 
-		if (op_ptr->argn == 2)
-			dx = (*op_ptr->func.n2)(args[0], args[1]);
-		else if (op_ptr->argn == 1)
-			dx = (*op_ptr->func.n1)(args[0]);
-		else if (op_ptr->argn == 0)
-			dx = (*op_ptr->func.n0)();
-		else
-			return stack_err;
-
 pushnum:
-		if (stack_push(stack, dx) < 0)
-			return stack_err;
+		if (stack_push(stack, dx) < 0) {
+			fprintf(stderr, "%s: %s\n", expr, errmsg(stack_err));
+			return;
+		}
 		ptr = strtok(NULL, " ");
 	}
 
-	stack_peek(dest, *stack);
-	return stack_err;
+	if (stack_peek(&dest, *stack) < 0) {
+		fprintf(stderr, "%s: %s\n", expr, errmsg(stack_err));
+		return;
+	}
+
+	printf("%." SCALC_PREC "f\n", dest);
 }
 
 int
@@ -118,8 +182,7 @@ main(int argc, char *argv[])
 {
 	Stack stack;
 	char expr[STK_EXPR_SIZE];
-	int prompt_mode, output, err;
-	double res;
+	int prompt_mode;
 
 	ARGBEGIN {
 	case 'v':
@@ -133,9 +196,6 @@ main(int argc, char *argv[])
 
 	stack_init(&stack);
 	while (feof(stdin) == 0) {
-		err = STK_SUCCESS;
-		output = 0; /* We assume no output is wanted */
-
 		if (prompt_mode > 0) {
 			printf(scalc_prompt);
 			fflush(stdout);
@@ -150,33 +210,10 @@ main(int argc, char *argv[])
 		if (strlen(expr) == 0)
 			continue;
 
-		if (strncmp(expr, ":d", STK_EXPR_SIZE) == 0) {
-			err = stack_drop(&stack);
-		} else if (strncmp(expr, ":dup", STK_EXPR_SIZE) == 0) {
-			err = stack_dup(&stack);
-		} else if (strncmp(expr, ":D", STK_EXPR_SIZE) == 0) {
-			stack_init(&stack);
-		} else if (strncmp(expr, ":list", STK_EXPR_SIZE) == 0) {
-			list_ops();
-		} else if (strncmp(expr, ":p", STK_EXPR_SIZE) == 0) {
-			err = stack_peek(&res, stack);
-			output = 1;
-		} else if (strncmp(expr, ":swp", STK_EXPR_SIZE) == 0) {
-			err = stack_swap(&stack);
-		} else if (strncmp(expr, ":q", STK_EXPR_SIZE) == 0) {
-			return 0;
-		} else {
-			err = eval(&res, expr, &stack);
-			output = 1;
-		}
-
-		if (err != STK_SUCCESS) {
-			fprintf(stderr, "%s: %s\n", expr, errmsg(err));
-			continue;
-		}
-
-		if (output > 0)
-			printf("%." SCALC_PREC "f\n", res);
+		if (expr_is_cmd(expr) > 0)
+			run_cmd(&stack, expr); 
+		else
+			eval(expr, &stack);
 	}
 
 	return 0;
