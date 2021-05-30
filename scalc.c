@@ -6,8 +6,6 @@
 #include <string.h>
 #include <unistd.h>
 
-static char *argv0; /* Required here by arg.h */
-#include "arg.h"
 #include "config.h"
 #include "op.h"
 #include "stack.h"
@@ -174,15 +172,17 @@ main(int argc, char *argv[])
 {
 	Stack stack;
 	char expr[STK_EXPR_SIZE];
-	int prompt_mode;
+	int opt, prompt_mode;
 
-	ARGBEGIN {
-	case 'v':
-		die("scalc %s", VERSION);
-		break; /* UNREACHABLE */
-	default:
-		usage(); /* die()'s */
-	} ARGEND;
+	while ((opt = getopt(argc, argv, ":v")) != -1) {
+		switch (opt) {
+		case 'v':
+			die("scalc %s", VERSION);
+			break; /* UNREACHABLE */
+		default:
+			usage(); /* die()'s */
+		}
+	}
 
 	prompt_mode = isatty(fileno(stdin));
 

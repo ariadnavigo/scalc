@@ -24,7 +24,7 @@ config.h:
 
 op.o: op.h
 
-scalc.o: arg.h config.h op.h stack.h strlcpy.h
+scalc.o: config.h op.h stack.h strlcpy.h
 
 stack.o: stack.h
 
@@ -40,8 +40,8 @@ clean:
 
 dist: clean
 	mkdir -p scalc-${VERSION}
-	cp -R LICENSE Makefile README.md arg.h config.def.h config.mk op.h \
-	   stack.h strlcpy.h scalc.1 ${SRC} scalc-${VERSION}
+	cp -R LICENSE Makefile README.md config.def.h config.mk op.h stack.h \
+	   strlcpy.h scalc.1 ${SRC} scalc-${VERSION}
 	tar -cf scalc-${VERSION}.tar scalc-${VERSION}
 	gzip scalc-${VERSION}.tar
 	rm -rf scalc-${VERSION}
