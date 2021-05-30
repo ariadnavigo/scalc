@@ -11,15 +11,46 @@
 #include "stack.h"
 #include "strlcpy.h"
 
+#define CMD_ID_SIZE 32
+
+enum cmd_type {
+	CMD_NULL,
+	CMD_CMD0,
+	CMD_STK0
+};
+
+typedef struct {
+	char id[CMD_ID_SIZE];
+	enum cmd_type type;
+	union {
+		int (*cmd0)(void);
+		int (*stk0)(Stack *stk);
+	} func;
+} CmdReg;
+
 static void die(const char *fmt, ...);
 static void usage(void);
 
 static void print_num(double num);
-static void list_ops(void);
 static int expr_is_cmd(const char *expr);
 static void run_cmd(Stack *stack, const char *expr);
 static int apply(double *dx, const OpReg *op_ptr, Stack *stack);
 static void eval(const char *expr, Stack *stack);
+
+static int cmd_print(Stack *stack);
+static int cmd_list(void);
+static int cmd_quit(void);
+
+static const CmdReg cmd_defs[] = {
+	{ ":d", CMD_STK0, { .stk0 = stack_drop } },
+	{ ":D", CMD_STK0, { .stk0 = stack_init } },
+	{ ":dup", CMD_STK0, { .stk0 = stack_dup } },
+	{ ":list", CMD_CMD0, { .cmd0 = cmd_list } },
+	{ ":p", CMD_STK0, { .stk0 = cmd_print } },
+	{ ":swp", CMD_STK0, { .stk0 = stack_swap } },
+	{ ":q", CMD_CMD0, { .cmd0 = cmd_quit } },
+	{ "", CMD_NULL, { .cmd0 = NULL } }
+};
 
 static void
 die(const char *fmt, ...)
@@ -47,16 +78,6 @@ print_num(double num)
 	printf("%." SCALC_PREC "f\n", num);
 }
 
-static void
-list_ops(void)
-{
-	const OpReg *ptr;
-
-	for (ptr = op_defs; strncmp(ptr->id, "", OP_NAME_SIZE) != 0; ++ptr)
-		printf("%s ", ptr->id);
-	putchar('\n');
-}
-
 static int
 expr_is_cmd(const char *expr)
 {
@@ -67,35 +88,32 @@ static void
 run_cmd(Stack *stack, const char *expr)
 {
 	int err;
-	double buf;
+	const CmdReg *cmd_ptr;
 
 	err = 0;
-	buf = 0.0;
-	if (strncmp(expr, ":d", STK_EXPR_SIZE) == 0) {
-		err = stack_drop(stack);
-	} else if (strncmp(expr, ":dup", STK_EXPR_SIZE) == 0) {
-		err = stack_dup(stack);
-	} else if (strncmp(expr, ":D", STK_EXPR_SIZE) == 0) {
-		stack_init(stack);
-	} else if (strncmp(expr, ":list", STK_EXPR_SIZE) == 0) {
-		list_ops();
-	} else if (strncmp(expr, ":p", STK_EXPR_SIZE) == 0) {
-		err = stack_peek(&buf, *stack);
-		if (err == 0) {
-			print_num(buf);
-			return;
-		}
-	} else if (strncmp(expr, ":swp", STK_EXPR_SIZE) == 0) {
-		err = stack_swap(stack);
-	} else if (strncmp(expr, ":q", STK_EXPR_SIZE) == 0) {
-		exit(0); /* No return */
-	} else {
+
+	for (cmd_ptr = cmd_defs;
+	     strncmp(cmd_ptr->id, "", CMD_ID_SIZE) != 0;
+	     ++cmd_ptr) {
+		if (strncmp(cmd_ptr->id, expr, CMD_ID_SIZE) == 0)
+			break;
+	}
+
+	switch (cmd_ptr->type) {
+	case CMD_CMD0:
+		err = (*cmd_ptr->func.cmd0)();
+		break;
+	case CMD_STK0:
+		err = (*cmd_ptr->func.stk0)(stack);
+		break;
+	default:
 		fprintf(stderr, "%s: invalid command.\n", expr);
 		return;
 	}
 
 	if (err < 0)
 		fprintf(stderr, "%s: %s\n", expr, stack_errmsg());
+
 }
 
 static int
@@ -165,6 +183,41 @@ pushnum:
 	}
 
 	print_num(dest);
+}
+
+static int
+cmd_list(void)
+{
+	const OpReg *ptr;
+
+	for (ptr = op_defs; strncmp(ptr->id, "", OP_NAME_SIZE) != 0; ++ptr)
+		printf("%s ", ptr->id);
+	putchar('\n');
+
+	return 0;
+}
+
+static int
+cmd_print(Stack *stack)
+{
+	int err;
+	double buf;
+
+	buf = 0.0;
+	err = stack_peek(&buf, *stack);
+	if (err < 0)
+		return -1;
+
+	print_num(buf);
+	return 0;
+}
+
+static int
+cmd_quit(void)
+{
+	exit(0);
+
+	return 0; /* UNREACHABLE */
 }
 
 int
