@@ -112,16 +112,19 @@ apply(double *dx, const OpReg *op_ptr, Stack *stack)
 			return -1;
 	}
 
-	if (op_ptr->argn == 2)
+	switch (op_ptr->argn) {
+	case 2:
 		*dx = (*op_ptr->func.n2)(args[0], args[1]);
-	else if (op_ptr->argn == 1)
+		return 0;
+	case 1:
 		*dx = (*op_ptr->func.n1)(args[0]);
-	else if (op_ptr->argn == 0)
+		return 0;
+	case 0:
 		*dx = (*op_ptr->func.n0)();
-	else
+		return 0;
+	default:
 		return -1;
-
-	return 0;
+	}
 }
 
 static void
