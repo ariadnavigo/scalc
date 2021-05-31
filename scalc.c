@@ -32,7 +32,6 @@ static void die(const char *fmt, ...);
 static void usage(void);
 
 static void print_num(double num);
-static int expr_is_cmd(const char *expr);
 static void run_cmd(Stack *stack, const char *expr);
 static int apply(double *dx, const OpReg *op_ptr, Stack *stack);
 static void eval(const char *expr, Stack *stack);
@@ -76,12 +75,6 @@ static void
 print_num(double num)
 {
 	printf("%." SCALC_PREC "f\n", num);
-}
-
-static int
-expr_is_cmd(const char *expr)
-{
-	return expr[0] == ':';
 }
 
 static void
@@ -255,7 +248,7 @@ main(int argc, char *argv[])
 		if (strlen(expr) == 0)
 			continue;
 
-		if (expr_is_cmd(expr) > 0)
+		if (expr[0] == ':')
 			run_cmd(&stack, expr); 
 		else
 			eval(expr, &stack);
