@@ -33,8 +33,8 @@ static void usage(void);
 
 static void print_num(double num);
 static void run_cmd(Stack *stack, const char *expr);
-static int apply(double *dx, const OpReg *op_ptr, Stack *stack);
-static void eval(const char *expr, Stack *stack);
+static int apply_op(double *dx, const OpReg *op_ptr, Stack *stack);
+static void eval_math(const char *expr, Stack *stack);
 
 static int cmd_print(Stack *stack);
 static int cmd_list(void);
@@ -110,7 +110,7 @@ run_cmd(Stack *stack, const char *expr)
 }
 
 static int
-apply(double *dx, const OpReg *op_ptr, Stack *stack)
+apply_op(double *dx, const OpReg *op_ptr, Stack *stack)
 {
 	int arg_i;
 	double args[2];
@@ -137,7 +137,7 @@ apply(double *dx, const OpReg *op_ptr, Stack *stack)
 }
 
 static void
-eval(const char *expr, Stack *stack)
+eval_math(const char *expr, Stack *stack)
 {
 	double dest, dx;
 	char expr_cpy[STK_EXPR_SIZE];
@@ -157,7 +157,7 @@ eval(const char *expr, Stack *stack)
 			return;
 		}
 		
-		if (apply(&dx, op_ptr, stack) < 0) {
+		if (apply_op(&dx, op_ptr, stack) < 0) {
 			fprintf(stderr, "%s: %s\n", expr, stack_errmsg());
 			return;
 		}
@@ -251,7 +251,7 @@ main(int argc, char *argv[])
 		if (expr[0] == ':')
 			run_cmd(&stack, expr); 
 		else
-			eval(expr, &stack);
+			eval_math(expr, &stack);
 	}
 
 	return 0;
