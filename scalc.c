@@ -15,16 +15,16 @@
 
 enum cmd_type {
 	CMD_NULL,
-	CMD_CMD0,
-	CMD_STK0
+	CMD_CMD,
+	CMD_STK
 };
 
 typedef struct {
 	char id[CMD_ID_SIZE];
 	enum cmd_type type;
 	union {
-		int (*cmd0)(void);
-		int (*stk0)(Stack *stk);
+		int (*cmd)(void);
+		int (*stk)(Stack *stk);
 	} func;
 } CmdReg;
 
@@ -41,14 +41,14 @@ static int cmd_list(void);
 static int cmd_quit(void);
 
 static const CmdReg cmd_defs[] = {
-	{ ":d", CMD_STK0, { .stk0 = stack_drop } },
-	{ ":D", CMD_STK0, { .stk0 = stack_init } },
-	{ ":dup", CMD_STK0, { .stk0 = stack_dup } },
-	{ ":list", CMD_CMD0, { .cmd0 = cmd_list } },
-	{ ":p", CMD_STK0, { .stk0 = cmd_print } },
-	{ ":swp", CMD_STK0, { .stk0 = stack_swap } },
-	{ ":q", CMD_CMD0, { .cmd0 = cmd_quit } },
-	{ "", CMD_NULL, { .cmd0 = NULL } }
+	{ ":d", CMD_STK, { .stk = stack_drop } },
+	{ ":D", CMD_STK, { .stk = stack_init } },
+	{ ":dup", CMD_STK, { .stk = stack_dup } },
+	{ ":list", CMD_CMD, { .cmd = cmd_list } },
+	{ ":p", CMD_STK, { .stk = cmd_print } },
+	{ ":swp", CMD_STK, { .stk = stack_swap } },
+	{ ":q", CMD_CMD, { .cmd = cmd_quit } },
+	{ "", CMD_NULL, { .cmd = NULL } }
 };
 
 static void
@@ -93,11 +93,11 @@ run_cmd(Stack *stack, const char *expr)
 	}
 
 	switch (cmd_ptr->type) {
-	case CMD_CMD0:
-		err = (*cmd_ptr->func.cmd0)();
+	case CMD_CMD:
+		err = (*cmd_ptr->func.cmd)();
 		break;
-	case CMD_STK0:
-		err = (*cmd_ptr->func.stk0)(stack);
+	case CMD_STK:
+		err = (*cmd_ptr->func.stk)(stack);
 		break;
 	default:
 		fprintf(stderr, "%s: invalid command.\n", expr);
