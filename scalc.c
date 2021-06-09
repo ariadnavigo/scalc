@@ -85,9 +85,7 @@ run_cmd(Stack *stack, const char *expr)
 
 	err = 0;
 
-	for (cmd_ptr = cmd_defs;
-	     strncmp(cmd_ptr->id, "", CMD_ID_SIZE) != 0;
-	     ++cmd_ptr) {
+	for (cmd_ptr = cmd_defs; cmd_ptr->type != CMD_NULL; ++cmd_ptr) {
 		if (strncmp(cmd_ptr->id, expr, CMD_ID_SIZE) == 0)
 			break;
 	}
@@ -116,19 +114,19 @@ apply_op(double *dx, const OpReg *op_ptr, Stack *stack)
 	double args[2];
 
 	/* Traversing backwards because we're poping off the stack */
-	for (arg_i = op_ptr->argn - 1; arg_i >= 0; --arg_i) {
+	for (arg_i = op_ptr->type - 1; arg_i >= 0; --arg_i) {
 		if (stack_pop(&args[arg_i], stack) < 0)
 			return -1;
 	}
 
-	switch (op_ptr->argn) {
-	case 2:
+	switch (op_ptr->type) {
+	case OP_ARG2:
 		*dx = (*op_ptr->func.n2)(args[0], args[1]);
 		return 0;
-	case 1:
+	case OP_ARG1:
 		*dx = (*op_ptr->func.n1)(args[0]);
 		return 0;
-	case 0:
+	case OP_ARG0:
 		*dx = (*op_ptr->func.n0)();
 		return 0;
 	default:

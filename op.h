@@ -2,9 +2,16 @@
 
 #define OP_NAME_SIZE 16
 
+enum op_type {
+	OP_NULL,
+	OP_ARG0,
+	OP_ARG1,
+	OP_ARG2
+};
+
 typedef struct {
 	char id[OP_NAME_SIZE];
-	int argn;
+	enum op_type type;
 	union {
 		double (*n0)(void);
 		double (*n1)(double);
