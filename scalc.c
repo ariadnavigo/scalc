@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include "config.h"
+#include "mem.h"
 #include "op.h"
 #include "stack.h"
 #include "strlcpy.h"
@@ -16,6 +17,7 @@
 enum cmd_type {
 	CMD_NULL,
 	CMD_CMD,
+	CMD_MEM,
 	CMD_STK
 };
 
@@ -24,6 +26,7 @@ typedef struct {
 	enum cmd_type type;
 	union {
 		int (*cmd)(void);
+		int (*mem)(char var, double val);
 		int (*stk)(Stack *stk);
 	} func;
 } CmdReg;
@@ -47,6 +50,7 @@ static const CmdReg cmd_defs[] = {
 	{ ":list", CMD_CMD, { .cmd = cmd_list } },
 	{ ":p", CMD_STK, { .stk = cmd_print } },
 	{ ":swp", CMD_STK, { .stk = stack_swap } },
+	{ ":mem", CMD_MEM, { .mem = mem_set } },
 	{ ":q", CMD_CMD, { .cmd = cmd_quit } },
 	{ "", CMD_NULL, { .cmd = NULL } }
 };
@@ -81,18 +85,38 @@ static void
 run_cmd(Stack *stack, const char *expr)
 {
 	int err;
+	double mem_val;
+	char expr_cpy[STK_EXPR_SIZE];
+	char *expr_ptr;
 	const CmdReg *cmd_ptr;
 
 	err = 0;
 
+	strlcpy(expr_cpy, expr, STK_EXPR_SIZE);
+	expr_ptr = strtok(expr_cpy, " ");
 	for (cmd_ptr = cmd_defs; cmd_ptr->type != CMD_NULL; ++cmd_ptr) {
-		if (strncmp(cmd_ptr->id, expr, CMD_ID_SIZE) == 0)
+		if (strncmp(cmd_ptr->id, expr_ptr, CMD_ID_SIZE) == 0)
 			break;
 	}
 
 	switch (cmd_ptr->type) {
 	case CMD_CMD:
 		err = (*cmd_ptr->func.cmd)();
+		break;
+	case CMD_MEM:
+		if ((expr_ptr = strtok(NULL, " ")) == NULL) {
+			fprintf(stderr, "%s: register required.\n", expr);
+			return;
+		}
+
+		if((err = stack_peek(&mem_val, *stack)) < 0)
+			break;
+
+		if ((*cmd_ptr->func.mem)(expr_ptr[0], mem_val) < 0) {
+			fprintf(stderr, "%s: bad register.\n", expr);
+			return;
+		}
+
 		break;
 	case CMD_STK:
 		err = (*cmd_ptr->func.stk)(stack);
@@ -163,6 +187,9 @@ eval_math(const char *expr, Stack *stack)
 		dx = strtof(ptr, &endptr);
 		if (endptr[0] == '\0')
 			goto pushnum; /* If number, skip further parsing */
+
+		if (mem_get(&dx, ptr[0]) == 0)
+			goto pushnum;
 
 		if ((op_ptr = op(ptr)) == NULL) {
 			fprintf(stderr, "%s: undefined operation.\n", ptr);
