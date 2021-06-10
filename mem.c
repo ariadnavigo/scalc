@@ -1,7 +1,5 @@
 /* See LICENSE file for copyright and license details. */
 
-#include <ctype.h>
-
 #include "mem.h"
 
 static int mem_var_to_i(char var);
@@ -13,7 +11,7 @@ mem_var_to_i(char var)
 {
 	int i;
 
-	i = tolower(var) - 'a';
+	i = var - 'A';
 	if ((i < 0) || (i >= MEM_SIZE))
 		return -1;
 
