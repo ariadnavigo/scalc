@@ -49,8 +49,8 @@ static const CmdReg cmd_defs[] = {
 	{ ":dup", CMD_STK, { .stk = stack_dup } },
 	{ ":list", CMD_CMD, { .cmd = cmd_list } },
 	{ ":p", CMD_STK, { .stk = cmd_print } },
+	{ ":sav", CMD_MEM, { .mem = mem_set } },
 	{ ":swp", CMD_STK, { .stk = stack_swap } },
-	{ ":mem", CMD_MEM, { .mem = mem_set } },
 	{ ":q", CMD_CMD, { .cmd = cmd_quit } },
 	{ "", CMD_NULL, { .cmd = NULL } }
 };
