@@ -110,11 +110,25 @@ run_cmd(Stack *stack, const char *expr)
 static int
 apply_op(double *dx, const OpReg *op_ptr, Stack *stack)
 {
-	int arg_i;
+	int arg_i, arg_n;
 	double args[2];
 
+	switch (op_ptr->type) {
+	case OP_ARG2:
+		arg_n = 2;
+		break;
+	case OP_ARG1:
+		arg_n = 1;
+		break;
+	case OP_ARG0:
+		arg_n = 0;
+		break;
+	default:
+		return -1;
+	}
+
 	/* Traversing backwards because we're poping off the stack */
-	for (arg_i = op_ptr->type - 1; arg_i >= 0; --arg_i) {
+	for (arg_i = arg_n - 1; arg_i >= 0; --arg_i) {
 		if (stack_pop(&args[arg_i], stack) < 0)
 			return -1;
 	}
