@@ -46,8 +46,25 @@ Shows the last element in the stack.
 Quits 
 .B scalc.
 .TP
+.BI :sav " reg"
+Saves the value on the top of the stack to register
+.I reg
+(see below for more information.)
+.TP
 .B :swp
 Swaps the last two elements in the stack.
+.SS Memory registers
+.B scalc
+offers memory registers, 
+labeled A-J (uppercase),
+where values can be stored to and retrieved from.
+These registers can be used wherever a numerical value is allowed,
+e.g. in operations, stack operations, etc.
+To retrieve a value from a specific register, 
+just type in the label of the desired register. 
+To store values in them refer to the
+.B :sav
+command above.
 .SS Extending scalc math functions
 .PP
 .B scalc 
@@ -82,6 +99,14 @@ Default interactive mode:
 .br
 1.203973
 .br
+.RB > " 78 9 -2
+.br
+69.000000000
+.RB > " :sav A"
+.br
+.RB > " A 2 *"
+.br
+138.000000000
 .RB > " :q"
 .RE
 .fi
