@@ -51,6 +51,7 @@ const OpReg op_defs[] = {
 	{ "/", OP_ARG2, { .n2 = op_div } },
 	{ "^", OP_ARG2, { .n2 = pow } }, /* From libm, directly */
 	{ "%", OP_ARG1, { .n1 = op_prcnt } },
+	{ "abs", OP_ARG1, { .n1 = fabs } },
 	{ "ln", OP_ARG1, { .n1 = log } },
 	{ "sqrt", OP_ARG1, { .n1 = sqrt } },
 	{ "mod", OP_ARG2, { .n2 = op_mod } },
