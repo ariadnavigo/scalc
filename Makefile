@@ -19,9 +19,6 @@ options:
 config.h:
 	cp config.def.h $@
 
-.c.o:
-	${CC} -c ${CFLAGS} $<
-
 mem.o: mem.h
 
 op.o: op.h
