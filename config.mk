@@ -14,8 +14,8 @@ LIBS = -lm
 CPPFLAGS = -DVERSION=\"${VERSION}\" -D_POSIX_C_SOURCE=200809L
 #CFLAGS = -g -std=c99 -Wpedantic -Wall -Wextra ${CPPFLAGS}
 CFLAGS = -std=c99 -Wpedantic -Wall -Wextra ${CPPFLAGS}
-#LDFLAGS = -static ${LIBS}
-LDFLAGS = ${LIBS}
+#LDFLAGS = -static
+LDFLAGS =
 
 # Compiler and linker
 CC = cc

@@ -35,7 +35,7 @@ strlcpy.o: strlcpy.h
 ${OBJ}: config.mk
 
 scalc: ${OBJ}
-	${CC} -o $@ ${OBJ} ${LDFLAGS}
+	${CC} -o $@ ${OBJ} ${LDFLAGS} ${LIBS}
 
 clean:
 	rm -f scalc ${OBJ} scalc-${VERSION}.tar.gz
