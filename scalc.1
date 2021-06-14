@@ -76,6 +76,16 @@ The source file itself includes detailed instructions on how to do so.
 .TP
 .B \-v
 Show version information and exit.
+.SH EXIT STATUS
+.B scalc
+exits with status code zero if no execution errors occurred during execution.
+If execution errors have occurred,
+.B scalc
+exits with a status code greater than zero (>0).
+Execution errors only comprise conditions that force
+.B scalc
+to stop execution,
+never errors occurring within the context of the interpreter.
 .SH EXAMPLES
 .PP
 The following example showcases basic operation with
