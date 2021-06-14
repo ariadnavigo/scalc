@@ -8,23 +8,23 @@ scalc \- Simple calculator
 .RB [ \-v ]
 .SH DESCRIPTION
 .PP
-.B scalc 
-is a very simple stack-based calculator 
+.B scalc
+is a very simple stack-based calculator
 that aims to be small, flexible, and extensible.
 .PP
-.B scalc 
+.B scalc
 reads RPN expressions from standard input.
-Results are provided in double-precision floats to stdout. 
+Results are provided in double-precision floats to stdout.
 .PP
-Currently supported mathematical functions include 
-basic arithmetic operations, square roots, and natural logarithms. 
+Currently supported mathematical functions include
+basic arithmetic operations, square roots, and natural logarithms.
 All functions are defined in the
 .I op.c
 module in the source tree.
 .SS Commands
-.B scalc 
-accepts some commands, 
-listed here for convenience, 
+.B scalc
+accepts some commands,
+listed here for convenience,
 which modify scalc's behavior during a session:
 .TP
 .B :d
@@ -43,7 +43,7 @@ List all available mathematical operations.
 Shows the last element in the stack.
 .TP
 .B :q
-Quits 
+Quits
 .B scalc.
 .TP
 .BI :sav " reg"
@@ -55,22 +55,22 @@ Saves the value on the top of the stack to register
 Swaps the last two elements in the stack.
 .SS Memory registers
 .B scalc
-offers memory registers, 
+offers memory registers,
 labeled A-J (uppercase),
 where values can be stored to and retrieved from.
 These registers can be used wherever a numerical value is allowed,
 e.g. in operations, stack operations, etc.
-To retrieve a value from a specific register, 
-just type in the label of the desired register. 
+To retrieve a value from a specific register,
+just type in the label of the desired register.
 To store values in them refer to the
 .B :sav
 command above.
 .SS Extending scalc math functions
 .PP
-.B scalc 
-can be easily extended with new mathematical functions by adding them to the 
+.B scalc
+can be easily extended with new mathematical functions by adding them to the
 .I op.c
-source file. 
+source file.
 The source file itself includes detailed instructions on how to do so.
 .SH OPTIONS
 .TP
@@ -78,7 +78,7 @@ The source file itself includes detailed instructions on how to do so.
 Show version information and exit.
 .SH EXAMPLES
 .PP
-The following example showcases basic operation with 
+The following example showcases basic operation with
 .B scalc.
 .PP
 Default interactive mode:
@@ -86,7 +86,7 @@ Default interactive mode:
 .nf
 .RS
 .RB $ " scalc"
-.br 
+.br
 .RB > " 2 3 + 9 / 15 /"
 .br
 0.037037
@@ -121,4 +121,4 @@ Reading from a pipeline:
 .RE
 .fi
 .SH SEE ALSO
-.BR bc (1), dc (1) 
+.BR bc (1), dc (1)

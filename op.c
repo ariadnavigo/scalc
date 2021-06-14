@@ -13,9 +13,9 @@
  * EXTENDING OP.C:
  *
  * All mathematical operations take the form of a unary or binary function
- * (one double argument or two double arguments, respectively), always 
- * returning a double as a result. All functions are to be defined static, 
- * unless they're defined in an external library (e.g. log() and sqrt(), from 
+ * (one double argument or two double arguments, respectively), always
+ * returning a double as a result. All functions are to be defined static,
+ * unless they're defined in an external library (e.g. log() and sqrt(), from
  * libm).
  *
  * Mathematical constants are defined as 0-ary functions.

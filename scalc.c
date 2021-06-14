@@ -288,7 +288,7 @@ main(int argc, char *argv[])
 			continue;
 
 		if (expr[0] == ':')
-			run_cmd(&stack, expr); 
+			run_cmd(&stack, expr);
 		else
 			eval_math(expr, &stack);
 	}
