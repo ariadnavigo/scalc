@@ -12,7 +12,7 @@ mem_var_to_i(char var)
 	int i;
 
 	i = var - 'A';
-	if ((i < 0) || (i >= MEM_SIZE))
+	if (i < 0 || i >= MEM_SIZE)
 		return -1;
 
 	return i;
