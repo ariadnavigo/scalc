@@ -61,7 +61,7 @@ stack_drop(Stack *stack)
 		stack_err = STK_ERR_STACK_MIN;
 		return -1;
 	}
-	
+
 	--stack->sp;
 
 	return 0;

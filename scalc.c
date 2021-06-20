@@ -195,7 +195,7 @@ eval_math(const char *expr, Stack *stack)
 			fprintf(stderr, "%s: undefined operation.\n", ptr);
 			return;
 		}
-		
+
 		if (apply_op(&dx, op_ptr, stack) < 0) {
 			fprintf(stderr, "%s: %s\n", expr, stack_errmsg());
 			return;
