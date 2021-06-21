@@ -72,7 +72,7 @@ die(const char *fmt, ...)
 static void
 usage(void)
 {
-	die("usage: scalc [-v]");
+	die("usage: scalc [-v] [file]");
 }
 
 static void
@@ -256,6 +256,8 @@ int
 main(int argc, char *argv[])
 {
 	Stack stack;
+	FILE *fp;
+	char *filearg;
 	char expr[STK_EXPR_SIZE];
 	int opt, prompt_mode;
 
@@ -269,16 +271,28 @@ main(int argc, char *argv[])
 		}
 	}
 
-	prompt_mode = isatty(fileno(stdin));
+	if (optind < argc)
+		filearg = argv[optind];
+	else 
+		filearg = NULL;
+
+	if (filearg != NULL) {
+		if ((fp = fopen(filearg, "r")) == NULL)
+			die("fileerr");
+	} else {
+		fp = stdin;
+	}
+
+	prompt_mode = isatty(fileno(fp));
 
 	stack_init(&stack);
-	while (feof(stdin) == 0) {
+	while (feof(fp) == 0) {
 		if (prompt_mode > 0) {
 			printf(scalc_prompt);
 			fflush(stdout);
 		}
 
-		if (fgets(expr, STK_EXPR_SIZE, stdin) == NULL)
+		if (fgets(expr, STK_EXPR_SIZE, fp) == NULL)
 			break;
 
 		if (expr[strlen(expr) - 1] == '\n')
