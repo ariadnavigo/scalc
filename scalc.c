@@ -27,8 +27,8 @@ typedef struct {
 	enum cmd_type type;
 	union {
 		int (*cmd)(void);
-		int (*mem)(char var, double val);
-		int (*stk)(Stack *stk);
+		int (*mem)(char, double);
+		int (*stk)(Stack *);
 	} func;
 } CmdReg;
 
