@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 
+#include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,6 +55,9 @@ static const CmdReg cmd_defs[] = {
 	{ ":q", CMD_CMD, { .cmd = cmd_quit } },
 	{ "", CMD_NULL, { .cmd = NULL } }
 };
+
+/* Declaring as global so cmd_quit() may close a non-stdin fp gracefully */
+static FILE *fp;
 
 static void
 die(const char *fmt, ...)
@@ -247,6 +251,9 @@ cmd_print(Stack *stack)
 static int
 cmd_quit(void)
 {
+	if (fp != stdin)
+		fclose(fp);
+
 	exit(0);
 
 	return 0; /* UNREACHABLE */
@@ -256,7 +263,6 @@ int
 main(int argc, char *argv[])
 {
 	Stack stack;
-	FILE *fp;
 	char *filearg;
 	char expr[STK_EXPR_SIZE];
 	int opt, prompt_mode;
@@ -278,7 +284,7 @@ main(int argc, char *argv[])
 
 	if (filearg != NULL) {
 		if ((fp = fopen(filearg, "r")) == NULL)
-			die("fileerr");
+			die("Could not open %s: %s", filearg, strerror(errno));
 	} else {
 		fp = stdin;
 	}
@@ -306,6 +312,9 @@ main(int argc, char *argv[])
 		else
 			eval_math(expr, &stack);
 	}
+
+	if (fp != stdin)
+		fclose(fp);
 
 	return 0;
 }
