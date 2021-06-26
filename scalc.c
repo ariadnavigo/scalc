@@ -83,7 +83,7 @@ usage(void)
 static void
 cleanup(void)
 {
-	if (fp != stdin)
+	if (fp != stdin && fp != NULL)
 		fclose(fp);
 }
 
