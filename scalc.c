@@ -35,6 +35,7 @@ typedef struct {
 
 static void die(const char *fmt, ...);
 static void usage(void);
+static void cleanup(void);
 
 static void print_num(double num);
 static void run_cmd(Stack *stack, const char *expr);
@@ -57,6 +58,8 @@ static const CmdReg cmd_defs[] = {
 	{ "", CMD_NULL, { .cmd = NULL } }
 };
 
+static FILE *fp;
+
 static void
 die(const char *fmt, ...)
 {
@@ -75,6 +78,13 @@ static void
 usage(void)
 {
 	die("usage: scalc [-v] [file]");
+}
+
+static void
+cleanup(void)
+{
+	if (fp != stdin)
+		fclose(fp);
 }
 
 static void
@@ -266,10 +276,11 @@ int
 main(int argc, char *argv[])
 {
 	Stack stack;
-	FILE *fp;
 	char *filearg;
 	char expr[SCALC_EXPR_SIZE];
 	int opt, prompt_mode;
+
+	atexit(cleanup);
 
 	while ((opt = getopt(argc, argv, ":v")) != -1) {
 		switch (opt) {
@@ -312,16 +323,12 @@ main(int argc, char *argv[])
 			continue;
 
 		if (strncmp(expr, ":quit", SCALC_EXPR_SIZE) == 0)
-			goto exit;
+			return 0;
 		else if (expr[0] == ':')
 			run_cmd(&stack, expr);
 		else
 			eval_math(expr, &stack);
 	}
-
-exit:
-	if (fp != stdin)
-		fclose(fp);
 
 	return 0;
 }
