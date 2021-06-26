@@ -41,6 +41,7 @@ static int apply_op(double *dx, const OpReg *op_ptr, Stack *stack);
 static void eval_math(const char *expr, Stack *stack);
 
 static int cmd_print(Stack *stack);
+static int cmd_show_stk(Stack *stack);
 static int cmd_list(void);
 static int cmd_quit(void);
 
@@ -50,6 +51,7 @@ static const CmdReg cmd_defs[] = {
 	{ ":dup", CMD_STK, { .stk = stack_dup } },
 	{ ":list", CMD_CMD, { .cmd = cmd_list } },
 	{ ":p", CMD_STK, { .stk = cmd_print } },
+	{ ":P", CMD_STK, { .stk = cmd_show_stk } },
 	{ ":sav", CMD_MEM, { .mem = mem_set } },
 	{ ":swp", CMD_STK, { .stk = stack_swap } },
 	{ ":q", CMD_CMD, { .cmd = cmd_quit } },
@@ -245,6 +247,22 @@ cmd_print(Stack *stack)
 		return -1;
 
 	print_num(buf);
+	return 0;
+}
+
+static int
+cmd_show_stk(Stack *stack)
+{
+	int i;
+
+	if (stack->sp < 0) {
+		printf("Stack is empty.\n");
+		return 0;
+	}
+
+	for (i = 0; i < stack->sp + 1; ++i)
+		print_num(stack->elems[i]);
+
 	return 0;
 }
 
