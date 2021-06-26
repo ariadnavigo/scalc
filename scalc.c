@@ -160,13 +160,9 @@ eval_math(const char *expr, Stack *stack)
 		if (mem_get(&dx, ptr[0]) == 0)
 			goto pushnum;
 
-		if ((op_ptr = op(ptr)) == NULL) {
-			fprintf(stderr, "%s: undefined operation.\n", ptr);
-			return;
-		}
-
+		op_ptr = op(ptr);
 		if (apply_op(&dx, op_ptr, stack) < 0) {
-			fprintf(stderr, "%s: %s\n", expr, stack_errmsg());
+			fprintf(stderr, "%s: undefined operation.\n", ptr);
 			return;
 		}
 

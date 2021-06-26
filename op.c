@@ -151,9 +151,10 @@ op(const char *oper)
 
 	for (ptr = op_defs; ptr->type != OP_NULL; ++ptr) {
 		if (strncmp(ptr->id, oper, OP_NAME_SIZE) == 0)
-			return ptr;
+			break;
 	}
 
-	return NULL;
+	/* If no match is found, we return the "Null" pointer */
+	return ptr;
 }
 
