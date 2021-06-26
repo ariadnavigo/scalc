@@ -44,7 +44,6 @@ static void eval_math(const char *expr, Stack *stack);
 static int cmd_print(Stack *stack);
 static int cmd_show_stk(Stack *stack);
 static int cmd_list(void);
-static int cmd_quit(void);
 
 static const CmdReg cmd_defs[] = {
 	{ ":d", CMD_STK, { .stk = stack_drop } },
@@ -55,12 +54,8 @@ static const CmdReg cmd_defs[] = {
 	{ ":P", CMD_STK, { .stk = cmd_show_stk } },
 	{ ":sav", CMD_MEM, { .mem = mem_set } },
 	{ ":swp", CMD_STK, { .stk = stack_swap } },
-	{ ":q", CMD_CMD, { .cmd = cmd_quit } },
 	{ "", CMD_NULL, { .cmd = NULL } }
 };
-
-/* Declaring as global so cmd_quit() may close a non-stdin fp gracefully */
-static FILE *fp;
 
 static void
 die(const char *fmt, ...)
@@ -267,21 +262,11 @@ cmd_show_stk(Stack *stack)
 	return 0;
 }
 
-static int
-cmd_quit(void)
-{
-	if (fp != stdin)
-		fclose(fp);
-
-	exit(0);
-
-	return 0; /* UNREACHABLE */
-}
-
 int
 main(int argc, char *argv[])
 {
 	Stack stack;
+	FILE *fp;
 	char *filearg;
 	char expr[SCALC_EXPR_SIZE];
 	int opt, prompt_mode;
@@ -326,12 +311,15 @@ main(int argc, char *argv[])
 		if (strlen(expr) == 0)
 			continue;
 
-		if (expr[0] == ':')
+		if (strncmp(expr, ":quit", SCALC_EXPR_SIZE) == 0)
+			goto exit;
+		else if (expr[0] == ':')
 			run_cmd(&stack, expr);
 		else
 			eval_math(expr, &stack);
 	}
 
+exit:
 	if (fp != stdin)
 		fclose(fp);
 
