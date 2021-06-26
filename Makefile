@@ -4,7 +4,7 @@
 
 include config.mk
 
-SRC = mem.c op.c scalc.c stack.c strlcpy.c
+SRC = cmd.c mem.c op.c scalc.c stack.c strlcpy.c utils.c
 OBJ = ${SRC:%.c=%.o}
 
 all: options scalc
@@ -20,15 +20,19 @@ options:
 config.h:
 	cp config.def.h $@
 
+cmd.o: mem.h op.h stack.h cmd.h strlcpy.h utils.h
+
 mem.o: mem.h
 
 op.o: op.h
 
-scalc.o: config.h mem.h op.h stack.h strlcpy.h
+scalc.o: config.h mem.h op.h stack.h cmd.h strlcpy.h utils.h
 
 stack.o: stack.h
 
 strlcpy.o: strlcpy.h
+
+utils.o: config.h
 
 ${OBJ}: config.mk
 
