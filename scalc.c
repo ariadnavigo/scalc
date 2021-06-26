@@ -14,6 +14,7 @@
 #include "strlcpy.h"
 
 #define CMD_ID_SIZE 32
+#define SCALC_EXPR_SIZE 64
 
 enum cmd_type {
 	CMD_NULL,
@@ -92,13 +93,13 @@ run_cmd(Stack *stack, const char *expr)
 {
 	int err;
 	double mem_val;
-	char expr_cpy[STK_EXPR_SIZE];
+	char expr_cpy[SCALC_EXPR_SIZE];
 	char *expr_ptr;
 	const CmdReg *cmd_ptr;
 
 	err = 0;
 
-	strlcpy(expr_cpy, expr, STK_EXPR_SIZE);
+	strlcpy(expr_cpy, expr, SCALC_EXPR_SIZE);
 	expr_ptr = strtok(expr_cpy, " ");
 	for (cmd_ptr = cmd_defs; cmd_ptr->type != CMD_NULL; ++cmd_ptr) {
 		if (strncmp(cmd_ptr->id, expr_ptr, CMD_ID_SIZE) == 0)
@@ -182,12 +183,12 @@ static void
 eval_math(const char *expr, Stack *stack)
 {
 	double dest, dx;
-	char expr_cpy[STK_EXPR_SIZE];
+	char expr_cpy[SCALC_EXPR_SIZE];
 	char *ptr, *endptr;
 	const OpReg *op_ptr;
 
 	/* We need to operate on a copy, as strtok is destructive. */
-	strlcpy(expr_cpy, expr, STK_EXPR_SIZE);
+	strlcpy(expr_cpy, expr, SCALC_EXPR_SIZE);
 	ptr = strtok(expr_cpy, " ");
 	while (ptr != NULL) {
 		dx = strtof(ptr, &endptr);
@@ -282,7 +283,7 @@ main(int argc, char *argv[])
 {
 	Stack stack;
 	char *filearg;
-	char expr[STK_EXPR_SIZE];
+	char expr[SCALC_EXPR_SIZE];
 	int opt, prompt_mode;
 
 	while ((opt = getopt(argc, argv, ":v")) != -1) {
@@ -316,7 +317,7 @@ main(int argc, char *argv[])
 			fflush(stdout);
 		}
 
-		if (fgets(expr, STK_EXPR_SIZE, fp) == NULL)
+		if (fgets(expr, SCALC_EXPR_SIZE, fp) == NULL)
 			break;
 
 		if (expr[strlen(expr) - 1] == '\n')

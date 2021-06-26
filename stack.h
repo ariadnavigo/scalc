@@ -1,6 +1,5 @@
 /* See LICENSE file for copyright and license details. */
 
-#define STK_EXPR_SIZE 32
 #define STK_STACK_SIZE 32
 
 typedef struct {
