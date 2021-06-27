@@ -20,3 +20,4 @@ typedef struct {
 } CmdReg;
 
 const CmdReg *cmd(const char *name);
+
