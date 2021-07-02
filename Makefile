@@ -32,7 +32,7 @@ stack.o: stack.h
 
 strlcpy.o: strlcpy.h
 
-utils.o: config.h
+utils.o: config.h utils.h
 
 ${OBJ}: config.mk
 

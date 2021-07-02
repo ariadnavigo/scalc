@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "config.h"
+#include "utils.h"
 
 void
 print_num(double num)
