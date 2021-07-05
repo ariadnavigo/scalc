@@ -5,11 +5,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <termios.h>
 #include <unistd.h>
 
 #include "config.h"
 #include "mem.h"
 #include "op.h"
+#include "sline.h"
 #include "stack.h"
 #include "cmd.h" /* Depends on stack.h */
 #include "strlcpy.h"
@@ -20,12 +22,14 @@
 static void die(const char *fmt, ...);
 static void usage(void);
 static void cleanup(void);
+static void prompt_input(char *expr);
 
 static void run_cmd(Stack *stack, const char *expr);
 static int apply_op(double *dx, const OpReg *op_ptr, Stack *stack);
 static void eval_math(const char *expr, Stack *stack);
 
 static FILE *fp;
+static struct termios oldterm, newterm;
 
 static void
 die(const char *fmt, ...)
@@ -50,8 +54,24 @@ usage(void)
 static void
 cleanup(void)
 {
+	tcsetattr(STDIN_FILENO, TCSAFLUSH, &oldterm);
+
 	if (fp != stdin && fp != NULL)
 		fclose(fp);
+}
+
+static void
+prompt_input(char *expr)
+{
+	int sline_stat;
+
+	printf(scalc_prompt);
+	fflush(stdout);
+
+	sline_stat = sline(expr, SCALC_EXPR_SIZE);
+
+	if (sline_stat < 0)
+		die("I/O error: not able to read user input.");
 }
 
 static void
@@ -214,17 +234,22 @@ main(int argc, char *argv[])
 		fp = stdin;
 	}
 
-	prompt_mode = isatty(fileno(fp));
+	if ((prompt_mode = isatty(fileno(fp))) > 0) {
+		if (tcgetattr(STDIN_FILENO, &oldterm) < 0)
+			die("Terminal attributes could not be read.");
+		newterm = oldterm;
+		if (sline_setup(&newterm) < 0)
+			die("Terminal attributes could not be set.");
+	}
 
 	stack_init(&stack);
 	while (feof(fp) == 0) {
 		if (prompt_mode > 0) {
-			printf(scalc_prompt);
-			fflush(stdout);
+			prompt_input(expr);
+		} else {
+			if (fgets(expr, SCALC_EXPR_SIZE, fp) == NULL)
+				break;
 		}
-
-		if (fgets(expr, SCALC_EXPR_SIZE, fp) == NULL)
-			break;
 
 		if (expr[strlen(expr) - 1] == '\n')
 			expr[strlen(expr) - 1] = '\0';
