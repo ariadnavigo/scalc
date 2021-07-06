@@ -23,6 +23,8 @@ static int term_key(void);
 static int term_esc(char *seq);
 
 static size_t key_bkspc(char *dest, size_t pos);
+static size_t key_left(size_t pos);
+static size_t key_right(char *dest, size_t pos);
 static size_t key_default(char *dest, size_t pos, size_t size, char key);
 
 static int
@@ -95,6 +97,28 @@ key_bkspc(char *dest, size_t pos)
 }
 
 static size_t
+key_left(size_t pos)
+{
+	if (pos > 0) {
+		--pos;
+		write(STDOUT_FILENO, "\x1b[D", 3);
+	}
+
+	return pos;
+}
+
+static size_t
+key_right(char *dest, size_t pos)
+{
+	if (pos < strlen(dest)) {
+		++pos;
+		write(STDOUT_FILENO, "\x1b[C", 3);
+	}
+	
+	return pos;
+}
+
+static size_t
 key_default(char *dest, size_t pos, size_t size, char key)
 {
 	if (pos < size) {
@@ -137,9 +161,11 @@ sline(char *dest, size_t size)
 		case VT_DWN:
 			continue;
 		case VT_LFT:
-			continue;
+			pos = key_left(pos);
+			break;
 		case VT_RGHT:
-			continue;
+			pos = key_right(dest, pos);
+			break;
 		case VT_RET:
 			write(STDOUT_FILENO, "\n", 1);
 			return pos;
