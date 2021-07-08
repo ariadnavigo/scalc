@@ -90,7 +90,7 @@ key_bkspc(char *dest, size_t pos)
 	if (pos > 0) {
 		--pos;
 		dest[pos] = '\0';
-		write(STDOUT_FILENO, "\b \b", 3);
+		write(STDOUT_FILENO, "\b \b", SEQ_SIZE);
 	}
 
 	return pos;
@@ -101,7 +101,7 @@ key_left(size_t pos)
 {
 	if (pos > 0) {
 		--pos;
-		write(STDOUT_FILENO, "\x1b[D", 3);
+		write(STDOUT_FILENO, "\x1b[D", SEQ_SIZE);
 	}
 
 	return pos;
