@@ -27,12 +27,12 @@ enum {
 static int term_key(void);
 static int term_esc(char *seq);
 
-static size_t key_bkspc(char *dest, size_t pos);
+static size_t key_bkspc(char *buf, size_t pos);
 static size_t key_left(size_t pos);
-static size_t key_right(char *dest, size_t pos);
+static size_t key_right(char *buf, size_t pos);
 static size_t key_home(size_t pos);
-static size_t key_end(char *dest, size_t pos);
-static size_t key_default(char *dest, size_t pos, size_t size, char key);
+static size_t key_end(char *buf, size_t pos);
+static size_t key_default(char *buf, size_t pos, size_t size, char key);
 
 static int
 term_esc(char *seq)
@@ -96,11 +96,11 @@ term_key(void)
 }
 
 static size_t
-key_bkspc(char *dest, size_t pos)
+key_bkspc(char *buf, size_t pos)
 {
 	if (pos > 0) {
 		--pos;
-		dest[pos] = '\0';
+		buf[pos] = '\0';
 		write(STDOUT_FILENO, "\b \b", SEQ_SIZE);
 	}
 
@@ -119,9 +119,9 @@ key_left(size_t pos)
 }
 
 static size_t
-key_right(char *dest, size_t pos)
+key_right(char *buf, size_t pos)
 {
-	if (pos < strlen(dest)) {
+	if (pos < strlen(buf)) {
 		++pos;
 		write(STDOUT_FILENO, "\x1b[C", SEQ_SIZE);
 	}
@@ -142,12 +142,12 @@ key_home(size_t pos)
 
 
 static size_t
-key_end(char *dest, size_t pos)
+key_end(char *buf, size_t pos)
 {
 	size_t len;
 	char cmd[CURSOR_BUF_SIZE];
 
-	len = strlen(dest);
+	len = strlen(buf);
 	snprintf(cmd, CURSOR_BUF_SIZE, "\x1b[%zdC", len - pos);
 	write(STDOUT_FILENO, cmd, strlen(cmd));
 
@@ -155,10 +155,10 @@ key_end(char *dest, size_t pos)
 }
 
 static size_t
-key_default(char *dest, size_t pos, size_t size, char key)
+key_default(char *buf, size_t pos, size_t size, char key)
 {
 	if (pos < size) {
-		dest[pos] = key;
+		buf[pos] = key;
 		++pos;
 	}
 	write(STDOUT_FILENO, &key, 1);
@@ -179,14 +179,14 @@ sline_setup(struct termios *term)
 }
 
 int
-sline(char *dest, size_t size)
+sline(char *buf, size_t size)
 {
 	/* Work in progress */
 
 	char key;
 	size_t pos;
 
-	memset(dest, 0, size);
+	memset(buf, 0, size);
 
 	pos = 0;
 	while ((key = term_key()) != -1) {
@@ -200,24 +200,24 @@ sline(char *dest, size_t size)
 			pos = key_left(pos);
 			break;
 		case VT_RGHT:
-			pos = key_right(dest, pos);
+			pos = key_right(buf, pos);
 			break;
 		case VT_RET:
 			write(STDOUT_FILENO, "\n", 1);
 			return pos;
 		case VT_BKSPC:
-			pos = key_bkspc(dest, pos);
+			pos = key_bkspc(buf, pos);
 			break;
 		case VT_HOME:
 			pos = key_home(pos);
 			break;
 		case VT_END:
-			pos = key_end(dest, pos);
+			pos = key_end(buf, pos);
 			break;
 		case VT_DEF:
 			continue;
 		default:
-			pos = key_default(dest, pos, size, key);
+			pos = key_default(buf, pos, size, key);
 			break;
 		}
 
