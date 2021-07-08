@@ -1,5 +1,6 @@
 /* See LICENSE for copyright and license details. */
 
+#include <stdio.h>
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
@@ -8,6 +9,7 @@
 #include "strlcpy.h"
 
 #define SEQ_SIZE 3
+#define CURSOR_BUF_SIZE 16 /* Used for cursor movement directives */
 
 enum {
 	VT_DEF,
@@ -16,7 +18,10 @@ enum {
 	VT_LFT,
 	VT_RGHT,
 	VT_BKSPC,
-	VT_RET
+	VT_RET,
+	VT_HOME,
+	VT_END,
+	VT_DEL
 };
 
 static int term_key(void);
@@ -25,6 +30,8 @@ static int term_esc(char *seq);
 static size_t key_bkspc(char *dest, size_t pos);
 static size_t key_left(size_t pos);
 static size_t key_right(char *dest, size_t pos);
+static size_t key_home(size_t pos);
+static size_t key_end(char *dest, size_t pos);
 static size_t key_default(char *dest, size_t pos, size_t size, char key);
 
 static int
@@ -71,6 +78,10 @@ term_key(void)
 			return VT_RGHT;
 		case 'D':
 			return VT_LFT;
+		case 'H':
+			return VT_HOME;
+		case 'F':
+			return VT_END;
 		default:
 			return VT_DEF;
 		}
@@ -112,10 +123,35 @@ key_right(char *dest, size_t pos)
 {
 	if (pos < strlen(dest)) {
 		++pos;
-		write(STDOUT_FILENO, "\x1b[C", 3);
+		write(STDOUT_FILENO, "\x1b[C", SEQ_SIZE);
 	}
 	
 	return pos;
+}
+
+static size_t
+key_home(size_t pos)
+{
+	char cmd[CURSOR_BUF_SIZE];
+
+	snprintf(cmd, CURSOR_BUF_SIZE, "\x1b[%zdD", pos);
+	write(STDOUT_FILENO, cmd, strlen(cmd));
+
+	return 0;
+}
+
+
+static size_t
+key_end(char *dest, size_t pos)
+{
+	size_t len;
+	char cmd[CURSOR_BUF_SIZE];
+
+	len = strlen(dest);
+	snprintf(cmd, CURSOR_BUF_SIZE, "\x1b[%zdC", len - pos);
+	write(STDOUT_FILENO, cmd, strlen(cmd));
+
+	return len;
 }
 
 static size_t
@@ -171,6 +207,12 @@ sline(char *dest, size_t size)
 			return pos;
 		case VT_BKSPC:
 			pos = key_bkspc(dest, pos);
+			break;
+		case VT_HOME:
+			pos = key_home(pos);
+			break;
+		case VT_END:
+			pos = key_end(dest, pos);
 			break;
 		case VT_DEF:
 			continue;
