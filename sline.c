@@ -1,6 +1,7 @@
 /* See LICENSE for copyright and license details. */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
@@ -24,6 +25,8 @@ enum {
 	VT_DEL
 };
 
+static char *buf_slice(char *src, int pivot);
+
 static int term_key(void);
 static int term_esc(char *seq);
 
@@ -33,6 +36,23 @@ static size_t key_right(char *buf, size_t pos);
 static size_t key_home(size_t pos);
 static size_t key_end(char *buf, size_t pos);
 static size_t key_default(char *buf, size_t pos, size_t size, char key);
+
+static char *
+buf_slice(char *src, int pivot)
+{
+	char *suff;
+	size_t len;
+
+	len = strlen(src);
+
+	if ((suff = calloc(len, sizeof(char))) == NULL)
+		return NULL;
+
+	strlcpy(suff, src + pivot, len - pivot + 1);
+	memset(src + pivot, 0, len - pivot);
+
+	return suff;
+}
 
 static int
 term_esc(char *seq)
@@ -157,12 +177,24 @@ key_end(char *buf, size_t pos)
 static size_t
 key_default(char *buf, size_t pos, size_t size, char key)
 {
+	char *suff;
+
+	suff = NULL;
 	if (pos < size) {
+		suff = buf_slice(buf, pos);
 		buf[pos] = key;
 		++pos;
+		strlcpy(buf + pos, suff, strlen(suff) + 1);
 	}
 	write(STDOUT_FILENO, &key, 1);
+	write(STDOUT_FILENO, "\x1b[0K", 4);
+	write(STDOUT_FILENO, "\x1b[s", 3);
+	write(STDOUT_FILENO, suff, strlen(suff));
+	write(STDOUT_FILENO, "\x1b[u", 3);
 
+	if (suff != NULL)
+		free(suff);
+	
 	return pos;
 }
 
