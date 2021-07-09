@@ -183,7 +183,7 @@ key_insert(char *buf, size_t pos, size_t size, char key)
 		return pos;
 
 	if ((suff = buf_slice(buf, pos)) == NULL)
-		return -1;
+		return pos;
 
 	len = strlen(suff);
 	buf[pos] = key;
@@ -256,8 +256,6 @@ sline(char *buf, size_t size)
 			break;
 		}
 
-		if (pos == -1)
-			return -1;
 	}
 
 	return -1;
