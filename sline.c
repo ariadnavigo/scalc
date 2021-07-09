@@ -34,7 +34,7 @@ static size_t key_left(size_t pos);
 static size_t key_right(char *buf, size_t pos);
 static size_t key_home(size_t pos);
 static size_t key_end(char *buf, size_t pos);
-static size_t key_default(char *buf, size_t pos, size_t size, char key);
+static size_t key_insert(char *buf, size_t pos, size_t size, char key);
 
 static char *
 buf_slice(char *src, int pivot)
@@ -174,7 +174,7 @@ key_end(char *buf, size_t pos)
 }
 
 static size_t
-key_default(char *buf, size_t pos, size_t size, char key)
+key_insert(char *buf, size_t pos, size_t size, char key)
 {
 	char *suff;
 
@@ -248,7 +248,7 @@ sline(char *buf, size_t size)
 		case VT_DEF:
 			continue;
 		default:
-			pos = key_default(buf, pos, size, key);
+			pos = key_insert(buf, pos, size, key);
 			break;
 		}
 
