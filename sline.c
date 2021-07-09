@@ -153,8 +153,10 @@ key_home(size_t pos)
 {
 	char cmd[CURSOR_BUF_SIZE];
 
-	snprintf(cmd, CURSOR_BUF_SIZE, "\x1b[%zdD", pos);
-	write(STDOUT_FILENO, cmd, strlen(cmd));
+	if (pos > 0) {
+		snprintf(cmd, CURSOR_BUF_SIZE, "\x1b[%zdD", pos);
+		write(STDOUT_FILENO, cmd, strlen(cmd));
+	}
 
 	return 0;
 }
@@ -167,8 +169,10 @@ key_end(char *buf, size_t pos)
 	char cmd[CURSOR_BUF_SIZE];
 
 	len = strlen(buf);
-	snprintf(cmd, CURSOR_BUF_SIZE, "\x1b[%zdC", len - pos);
-	write(STDOUT_FILENO, cmd, strlen(cmd));
+	if (pos < len) {
+		snprintf(cmd, CURSOR_BUF_SIZE, "\x1b[%zdC", len - pos);
+		write(STDOUT_FILENO, cmd, strlen(cmd));
+	}
 
 	return len;
 }
