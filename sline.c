@@ -9,7 +9,6 @@
 #include "sline.h"
 #include "strlcpy.h"
 
-#define SEQ_SIZE 3
 #define CURSOR_BUF_SIZE 16 /* Used for cursor movement directives */
 
 enum {
@@ -77,7 +76,7 @@ static int
 term_key(void)
 {
 	char key;
-	char seq[SEQ_SIZE];
+	char seq[3];
 	int nread;
 
 	while ((nread = read(STDIN_FILENO, &key, 1)) != 1) {
@@ -121,7 +120,7 @@ key_bkspc(char *buf, size_t pos)
 	if (pos > 0) {
 		--pos;
 		buf[pos] = '\0';
-		write(STDOUT_FILENO, "\b \b", SEQ_SIZE);
+		write(STDOUT_FILENO, "\b \b", 3);
 	}
 
 	return pos;
@@ -132,7 +131,7 @@ key_left(size_t pos)
 {
 	if (pos > 0) {
 		--pos;
-		write(STDOUT_FILENO, "\x1b[D", SEQ_SIZE);
+		write(STDOUT_FILENO, "\x1b[D", 3);
 	}
 
 	return pos;
@@ -143,7 +142,7 @@ key_right(char *buf, size_t pos)
 {
 	if (pos < strlen(buf)) {
 		++pos;
-		write(STDOUT_FILENO, "\x1b[C", SEQ_SIZE);
+		write(STDOUT_FILENO, "\x1b[C", 3);
 	}
 	
 	return pos;
