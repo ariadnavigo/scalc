@@ -44,7 +44,7 @@ buf_slice(char *src, int pivot)
 
 	len = strlen(src);
 
-	if ((suff = calloc(len, sizeof(char))) == NULL)
+	if ((suff = calloc(len + 1, sizeof(char))) == NULL)
 		return NULL;
 
 	strlcpy(suff, src + pivot, len - pivot + 1);
@@ -177,22 +177,26 @@ static size_t
 key_insert(char *buf, size_t pos, size_t size, char key)
 {
 	char *suff;
+	size_t len;
 
-	suff = NULL;
-	if (pos < size) {
-		suff = buf_slice(buf, pos);
-		buf[pos] = key;
-		++pos;
-		strlcpy(buf + pos, suff, strlen(suff) + 1);
-	}
+	if (pos >= size)
+		return pos;
+
+	if ((suff = buf_slice(buf, pos)) == NULL)
+		return -1;
+
+	len = strlen(suff);
+	buf[pos] = key;
+	++pos;
+	strlcpy(buf + pos, suff, len + 1);
+
 	write(STDOUT_FILENO, &key, 1);
 	write(STDOUT_FILENO, "\x1b[0K", 4);
 	write(STDOUT_FILENO, "\x1b[s", 3);
-	write(STDOUT_FILENO, suff, strlen(suff));
+	write(STDOUT_FILENO, suff, len);
 	write(STDOUT_FILENO, "\x1b[u", 3);
 
-	if (suff != NULL)
-		free(suff);
+	free(suff);
 	
 	return pos;
 }
@@ -252,6 +256,8 @@ sline(char *buf, size_t size)
 			break;
 		}
 
+		if (pos == -1)
+			return -1;
 	}
 
 	return -1;
