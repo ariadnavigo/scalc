@@ -264,7 +264,7 @@ history_add(const char *input)
 static const char *
 history_get(int pos)
 {
-	if (pos < 0 && pos > hist_sp)
+	if (pos < 0 || pos > hist_sp)
 		return NULL;
 
 	return history[pos];
