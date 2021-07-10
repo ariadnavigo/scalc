@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <termios.h>
 #include <unistd.h>
 
 #include "config.h"
@@ -29,7 +28,6 @@ static int apply_op(double *dx, const OpReg *op_ptr, Stack *stack);
 static void eval_math(const char *expr, Stack *stack);
 
 static FILE *fp;
-static struct termios oldterm, newterm;
 
 static void
 die(const char *fmt, ...)
@@ -54,7 +52,7 @@ usage(void)
 static void
 cleanup(void)
 {
-	tcsetattr(STDIN_FILENO, TCSAFLUSH, &oldterm);
+	sline_end();
 
 	if (fp != stdin && fp != NULL)
 		fclose(fp);
@@ -235,11 +233,8 @@ main(int argc, char *argv[])
 	}
 
 	if ((prompt_mode = isatty(fileno(fp))) > 0) {
-		if (tcgetattr(STDIN_FILENO, &oldterm) < 0)
-			die("Terminal attributes could not be read.");
-		newterm = oldterm;
-		if (sline_setup(&newterm) < 0)
-			die("Terminal attributes could not be set.");
+		if (sline_setup() < 0)
+			die("Terminal error: %s", sline_errmsg());
 	}
 
 	stack_init(&stack);

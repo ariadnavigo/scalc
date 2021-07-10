@@ -25,6 +25,12 @@ enum {
 	VT_DEL
 };
 
+enum {
+	SLINE_ERR_DEF,
+	SLINE_ERR_TERMIOS_GET,
+	SLINE_ERR_TERMIOS_SET
+};
+
 static char *buf_slice(char *src, int pivot);
 
 static int term_key(void);
@@ -43,6 +49,8 @@ static int history_add(const char *input);
 static const char *history_get(int pos);
 static int history_rotate(void);
 
+static int sline_errno = SLINE_ERR_DEF;
+static struct termios old, term;
 static char *history[HISTORY_SIZE];
 static int hist_sp = -1;
 
@@ -315,15 +323,53 @@ history_rotate(void)
 }
 
 int
-sline_setup(struct termios *term)
+sline_setup(void)
 {
-	term->c_lflag &= ~(ICANON | ECHO);
-	term->c_cc[VMIN] = 0;
-	term->c_cc[VTIME] = 1;
-	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, term) < 0)
+	if (tcgetattr(STDIN_FILENO, &old) < 0) {
+		sline_errno = SLINE_ERR_TERMIOS_GET;
 		return -1;
+	}
+
+	term = old;
+	term.c_lflag &= ~(ICANON | ECHO);
+	term.c_cc[VMIN] = 0;
+	term.c_cc[VTIME] = 1;
+	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &term) < 0) {
+		sline_errno = SLINE_ERR_TERMIOS_SET;
+		return -1;
+	}
 
 	return 0;
+}
+
+void
+sline_end(void)
+{
+	int i;
+
+	if (hist_sp < 0)
+		goto termios;
+
+	for (i = 0; i < HISTORY_SIZE; ++i) {
+		if (history[i] != NULL)
+			free(history[i]);
+	}
+
+termios:
+	tcsetattr(STDIN_FILENO, TCSAFLUSH, &old);
+}
+
+const char *
+sline_errmsg(void)
+{
+	switch (sline_errno) {
+	case SLINE_ERR_TERMIOS_GET:
+		return "could not read attributes.";
+	case SLINE_ERR_TERMIOS_SET:
+		return "could not set attributes.";
+	default:
+		return "unknown error.";
+	}
 }
 
 int
