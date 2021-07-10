@@ -32,6 +32,7 @@ static int term_esc(char *seq);
 
 static size_t key_bkspc(char *buf, size_t pos);
 static size_t key_up(char *buf, size_t size, int *hist_num, size_t pos);
+static size_t key_down(char *buf, size_t size, int *hist_num, size_t pos);
 static size_t key_left(size_t pos);
 static size_t key_right(char *buf, size_t pos);
 static size_t key_home(size_t pos);
@@ -141,15 +142,43 @@ key_up(char *buf, size_t size, int *hist_num, size_t pos)
 	const char *hist;
 	size_t len;
 
-	if (*hist_num < 0)
-		return pos;
-
-	hist = history_get(*hist_num);
-	if (hist == NULL)
-		return pos;
-
 	if (*hist_num > 0)
 		--(*hist_num);
+
+	if ((hist = history_get(*hist_num)) == NULL)
+		return pos;
+
+	strlcpy(buf, hist, size);
+
+	pos = key_home(pos);
+	len = strlen(hist);
+	write(STDOUT_FILENO, "\x1b[0K", 4);
+	write(STDOUT_FILENO, hist, len);
+
+	return len;
+}
+
+static size_t
+key_down(char *buf, size_t size, int *hist_num, size_t pos)
+{
+	/* FIXME: Still behaving weird when navigating */
+
+	const char *hist;
+	size_t len;
+
+	++(*hist_num);
+
+	/* Return to blank prompt if we navigate after last history item. */
+	if (*hist_num > hist_sp) {
+		memset(buf, 0, size);
+		*hist_num = hist_sp + 1; /* To avoid hist_num growing */
+		pos = key_home(pos);
+		write(STDOUT_FILENO, "\x1b[0K", 4);
+		return pos;
+	}
+
+	if ((hist = history_get(*hist_num)) == NULL)
+		return pos;
 
 	strlcpy(buf, hist, size);
 
@@ -158,7 +187,7 @@ key_up(char *buf, size_t size, int *hist_num, size_t pos)
 	write(STDOUT_FILENO, "\x1b[0K", 4);
 	write(STDOUT_FILENO, hist, len);
 	
-	return len;
+	return len; /* len is the new pos we output */
 }
 
 static size_t
@@ -309,7 +338,7 @@ sline(char *buf, size_t size)
 	memset(buf, 0, size);
 
 	pos = 0;
-	hist_num = hist_sp;
+	hist_num = hist_sp + 1;
 	while ((key = term_key()) != -1) {
 		switch (key) {
 		/* Arrow keys not implemented yet. */
@@ -317,7 +346,8 @@ sline(char *buf, size_t size)
 			pos = key_up(buf, size, &hist_num, pos);
 			break;
 		case VT_DWN:
-			continue;
+			pos = key_down(buf, size, &hist_num, pos);
+			break;
 		case VT_LFT:
 			pos = key_left(pos);
 			break;
