@@ -10,6 +10,7 @@
 #include "strlcpy.h"
 
 #define CURSOR_BUF_SIZE 16 /* Used for cursor movement directives */
+#define HISTORY_SIZE 50
 
 enum {
 	VT_DEF,
@@ -30,11 +31,19 @@ static int term_key(void);
 static int term_esc(char *seq);
 
 static size_t key_bkspc(char *buf, size_t pos);
+static size_t key_up(char *buf, size_t size, int *hist_num, size_t pos);
 static size_t key_left(size_t pos);
 static size_t key_right(char *buf, size_t pos);
 static size_t key_home(size_t pos);
 static size_t key_end(char *buf, size_t pos);
 static size_t key_insert(char *buf, size_t pos, size_t size, char key);
+
+static int history_add(const char *input);
+static const char *history_get(int pos);
+static int history_rotate(void);
+
+static char *history[HISTORY_SIZE];
+static int hist_sp = -1;
 
 static char *
 buf_slice(char *src, int pivot)
@@ -127,6 +136,32 @@ key_bkspc(char *buf, size_t pos)
 }
 
 static size_t
+key_up(char *buf, size_t size, int *hist_num, size_t pos)
+{
+	const char *hist;
+	size_t len;
+
+	if (*hist_num < 0)
+		return pos;
+
+	hist = history_get(*hist_num);
+	if (hist == NULL)
+		return pos;
+
+	if (*hist_num > 0)
+		--(*hist_num);
+
+	strlcpy(buf, hist, size);
+
+	pos = key_home(pos);
+	len = strlen(hist);
+	write(STDOUT_FILENO, "\x1b[0K", 4);
+	write(STDOUT_FILENO, hist, len);
+	
+	return len;
+}
+
+static size_t
 key_left(size_t pos)
 {
 	if (pos > 0) {
@@ -205,6 +240,51 @@ key_insert(char *buf, size_t pos, size_t size, char key)
 	return pos;
 }
 
+static int
+history_add(const char *input)
+{
+	size_t hist_size;
+
+	hist_size = strlen(input) + 1;
+	++hist_sp;
+	if (hist_sp >= HISTORY_SIZE)
+		history_rotate();
+
+	history[hist_sp] = calloc(hist_size, sizeof(char));
+	if (history[hist_sp] == NULL) {
+		--hist_sp;
+		return -1;
+	}
+
+	strlcpy(history[hist_sp], input, hist_size);
+
+	return 0;
+}
+
+static const char *
+history_get(int pos)
+{
+	if (pos < 0 && pos > hist_sp)
+		return NULL;
+
+	return history[pos];
+}
+
+static int
+history_rotate(void)
+{
+	int i;
+
+	free(history[0]);
+	for (i = 1; i < HISTORY_SIZE; ++i)
+		history[i - 1] = history[i];
+
+	history[i - 1] = NULL;
+	--hist_sp;
+
+	return 0;
+}
+
 int
 sline_setup(struct termios *term)
 {
@@ -223,16 +303,19 @@ sline(char *buf, size_t size)
 	/* Work in progress */
 
 	char key;
+	int hist_num;
 	size_t pos;
 
 	memset(buf, 0, size);
 
 	pos = 0;
+	hist_num = hist_sp;
 	while ((key = term_key()) != -1) {
 		switch (key) {
 		/* Arrow keys not implemented yet. */
 		case VT_UP:
-			continue;
+			pos = key_up(buf, size, &hist_num, pos);
+			break;
 		case VT_DWN:
 			continue;
 		case VT_LFT:
@@ -243,9 +326,11 @@ sline(char *buf, size_t size)
 			break;
 		case VT_RET:
 			write(STDOUT_FILENO, "\n", 1);
+			history_add(buf);
 			return pos;
 		case VT_BKSPC:
 			pos = key_bkspc(buf, pos);
+			hist_num = hist_sp;
 			break;
 		case VT_HOME:
 			pos = key_home(pos);
@@ -257,6 +342,7 @@ sline(char *buf, size_t size)
 			continue;
 		default:
 			pos = key_insert(buf, pos, size, key);
+			hist_num = hist_sp;
 			break;
 		}
 
