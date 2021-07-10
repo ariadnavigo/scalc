@@ -52,7 +52,7 @@ static int history_rotate(void);
 static int sline_errno = SLINE_ERR_DEF;
 static struct termios old, term;
 static char *history[HISTORY_SIZE];
-static int hist_sp = -1;
+static int hist_last = -1;
 
 static char *
 buf_slice(char *src, int pivot)
@@ -169,17 +169,15 @@ key_up(char *buf, size_t size, int *hist_num, size_t pos)
 static size_t
 key_down(char *buf, size_t size, int *hist_num, size_t pos)
 {
-	/* FIXME: Still behaving weird when navigating */
-
 	const char *hist;
 	size_t len;
 
 	++(*hist_num);
 
 	/* Return to blank prompt if we navigate after last history item. */
-	if (*hist_num > hist_sp) {
+	if (*hist_num > hist_last) {
 		memset(buf, 0, size);
-		*hist_num = hist_sp + 1; /* To avoid hist_num growing */
+		*hist_num = hist_last + 1; /* To avoid hist_num growing */
 		pos = key_home(pos);
 		write(STDOUT_FILENO, "\x1b[0K", 4);
 		return pos;
@@ -283,17 +281,17 @@ history_add(const char *input)
 	size_t hist_size;
 
 	hist_size = strlen(input) + 1;
-	++hist_sp;
-	if (hist_sp >= HISTORY_SIZE)
+	++hist_last;
+	if (hist_last >= HISTORY_SIZE)
 		history_rotate();
 
-	history[hist_sp] = calloc(hist_size, sizeof(char));
-	if (history[hist_sp] == NULL) {
-		--hist_sp;
+	history[hist_last] = calloc(hist_size, sizeof(char));
+	if (history[hist_last] == NULL) {
+		--hist_last;
 		return -1;
 	}
 
-	strlcpy(history[hist_sp], input, hist_size);
+	strlcpy(history[hist_last], input, hist_size);
 
 	return 0;
 }
@@ -301,7 +299,7 @@ history_add(const char *input)
 static const char *
 history_get(int pos)
 {
-	if (pos < 0 || pos > hist_sp)
+	if (pos < 0 || pos > hist_last)
 		return NULL;
 
 	return history[pos];
@@ -317,7 +315,7 @@ history_rotate(void)
 		history[i - 1] = history[i];
 
 	history[i - 1] = NULL;
-	--hist_sp;
+	--hist_last;
 
 	return 0;
 }
@@ -347,7 +345,7 @@ sline_end(void)
 {
 	int i;
 
-	if (hist_sp < 0)
+	if (hist_last < 0)
 		goto termios;
 
 	for (i = 0; i < HISTORY_SIZE; ++i) {
@@ -384,7 +382,7 @@ sline(char *buf, size_t size)
 	memset(buf, 0, size);
 
 	pos = 0;
-	hist_num = hist_sp + 1;
+	hist_num = hist_last + 1;
 	while ((key = term_key()) != -1) {
 		switch (key) {
 		/* Arrow keys not implemented yet. */
@@ -406,7 +404,7 @@ sline(char *buf, size_t size)
 			return pos;
 		case VT_BKSPC:
 			pos = key_bkspc(buf, pos);
-			hist_num = hist_sp;
+			hist_num = hist_last;
 			break;
 		case VT_HOME:
 			pos = key_home(pos);
@@ -418,7 +416,7 @@ sline(char *buf, size_t size)
 			continue;
 		default:
 			pos = key_insert(buf, pos, size, key);
-			hist_num = hist_sp;
+			hist_num = hist_last;
 			break;
 		}
 
