@@ -14,6 +14,7 @@
 
 enum {
 	VT_DEF,
+	VT_CHR,
 	VT_BKSPC,
 	VT_DLT,
 	VT_EOF,
@@ -37,7 +38,7 @@ enum {
 
 static char *buf_slice(char *src, int pivot);
 
-static int term_key(void);
+static int term_key(char *chr);
 static int term_esc(char *seq);
 
 static size_t key_up(char *buf, size_t size, int *hist_num, size_t pos);
@@ -47,8 +48,8 @@ static size_t key_right(char *buf, size_t pos);
 static size_t key_home(size_t pos);
 static size_t key_end(char *buf, size_t pos);
 
-static size_t key_insert(char *buf, size_t pos, size_t size, char key);
-static size_t key_delete(char *buf, size_t pos, int bsmode);
+static size_t chr_insert(char *buf, size_t pos, size_t size, char chr);
+static size_t chr_delete(char *buf, size_t pos, int bsmode);
 
 static int history_add(const char *input);
 static const char *history_get(int pos);
@@ -96,7 +97,7 @@ term_esc(char *seq)
 }
 
 static int
-term_key(void)
+term_key(char *chr)
 {
 	char key;
 	char seq[3];
@@ -146,7 +147,8 @@ term_key(void)
 		return VT_RET;
 	} else {
 		/* Not an escaped or control key */
-		return key;
+		*chr = key;
+		return VT_CHR;
 	}
 }
 
@@ -254,7 +256,7 @@ key_end(char *buf, size_t pos)
 }
 
 static size_t
-key_insert(char *buf, size_t pos, size_t size, char key)
+chr_insert(char *buf, size_t pos, size_t size, char chr)
 {
 	char *suff;
 	size_t len;
@@ -266,11 +268,11 @@ key_insert(char *buf, size_t pos, size_t size, char key)
 		return pos;
 
 	len = strlen(suff);
-	buf[pos] = key;
+	buf[pos] = chr;
 	++pos;
 	strlcpy(buf + pos, suff, len + 1);
 
-	write(STDOUT_FILENO, &key, 1);
+	write(STDOUT_FILENO, &chr, 1);
 	write(STDOUT_FILENO, "\x1b[0K", 4);
 	write(STDOUT_FILENO, "\x1b[s", 3);
 	write(STDOUT_FILENO, suff, len);
@@ -282,7 +284,7 @@ key_insert(char *buf, size_t pos, size_t size, char key)
 }
 
 static size_t
-key_delete(char *buf, size_t pos, int bsmode)
+chr_delete(char *buf, size_t pos, int bsmode)
 {
 	char *suff, *suff_new;
 	size_t len;
@@ -417,22 +419,23 @@ sline_errmsg(void)
 int
 sline(char *buf, size_t size)
 {
-	char key;
-	int hist_num;
+	char chr;
+	int key, hist_num;
 	size_t pos;
 
 	memset(buf, 0, size);
 
+	chr = 0;
 	pos = 0;
 	hist_num = hist_last + 1;
-	while ((key = term_key()) != -1) {
+	while ((key = term_key(&chr)) != -1) {
 		switch (key) {
 		case VT_BKSPC:
-			pos = key_delete(buf, pos, 1);
+			pos = chr_delete(buf, pos, 1);
 			hist_num = hist_last;
 			break;
 		case VT_DLT:
-			pos = key_delete(buf, pos, 0);
+			pos = chr_delete(buf, pos, 0);
 			hist_num = hist_last;
 			break;
 		case VT_EOF:
@@ -460,12 +463,12 @@ sline(char *buf, size_t size)
 		case VT_END:
 			pos = key_end(buf, pos);
 			break;
-		case VT_DEF:
-			/* Silently ignore everything that isn't caught. */
-			continue;
-		default:
-			pos = key_insert(buf, pos, size, key);
+		case VT_CHR:
+			pos = chr_insert(buf, pos, size, chr);
 			hist_num = hist_last;
+			break;
+		default:
+			/* Silently ignore everything that isn't caught. */
 			break;
 		}
 
