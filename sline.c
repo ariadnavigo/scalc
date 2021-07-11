@@ -15,7 +15,7 @@
 enum {
 	VT_DEF,
 	VT_BKSPC,
-	VT_DEL,
+	VT_DLT,
 	VT_EOF,
 	VT_RET,
 	VT_UP,
@@ -40,8 +40,6 @@ static char *buf_slice(char *src, int pivot);
 static int term_key(void);
 static int term_esc(char *seq);
 
-static size_t key_bkspc(char *buf, size_t pos);
-
 static size_t key_up(char *buf, size_t size, int *hist_num, size_t pos);
 static size_t key_down(char *buf, size_t size, int *hist_num, size_t pos);
 static size_t key_left(size_t pos);
@@ -50,6 +48,7 @@ static size_t key_home(size_t pos);
 static size_t key_end(char *buf, size_t pos);
 
 static size_t key_insert(char *buf, size_t pos, size_t size, char key);
+static size_t key_delete(char *buf, size_t pos, int bsmode);
 
 static int history_add(const char *input);
 static const char *history_get(int pos);
@@ -114,6 +113,9 @@ term_key(void)
 		if (term_esc(seq) < 0)
 			return VT_DEF;
 
+		if (seq[1] == '3' && seq[2] == '~')
+			return VT_DLT;
+
 		switch (seq[1]) {
 		case 'A':
 			return VT_UP;
@@ -140,18 +142,6 @@ term_key(void)
 		/* Not an escaped or control key */
 		return key;
 	}
-}
-
-static size_t
-key_bkspc(char *buf, size_t pos)
-{
-	if (pos > 0) {
-		--pos;
-		buf[pos] = '\0';
-		write(STDOUT_FILENO, "\b \b", 3);
-	}
-
-	return pos;
 }
 
 static size_t
@@ -285,6 +275,38 @@ key_insert(char *buf, size_t pos, size_t size, char key)
 	return pos;
 }
 
+static size_t
+key_delete(char *buf, size_t pos, int bsmode)
+{
+	char *suff, *suff_new;
+	size_t len;
+
+	if (bsmode > 0) {
+		if (pos == 0)
+			return pos;
+		--pos;
+	}
+
+	if ((suff = buf_slice(buf, pos)) == NULL)
+		return pos;
+
+	suff_new = suff + 1; /* Deleting character from suff; way safer */
+	len = strlen(suff_new);
+	strlcpy(buf + pos, suff_new, len + 1);
+
+	if (bsmode > 0)
+		write(STDOUT_FILENO, "\b", 1);
+
+	write(STDOUT_FILENO, "\x1b[0K", 4);
+	write(STDOUT_FILENO, "\x1b[s", 3);
+	write(STDOUT_FILENO, suff_new, len);
+	write(STDOUT_FILENO, "\x1b[u", 3);
+
+	free(suff);
+
+	return pos;
+}
+
 static int
 history_add(const char *input)
 {
@@ -400,7 +422,11 @@ sline(char *buf, size_t size)
 	while ((key = term_key()) != -1) {
 		switch (key) {
 		case VT_BKSPC:
-			pos = key_bkspc(buf, pos);
+			pos = key_delete(buf, pos, 1);
+			hist_num = hist_last;
+			break;
+		case VT_DLT:
+			pos = key_delete(buf, pos, 0);
 			hist_num = hist_last;
 			break;
 		case VT_EOF:
