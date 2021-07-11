@@ -411,7 +411,7 @@ sline_errmsg(void)
 {
 	switch (sline_errno) {
 	case SLINE_ERR_EOF:
-		return "EOF caught; exiting.";
+		return "EOF caught.";
 	case SLINE_ERR_IO:
 		return "I/O error.";
 	case SLINE_ERR_MEMORY:
