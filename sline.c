@@ -116,6 +116,12 @@ term_key(void)
 		if (seq[1] == '3' && seq[2] == '~')
 			return VT_DLT;
 
+		if (seq[1] == '7' && seq[2] == '~')
+			return VT_HOME;
+
+		if (seq[1] == '8' && seq[2] == '~')
+			return VT_END;
+
 		switch (seq[1]) {
 		case 'A':
 			return VT_UP;
