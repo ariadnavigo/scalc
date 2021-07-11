@@ -27,6 +27,8 @@ enum {
 
 enum {
 	SLINE_ERR_DEF,
+	SLINE_ERR_IO,
+	SLINE_ERR_MEMORY,
 	SLINE_ERR_TERMIOS_GET,
 	SLINE_ERR_TERMIOS_SET
 };
@@ -98,8 +100,10 @@ term_key(void)
 	int nread;
 
 	while ((nread = read(STDIN_FILENO, &key, 1)) != 1) {
-		if (nread == -1)
+		if (nread == -1) {
+			sline_errno = SLINE_ERR_IO;
 			return -1;
+		}
 	}
 
 	if (key == '\x1b') {
@@ -361,6 +365,10 @@ const char *
 sline_errmsg(void)
 {
 	switch (sline_errno) {
+	case SLINE_ERR_IO:
+		return "I/O error.";
+	case SLINE_ERR_MEMORY:
+		return "could not allocate internal memory.";
 	case SLINE_ERR_TERMIOS_GET:
 		return "could not read attributes.";
 	case SLINE_ERR_TERMIOS_SET:
@@ -373,8 +381,6 @@ sline_errmsg(void)
 int
 sline(char *buf, size_t size)
 {
-	/* Work in progress */
-
 	char key;
 	int hist_num;
 	size_t pos;
@@ -385,7 +391,6 @@ sline(char *buf, size_t size)
 	hist_num = hist_last + 1;
 	while ((key = term_key()) != -1) {
 		switch (key) {
-		/* Arrow keys not implemented yet. */
 		case VT_UP:
 			pos = key_up(buf, size, &hist_num, pos);
 			break;
@@ -400,8 +405,7 @@ sline(char *buf, size_t size)
 			break;
 		case VT_RET:
 			write(STDOUT_FILENO, "\n", 1);
-			history_add(buf);
-			return pos;
+			return history_add(buf);
 		case VT_BKSPC:
 			pos = key_bkspc(buf, pos);
 			hist_num = hist_last;

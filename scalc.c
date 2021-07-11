@@ -69,7 +69,7 @@ prompt_input(char *expr)
 	sline_stat = sline(expr, SCALC_EXPR_SIZE);
 
 	if (sline_stat < 0)
-		die("I/O error: not able to read user input.");
+		die("sline: %s", sline_errmsg());
 }
 
 static void
