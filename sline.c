@@ -14,15 +14,15 @@
 
 enum {
 	VT_DEF,
+	VT_BKSPC,
+	VT_DEL,
+	VT_RET,
 	VT_UP,
 	VT_DWN,
 	VT_LFT,
 	VT_RGHT,
-	VT_BKSPC,
-	VT_RET,
 	VT_HOME,
-	VT_END,
-	VT_DEL
+	VT_END
 };
 
 enum {
@@ -39,12 +39,14 @@ static int term_key(void);
 static int term_esc(char *seq);
 
 static size_t key_bkspc(char *buf, size_t pos);
+
 static size_t key_up(char *buf, size_t size, int *hist_num, size_t pos);
 static size_t key_down(char *buf, size_t size, int *hist_num, size_t pos);
 static size_t key_left(size_t pos);
 static size_t key_right(char *buf, size_t pos);
 static size_t key_home(size_t pos);
 static size_t key_end(char *buf, size_t pos);
+
 static size_t key_insert(char *buf, size_t pos, size_t size, char key);
 
 static int history_add(const char *input);
@@ -391,6 +393,13 @@ sline(char *buf, size_t size)
 	hist_num = hist_last + 1;
 	while ((key = term_key()) != -1) {
 		switch (key) {
+		case VT_BKSPC:
+			pos = key_bkspc(buf, pos);
+			hist_num = hist_last;
+			break;
+		case VT_RET:
+			write(STDOUT_FILENO, "\n", 1);
+			return history_add(buf);
 		case VT_UP:
 			pos = key_up(buf, size, &hist_num, pos);
 			break;
@@ -403,13 +412,6 @@ sline(char *buf, size_t size)
 		case VT_RGHT:
 			pos = key_right(buf, pos);
 			break;
-		case VT_RET:
-			write(STDOUT_FILENO, "\n", 1);
-			return history_add(buf);
-		case VT_BKSPC:
-			pos = key_bkspc(buf, pos);
-			hist_num = hist_last;
-			break;
 		case VT_HOME:
 			pos = key_home(pos);
 			break;
@@ -417,6 +419,7 @@ sline(char *buf, size_t size)
 			pos = key_end(buf, pos);
 			break;
 		case VT_DEF:
+			/* Silently ignore everything that isn't caught. */
 			continue;
 		default:
 			pos = key_insert(buf, pos, size, key);
