@@ -179,8 +179,13 @@ eval_math(const char *expr, Stack *stack)
 			goto pushnum;
 
 		op_ptr = op(ptr);
-		if (apply_op(&dx, op_ptr, stack) < 0) {
+		if (op_ptr->type == OP_NULL) {
 			fprintf(stderr, "%s: undefined operation.\n", ptr);
+			return;
+		}
+
+		if (apply_op(&dx, op_ptr, stack) < 0) {
+			fprintf(stderr, "%s: %s\n", ptr, stack_errmsg());
 			return;
 		}
 
