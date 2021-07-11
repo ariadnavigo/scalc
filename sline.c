@@ -37,6 +37,7 @@ enum {
 };
 
 static char *buf_slice(char *src, int pivot);
+static void ln_redraw(const char *str, size_t nbytes);
 
 static int term_key(char *chr);
 static int term_esc(char *seq);
@@ -75,6 +76,17 @@ buf_slice(char *src, int pivot)
 	memset(src + pivot, 0, len - pivot);
 
 	return suff;
+}
+
+static void
+ln_redraw(const char *str, size_t nbytes)
+{
+	write(STDOUT_FILENO, "\x1b[0K", 4);
+	write(STDOUT_FILENO, "\x1b", 1);
+	write(STDOUT_FILENO, "7", 1); /* ESC 7: portable save cursor */
+	write(STDOUT_FILENO, str, nbytes);
+	write(STDOUT_FILENO, "\x1b", 1);
+	write(STDOUT_FILENO, "8", 1); /* ESC 8: portable restore cursor */
 }
 
 static int
@@ -273,12 +285,7 @@ chr_insert(char *buf, size_t pos, size_t size, char chr)
 	strlcpy(buf + pos, suff, len + 1);
 
 	write(STDOUT_FILENO, &chr, 1);
-	write(STDOUT_FILENO, "\x1b[0K", 4);
-	write(STDOUT_FILENO, "\x1b", 1);
-	write(STDOUT_FILENO, "7", 1); /* ESC 7: portable save cursor */
-	write(STDOUT_FILENO, suff, len);
-	write(STDOUT_FILENO, "\x1b", 1);
-	write(STDOUT_FILENO, "8", 1); /* ESC 8: portable restore cursor */
+	ln_redraw(suff, len);
 
 	free(suff);
 	
@@ -307,12 +314,7 @@ chr_delete(char *buf, size_t pos, int bsmode)
 	if (bsmode > 0)
 		write(STDOUT_FILENO, "\b", 1);
 
-	write(STDOUT_FILENO, "\x1b[0K", 4);
-	write(STDOUT_FILENO, "\x1b", 1);
-	write(STDOUT_FILENO, "7", 1); /* ESC 7: portable save cursor */
-	write(STDOUT_FILENO, suff_new, len);
-	write(STDOUT_FILENO, "\x1b", 1);
-	write(STDOUT_FILENO, "8", 1); /* ESC 8: portable restore cursor */
+	ln_redraw(suff_new, len);
 
 	free(suff);
 
