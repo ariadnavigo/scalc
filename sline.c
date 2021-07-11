@@ -320,7 +320,10 @@ history_add(const char *input)
 {
 	size_t hist_size;
 
-	hist_size = strlen(input) + 1;
+	/* Ignoring blank lines */
+	if ((hist_size = strlen(input) + 1) == 1)
+		return 0;
+
 	++hist_last;
 	if (hist_last >= HISTORY_SIZE)
 		history_rotate();
