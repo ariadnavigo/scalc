@@ -16,6 +16,7 @@ enum {
 	VT_DEF,
 	VT_BKSPC,
 	VT_DEL,
+	VT_EOF,
 	VT_RET,
 	VT_UP,
 	VT_DWN,
@@ -27,6 +28,7 @@ enum {
 
 enum {
 	SLINE_ERR_DEF,
+	SLINE_ERR_EOF,
 	SLINE_ERR_IO,
 	SLINE_ERR_MEMORY,
 	SLINE_ERR_TERMIOS_GET,
@@ -130,6 +132,8 @@ term_key(void)
 		}
 	} else if (key == '\x7f') {
 		return VT_BKSPC;
+	} else if (key == '\x03' || key == '\x04') {
+		return VT_EOF;
 	} else if (key == '\x0a') {
 		return VT_RET;
 	} else {
@@ -335,7 +339,7 @@ sline_setup(void)
 	}
 
 	term = old;
-	term.c_lflag &= ~(ICANON | ECHO);
+	term.c_lflag &= ~(ICANON | ECHO | ISIG);
 	term.c_cc[VMIN] = 0;
 	term.c_cc[VTIME] = 1;
 	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &term) < 0) {
@@ -367,6 +371,8 @@ const char *
 sline_errmsg(void)
 {
 	switch (sline_errno) {
+	case SLINE_ERR_EOF:
+		return "EOF caught; exiting.";
 	case SLINE_ERR_IO:
 		return "I/O error.";
 	case SLINE_ERR_MEMORY:
@@ -397,6 +403,10 @@ sline(char *buf, size_t size)
 			pos = key_bkspc(buf, pos);
 			hist_num = hist_last;
 			break;
+		case VT_EOF:
+			write(STDOUT_FILENO, "\n", 1);
+			sline_errno = SLINE_ERR_EOF;
+			return -1;
 		case VT_RET:
 			write(STDOUT_FILENO, "\n", 1);
 			return history_add(buf);
