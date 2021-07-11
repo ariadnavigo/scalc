@@ -274,9 +274,11 @@ chr_insert(char *buf, size_t pos, size_t size, char chr)
 
 	write(STDOUT_FILENO, &chr, 1);
 	write(STDOUT_FILENO, "\x1b[0K", 4);
-	write(STDOUT_FILENO, "\x1b[s", 3);
+	write(STDOUT_FILENO, "\x1b", 1);
+	write(STDOUT_FILENO, "7", 1); /* ESC 7: portable save cursor */
 	write(STDOUT_FILENO, suff, len);
-	write(STDOUT_FILENO, "\x1b[u", 3);
+	write(STDOUT_FILENO, "\x1b", 1);
+	write(STDOUT_FILENO, "8", 1); /* ESC 8: portable restore cursor */
 
 	free(suff);
 	
@@ -306,9 +308,11 @@ chr_delete(char *buf, size_t pos, int bsmode)
 		write(STDOUT_FILENO, "\b", 1);
 
 	write(STDOUT_FILENO, "\x1b[0K", 4);
-	write(STDOUT_FILENO, "\x1b[s", 3);
+	write(STDOUT_FILENO, "\x1b", 1);
+	write(STDOUT_FILENO, "7", 1); /* ESC 7: portable save cursor */
 	write(STDOUT_FILENO, suff_new, len);
-	write(STDOUT_FILENO, "\x1b[u", 3);
+	write(STDOUT_FILENO, "\x1b", 1);
+	write(STDOUT_FILENO, "8", 1); /* ESC 8: portable restore cursor */
 
 	free(suff);
 
