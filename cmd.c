@@ -74,7 +74,7 @@ cmd_show_stk(Stack *stack)
 static int
 cmd_ver(void)
 {
-	printf("scalc %s.\n", VERSION);
+	printf("scalc %s\n", VERSION);
 
 	return 0;
 }
