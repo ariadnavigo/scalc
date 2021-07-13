@@ -10,9 +10,9 @@
 #include "strlcpy.h"
 #include "utils.h"
 
+static int cmd_list(void);
 static int cmd_print(Stack *stack);
 static int cmd_show_stk(Stack *stack);
-static int cmd_list(void);
 static int cmd_ver(void);
 
 static const CmdReg cmd_defs[] = {
