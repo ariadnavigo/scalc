@@ -13,6 +13,7 @@
 static int cmd_print(Stack *stack);
 static int cmd_show_stk(Stack *stack);
 static int cmd_list(void);
+static int cmd_ver(void);
 
 static const CmdReg cmd_defs[] = {
 	{ ":d", CMD_STK, { .stk = stack_drop } },
@@ -23,6 +24,7 @@ static const CmdReg cmd_defs[] = {
 	{ ":P", CMD_STK, { .stk = cmd_show_stk } },
 	{ ":sav", CMD_MEM, { .mem = mem_set } },
 	{ ":swp", CMD_STK, { .stk = stack_swap } },
+	{ ":ver", CMD_CMD, { .cmd = cmd_ver } },
 	{ "", CMD_NULL, { .cmd = NULL } }
 };
 
@@ -65,6 +67,14 @@ cmd_show_stk(Stack *stack)
 
 	for (i = 0; i < stack->sp + 1; ++i)
 		print_num(stack->elems[i]);
+
+	return 0;
+}
+
+static int
+cmd_ver(void)
+{
+	printf("scalc %s.\n", VERSION);
 
 	return 0;
 }
