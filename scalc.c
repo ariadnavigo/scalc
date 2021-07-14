@@ -213,8 +213,6 @@ main(int argc, char *argv[])
 	char expr[SCALC_EXPR_SIZE];
 	int opt, prompt_mode;
 
-	atexit(cleanup);
-
 	while ((opt = getopt(argc, argv, ":v")) != -1) {
 		switch (opt) {
 		case 'v':
@@ -224,6 +222,8 @@ main(int argc, char *argv[])
 			usage(); /* die()'s */
 		}
 	}
+
+	atexit(cleanup);
 
 	if (optind < argc)
 		filearg = argv[optind];
