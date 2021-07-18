@@ -194,15 +194,6 @@ key_down(char *buf, size_t size, int *hist_num, size_t pos)
 
 	++(*hist_num);
 
-	/* Return to blank prompt if we navigate after last history item. */
-	if (*hist_num > hist_last) {
-		memset(buf, 0, size);
-		*hist_num = hist_last + 1; /* To avoid hist_num growing */
-		pos = key_home(pos);
-		write(STDOUT_FILENO, "\x1b[0K", 4);
-		return pos;
-	}
-
 	if ((hist = history_get(*hist_num)) == NULL)
 		return pos;
 
