@@ -238,7 +238,7 @@ main(int argc, char *argv[])
 	}
 
 	if ((prompt_mode = isatty(fileno(fp))) > 0) {
-		if (sline_setup() < 0)
+		if (sline_setup(SCALC_EXPR_SIZE) < 0)
 			die("Terminal error: %s", sline_errmsg());
 	}
 

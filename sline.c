@@ -60,6 +60,7 @@ static int sline_errno = SLINE_ERR_DEF;
 static struct termios old, term;
 static char *history[HISTORY_SIZE];
 static int hist_last = -1;
+static size_t hist_entry_size;
 
 static char *
 buf_slice(char *src, int pivot)
@@ -315,23 +316,15 @@ chr_delete(char *buf, size_t pos, int bsmode)
 static int
 history_add(const char *input)
 {
-	size_t hist_size;
-
 	/* Ignoring blank lines */
-	if ((hist_size = strlen(input) + 1) == 1)
+	if (strlen(input) == 0)
 		return 0;
 
 	++hist_last;
 	if (hist_last >= HISTORY_SIZE)
 		history_rotate();
 
-	history[hist_last] = calloc(hist_size, sizeof(char));
-	if (history[hist_last] == NULL) {
-		--hist_last;
-		return -1;
-	}
-
-	strlcpy(history[hist_last], input, hist_size);
+	strlcpy(history[hist_last], input, hist_entry_size);
 
 	return 0;
 }
@@ -350,19 +343,28 @@ history_rotate(void)
 {
 	int i;
 
-	free(history[0]);
 	for (i = 1; i < HISTORY_SIZE; ++i)
-		history[i - 1] = history[i];
+		strlcpy(history[i - 1], history[i], hist_entry_size);
 
-	history[i - 1] = NULL;
 	--hist_last;
 
 	return 0;
 }
 
 int
-sline_setup(void)
+sline_setup(int size)
 {
+	int i;
+
+	hist_entry_size = size;
+	for (i = 0; i < HISTORY_SIZE; ++i) {
+		history[i] = calloc(hist_entry_size, sizeof(char));
+		if (history[i] == NULL) {
+			sline_errno = SLINE_ERR_MEMORY;
+			return -1;
+		}
+	}
+
 	if (tcgetattr(STDIN_FILENO, &old) < 0) {
 		sline_errno = SLINE_ERR_TERMIOS_GET;
 		return -1;
