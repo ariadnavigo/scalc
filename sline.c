@@ -193,7 +193,10 @@ key_down(char *buf, size_t size, int *hist_num, size_t pos)
 	const char *hist;
 	size_t len;
 
-	++(*hist_num);
+	if (*hist_num < hist_last)
+		++(*hist_num);
+	else
+		*hist_num = hist_last;
 
 	if ((hist = history_get(*hist_num)) == NULL)
 		return pos;
