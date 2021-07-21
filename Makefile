@@ -26,7 +26,7 @@ mem.o: mem.h
 
 op.o: op.h
 
-scalc.o: config.h mem.h op.h stack.h cmd.h strlcpy.h utils.h
+scalc.o: config.h mem.h op.h sline.h stack.h cmd.h strlcpy.h utils.h
 
 sline.o: sline.h
 
