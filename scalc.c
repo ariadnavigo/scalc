@@ -53,7 +53,7 @@ usage(void)
 static void
 cleanup(void)
 {
-	if (sline_mode > 1)
+	if (sline_mode > 0)
 		sline_end();
 
 	if (fp != stdin && fp != NULL)
