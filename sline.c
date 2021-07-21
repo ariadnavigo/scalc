@@ -55,7 +55,7 @@ static size_t chr_delete(char *buf, size_t pos, int bsmode);
 static void history_next(void);
 static void history_set(int pos, const char *input);
 static const char *history_get(int pos);
-static int history_rotate(void);
+static void history_rotate(void);
 
 static int sline_errno = SLINE_ERR_DEF;
 
@@ -350,7 +350,7 @@ history_get(int pos)
 	return history[pos];
 }
 
-static int
+static void
 history_rotate(void)
 {
 	int i;
@@ -359,8 +359,6 @@ history_rotate(void)
 		strlcpy(history[i - 1], history[i], hist_entry_size);
 
 	--hist_curr;
-
-	return 0;
 }
 
 int
