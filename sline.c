@@ -335,6 +335,9 @@ history_get(int pos)
 static void
 history_next(void)
 {
+	if (strlen(history[hist_curr]) == 0)
+		return;
+
 	++hist_curr;
 	if (hist_curr >= HISTORY_SIZE)
 		history_rotate();
