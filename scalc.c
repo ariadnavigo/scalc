@@ -60,6 +60,18 @@ cleanup(void)
 		fclose(fp);
 }
 
+static int
+file_input(char *expr, FILE *fp)
+{
+	if (fgets(expr, SCALC_EXPR_SIZE, fp) == NULL)
+		return -1;
+
+	if (expr[strlen(expr) - 1] == '\n')
+		expr[strlen(expr) - 1] = '\0';
+
+	return 0;
+}
+
 static void
 prompt_input(char *expr)
 {
@@ -245,17 +257,11 @@ main(int argc, char *argv[])
 	}
 
 	stack_init(&stack);
-	memset(expr, 0, SCALC_EXPR_SIZE);
 	while (feof(fp) == 0) {
-		if (sline_mode > 0) {
+		if (sline_mode > 0)
 			prompt_input(expr);
-		} else {
-			if (fgets(expr, SCALC_EXPR_SIZE, fp) == NULL)
-				break;
-		}
-
-		if (expr[strlen(expr) - 1] == '\n')
-			expr[strlen(expr) - 1] = '\0';
+		else if (file_input(expr, fp) < 0)
+			break;
 
 		if (strlen(expr) == 0)
 			continue;
