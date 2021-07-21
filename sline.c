@@ -42,8 +42,8 @@ static void ln_redraw(const char *str, size_t nbytes);
 static int term_key(char *chr);
 static int term_esc(char *seq);
 
-static size_t key_up(char *buf, size_t size, int *hist_pos, size_t pos);
-static size_t key_down(char *buf, size_t size, int *hist_pos, size_t pos);
+static size_t key_up(char *buf, size_t size, size_t pos);
+static size_t key_down(char *buf, size_t size, size_t pos);
 static size_t key_left(size_t pos);
 static size_t key_right(char *buf, size_t pos);
 static size_t key_home(size_t pos);
@@ -62,7 +62,7 @@ static int sline_errno = SLINE_ERR_DEF;
 static struct termios old, term;
 
 static char *history[HISTORY_SIZE];
-static int hist_curr;
+static int hist_curr, hist_pos;
 static size_t hist_entry_size;
 
 static char *
@@ -169,15 +169,15 @@ term_key(char *chr)
 }
 
 static size_t
-key_up(char *buf, size_t size, int *hist_pos, size_t pos)
+key_up(char *buf, size_t size, size_t pos)
 {
 	const char *hist;
 	size_t len;
 
-	if (*hist_pos > 0)
-		--(*hist_pos);
+	if (hist_pos > 0)
+		--hist_pos;
 
-	if ((hist = history_get(*hist_pos)) == NULL)
+	if ((hist = history_get(hist_pos)) == NULL)
 		return pos;
 
 	strlcpy(buf, hist, size);
@@ -191,17 +191,17 @@ key_up(char *buf, size_t size, int *hist_pos, size_t pos)
 }
 
 static size_t
-key_down(char *buf, size_t size, int *hist_pos, size_t pos)
+key_down(char *buf, size_t size, size_t pos)
 {
 	const char *hist;
 	size_t len;
 
-	if (*hist_pos < hist_curr)
-		++(*hist_pos);
+	if (hist_pos < hist_curr)
+		++hist_pos;
 	else
-		*hist_pos = hist_curr;
+		hist_pos = hist_curr;
 
-	if ((hist = history_get(*hist_pos)) == NULL)
+	if ((hist = history_get(hist_pos)) == NULL)
 		return pos;
 
 	strlcpy(buf, hist, size);
@@ -434,7 +434,7 @@ int
 sline(char *buf, size_t size)
 {
 	char chr;
-	int key, hist_pos;
+	int key;
 	size_t pos;
 
 	memset(buf, 0, size);
@@ -461,10 +461,10 @@ sline(char *buf, size_t size)
 			history_next();
 			return 0;
 		case VT_UP:
-			pos = key_up(buf, size, &hist_pos, pos);
+			pos = key_up(buf, size, pos);
 			break;
 		case VT_DWN:
-			pos = key_down(buf, size, &hist_pos, pos);
+			pos = key_down(buf, size, pos);
 			break;
 		case VT_LFT:
 			pos = key_left(pos);
