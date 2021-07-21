@@ -28,6 +28,7 @@ static int apply_op(double *dx, const OpReg *op_ptr, Stack *stack);
 static void eval_math(const char *expr, Stack *stack);
 
 static FILE *fp;
+static int sline_mode;
 
 static void
 die(const char *fmt, ...)
@@ -52,7 +53,8 @@ usage(void)
 static void
 cleanup(void)
 {
-	sline_end();
+	if (sline_mode > 1)
+		sline_end();
 
 	if (fp != stdin && fp != NULL)
 		fclose(fp);
@@ -211,7 +213,7 @@ main(int argc, char *argv[])
 	Stack stack;
 	char *filearg;
 	char expr[SCALC_EXPR_SIZE];
-	int opt, prompt_mode;
+	int opt;
 
 	while ((opt = getopt(argc, argv, ":v")) != -1) {
 		switch (opt) {
@@ -237,14 +239,15 @@ main(int argc, char *argv[])
 		fp = stdin;
 	}
 
-	if ((prompt_mode = isatty(fileno(fp))) > 0) {
+	if ((sline_mode = isatty(fileno(fp))) > 0) {
 		if (sline_setup(SCALC_EXPR_SIZE) < 0)
 			die("Terminal error: %s", sline_errmsg());
 	}
 
 	stack_init(&stack);
+	memset(expr, 0, SCALC_EXPR_SIZE);
 	while (feof(fp) == 0) {
-		if (prompt_mode > 0) {
+		if (sline_mode > 0) {
 			prompt_input(expr);
 		} else {
 			if (fgets(expr, SCALC_EXPR_SIZE, fp) == NULL)
