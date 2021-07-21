@@ -49,13 +49,13 @@ static size_t key_right(char *buf, size_t pos);
 static size_t key_home(size_t pos);
 static size_t key_end(char *buf, size_t pos);
 
-static size_t chr_insert(char *buf, size_t pos, size_t size, char chr);
 static size_t chr_delete(char *buf, size_t pos, int bsmode);
+static size_t chr_insert(char *buf, size_t pos, size_t size, char chr);
 
-static void history_next(void);
-static void history_set(int pos, const char *input);
 static const char *history_get(int pos);
+static void history_next(void);
 static void history_rotate(void);
+static void history_set(int pos, const char *input);
 
 static int sline_errno = SLINE_ERR_DEF;
 
@@ -266,33 +266,6 @@ key_end(char *buf, size_t pos)
 }
 
 static size_t
-chr_insert(char *buf, size_t pos, size_t size, char chr)
-{
-	char *suff;
-	size_t len;
-
-	if (pos >= size)
-		return pos;
-
-	if ((suff = buf_slice(buf, pos)) == NULL)
-		return pos;
-
-	len = strlen(suff);
-	buf[pos] = chr;
-	++pos;
-	strlcpy(buf + pos, suff, len + 1);
-
-	write(STDOUT_FILENO, &chr, 1);
-	ln_redraw(suff, len);
-
-	free(suff);
-
-	history_set(hist_curr, buf);
-	
-	return pos;
-}
-
-static size_t
 chr_delete(char *buf, size_t pos, int bsmode)
 {
 	char *suff, *suff_new;
@@ -323,22 +296,31 @@ chr_delete(char *buf, size_t pos, int bsmode)
 	return pos;
 }
 
-static void
-history_next(void)
+static size_t
+chr_insert(char *buf, size_t pos, size_t size, char chr)
 {
-	++hist_curr;
-	if (hist_curr >= HISTORY_SIZE)
-		history_rotate();
-}
+	char *suff;
+	size_t len;
 
-static void
-history_set(int pos, const char *input)
-{
-	/* Ignoring blank lines */
-	if (strlen(input) == 0)
-		return;
+	if (pos >= size)
+		return pos;
 
-	strlcpy(history[pos], input, hist_entry_size);
+	if ((suff = buf_slice(buf, pos)) == NULL)
+		return pos;
+
+	len = strlen(suff);
+	buf[pos] = chr;
+	++pos;
+	strlcpy(buf + pos, suff, len + 1);
+
+	write(STDOUT_FILENO, &chr, 1);
+	ln_redraw(suff, len);
+
+	free(suff);
+
+	history_set(hist_curr, buf);
+	
+	return pos;
 }
 
 static const char *
@@ -351,6 +333,14 @@ history_get(int pos)
 }
 
 static void
+history_next(void)
+{
+	++hist_curr;
+	if (hist_curr >= HISTORY_SIZE)
+		history_rotate();
+}
+
+static void
 history_rotate(void)
 {
 	int i;
@@ -359,6 +349,16 @@ history_rotate(void)
 		strlcpy(history[i - 1], history[i], hist_entry_size);
 
 	--hist_curr;
+}
+
+static void
+history_set(int pos, const char *input)
+{
+	/* Ignoring blank lines */
+	if (strlen(input) == 0)
+		return;
+
+	strlcpy(history[pos], input, hist_entry_size);
 }
 
 int
