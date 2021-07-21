@@ -42,8 +42,8 @@ static void ln_redraw(const char *str, size_t nbytes);
 static int term_key(char *chr);
 static int term_esc(char *seq);
 
-static size_t key_up(char *buf, size_t size, int *hist_num, size_t pos);
-static size_t key_down(char *buf, size_t size, int *hist_num, size_t pos);
+static size_t key_up(char *buf, size_t size, int *hist_pos, size_t pos);
+static size_t key_down(char *buf, size_t size, int *hist_pos, size_t pos);
 static size_t key_left(size_t pos);
 static size_t key_right(char *buf, size_t pos);
 static size_t key_home(size_t pos);
@@ -52,14 +52,17 @@ static size_t key_end(char *buf, size_t pos);
 static size_t chr_insert(char *buf, size_t pos, size_t size, char chr);
 static size_t chr_delete(char *buf, size_t pos, int bsmode);
 
-static int history_add(const char *input);
+static void history_next(void);
+static void history_set(int pos, const char *input);
 static const char *history_get(int pos);
 static int history_rotate(void);
 
 static int sline_errno = SLINE_ERR_DEF;
+
 static struct termios old, term;
+
 static char *history[HISTORY_SIZE];
-static int hist_last = -1;
+static int hist_curr;
 static size_t hist_entry_size;
 
 static char *
@@ -166,15 +169,15 @@ term_key(char *chr)
 }
 
 static size_t
-key_up(char *buf, size_t size, int *hist_num, size_t pos)
+key_up(char *buf, size_t size, int *hist_pos, size_t pos)
 {
 	const char *hist;
 	size_t len;
 
-	if (*hist_num > 0)
-		--(*hist_num);
+	if (*hist_pos > 0)
+		--(*hist_pos);
 
-	if ((hist = history_get(*hist_num)) == NULL)
+	if ((hist = history_get(*hist_pos)) == NULL)
 		return pos;
 
 	strlcpy(buf, hist, size);
@@ -188,17 +191,17 @@ key_up(char *buf, size_t size, int *hist_num, size_t pos)
 }
 
 static size_t
-key_down(char *buf, size_t size, int *hist_num, size_t pos)
+key_down(char *buf, size_t size, int *hist_pos, size_t pos)
 {
 	const char *hist;
 	size_t len;
 
-	if (*hist_num < hist_last)
-		++(*hist_num);
+	if (*hist_pos < hist_curr)
+		++(*hist_pos);
 	else
-		*hist_num = hist_last;
+		*hist_pos = hist_curr;
 
-	if ((hist = history_get(*hist_num)) == NULL)
+	if ((hist = history_get(*hist_pos)) == NULL)
 		return pos;
 
 	strlcpy(buf, hist, size);
@@ -283,6 +286,8 @@ chr_insert(char *buf, size_t pos, size_t size, char chr)
 	ln_redraw(suff, len);
 
 	free(suff);
+
+	history_set(hist_curr, buf);
 	
 	return pos;
 }
@@ -313,29 +318,33 @@ chr_delete(char *buf, size_t pos, int bsmode)
 
 	free(suff);
 
+	history_set(hist_curr, buf);
+
 	return pos;
 }
 
-static int
-history_add(const char *input)
+static void
+history_next(void)
+{
+	++hist_curr;
+	if (hist_curr >= HISTORY_SIZE)
+		history_rotate();
+}
+
+static void
+history_set(int pos, const char *input)
 {
 	/* Ignoring blank lines */
 	if (strlen(input) == 0)
-		return 0;
+		return;
 
-	++hist_last;
-	if (hist_last >= HISTORY_SIZE)
-		history_rotate();
-
-	strlcpy(history[hist_last], input, hist_entry_size);
-
-	return 0;
+	strlcpy(history[pos], input, hist_entry_size);
 }
 
 static const char *
 history_get(int pos)
 {
-	if (pos < 0 || pos > hist_last)
+	if (pos < 0 || pos > hist_curr)
 		return NULL;
 
 	return history[pos];
@@ -349,7 +358,7 @@ history_rotate(void)
 	for (i = 1; i < HISTORY_SIZE; ++i)
 		strlcpy(history[i - 1], history[i], hist_entry_size);
 
-	--hist_last;
+	--hist_curr;
 
 	return 0;
 }
@@ -390,7 +399,7 @@ sline_end(void)
 {
 	int i;
 
-	if (hist_last < 0)
+	if (hist_curr < 0)
 		goto termios;
 
 	for (i = 0; i < HISTORY_SIZE; ++i) {
@@ -425,23 +434,23 @@ int
 sline(char *buf, size_t size)
 {
 	char chr;
-	int key, hist_num;
+	int key, hist_pos;
 	size_t pos;
 
 	memset(buf, 0, size);
 
 	chr = 0;
 	pos = 0;
-	hist_num = hist_last + 1;
+	hist_pos = hist_curr;
 	while ((key = term_key(&chr)) != -1) {
 		switch (key) {
 		case VT_BKSPC:
 			pos = chr_delete(buf, pos, 1);
-			hist_num = hist_last;
+			hist_pos = hist_curr;
 			break;
 		case VT_DLT:
 			pos = chr_delete(buf, pos, 0);
-			hist_num = hist_last;
+			hist_pos = hist_curr;
 			break;
 		case VT_EOF:
 			write(STDOUT_FILENO, "\n", 1);
@@ -449,12 +458,13 @@ sline(char *buf, size_t size)
 			return -1;
 		case VT_RET:
 			write(STDOUT_FILENO, "\n", 1);
-			return history_add(buf);
+			history_next();
+			return 0;
 		case VT_UP:
-			pos = key_up(buf, size, &hist_num, pos);
+			pos = key_up(buf, size, &hist_pos, pos);
 			break;
 		case VT_DWN:
-			pos = key_down(buf, size, &hist_num, pos);
+			pos = key_down(buf, size, &hist_pos, pos);
 			break;
 		case VT_LFT:
 			pos = key_left(pos);
@@ -470,7 +480,7 @@ sline(char *buf, size_t size)
 			break;
 		case VT_CHR:
 			pos = chr_insert(buf, pos, size, chr);
-			hist_num = hist_last;
+			hist_pos = hist_curr;
 			break;
 		default:
 			/* Silently ignore everything that isn't caught. */
