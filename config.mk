@@ -8,7 +8,7 @@ PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/man
 
 # Libraries
-LIBS = -lm
+LIBS = -lm -lsline
 
 # Flags
 CPPFLAGS = -DVERSION=\"${VERSION}\" -D_POSIX_C_SOURCE=200809L

@@ -12,6 +12,7 @@ scalc requires:
 
 1. A POSIX-like system
 2. A C99 compiler
+3. [sline](https://sr.ht/~arivigo/sline) 0.1.x
 
 Build by using:
 

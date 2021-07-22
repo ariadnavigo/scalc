@@ -2,6 +2,8 @@
 
 #include <errno.h>
 #include <stdarg.h>
+#include <stddef.h>
+#include <sline.h> /* Depends on stddef.h */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,7 +12,6 @@
 #include "config.h"
 #include "mem.h"
 #include "op.h"
-#include "sline.h"
 #include "stack.h"
 #include "cmd.h" /* Depends on stack.h */
 #include "strlcpy.h"
