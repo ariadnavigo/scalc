@@ -12,7 +12,8 @@ scalc requires:
 
 1. A POSIX-like system
 2. A C99 compiler
-3. [sline 0.1.1](https://git.sr.ht/~arivigo/sline/refs/0.1.1)
+3. [sline](https://sr.ht/~arivigo/sline): Unless you really know what you're
+   doing, use the latest release, not the master git branch. 
 
 Build by using:
 
