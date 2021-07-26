@@ -245,12 +245,10 @@ main(int argc, char *argv[])
 	else 
 		filearg = NULL;
 
-	if (filearg != NULL) {
-		if ((fp = fopen(filearg, "r")) == NULL)
-			die("Could not open %s: %s", filearg, strerror(errno));
-	} else {
+	if (filearg == NULL)
 		fp = stdin;
-	}
+	else if ((fp = fopen(filearg, "r")) == NULL)
+		die("Could not open %s: %s", filearg, strerror(errno));
 
 	if ((sline_mode = isatty(fileno(fp))) > 0) {
 		if (sline_setup(SCALC_EXPR_SIZE) < 0)
