@@ -40,16 +40,7 @@ scalc: ${OBJ}
 	${CC} -o $@ ${OBJ} ${LDFLAGS} ${LIBS}
 
 clean:
-	rm -f scalc ${OBJ} scalc-${VERSION}.tar.gz
-
-dist: clean
-	mkdir -p scalc-${VERSION}
-	cp -R LICENSE Makefile README.md config.def.h config.mk cmd.h mem.h \
-	   op.h stack.h strlcpy.h utils.h scalc.1 ${SRC} \
-	   scalc-${VERSION}
-	tar -cf scalc-${VERSION}.tar scalc-${VERSION}
-	gzip scalc-${VERSION}.tar
-	rm -rf scalc-${VERSION}
+	rm -f scalc ${OBJ}
 
 install: all
 	mkdir -p ${DESTDIR}${PREFIX}/bin
@@ -63,4 +54,4 @@ install: all
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/scalc ${DESTDIR}${MANPREFIX}/man1/scalc.1
 
-.PHONY: all options clean dist install uninstall
+.PHONY: all options clean install uninstall
