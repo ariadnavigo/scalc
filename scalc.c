@@ -78,9 +78,6 @@ prompt_input(char *expr)
 {
 	int sline_stat;
 
-	printf(scalc_prompt);
-	fflush(stdout);
-
 	sline_stat = sline(expr, SCALC_EXPR_SIZE);
 
 	if (sline_stat < 0)
