@@ -1,19 +1,19 @@
 /* See LICENSE file for copyright and license details. */
 
 #include <errno.h>
+#include <stddef.h> /* Dependency for sline.h */
+#include <sline.h>
 #include <stdarg.h>
-#include <stddef.h>
-#include <sline.h> /* Depends on stddef.h */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+#include "stack.h" /* Dependency for cmd.h */
+#include "cmd.h"
 #include "config.h"
 #include "mem.h"
 #include "op.h"
-#include "stack.h"
-#include "cmd.h" /* Depends on stack.h */
 #include "strlcpy.h"
 #include "utils.h"
 
