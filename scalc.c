@@ -64,11 +64,26 @@ cleanup(void)
 static int
 file_input(char *expr, FILE *fp)
 {
+	static int line = 1;
+
+	char trash;
+	char *last_chr;
+
 	if (fgets(expr, SCALC_EXPR_SIZE, fp) == NULL)
 		return -1;
 
-	if (expr[strlen(expr) - 1] == '\n')
-		expr[strlen(expr) - 1] = '\0';
+	last_chr = &expr[strlen(expr) - 1];
+
+	/* Flushing stdin if there's more input; chomping '\n' if not. */
+	if (*last_chr != '\n') {
+		fprintf(stderr, "Warn: stdin: line %d truncated (too long).\n",
+		        line);
+		while ((trash = fgetc(stdin)) != '\n' && trash != EOF);
+	} else {
+		*last_chr = '\0';
+	}
+
+	++line;
 
 	return 0;
 }
