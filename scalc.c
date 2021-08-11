@@ -242,7 +242,7 @@ main(int argc, char *argv[])
 	while ((opt = getopt(argc, argv, ":v")) != -1) {
 		switch (opt) {
 		case 'v':
-			die("scalc %s", VERSION);
+			die("scalc %s (sline %s)", VERSION, sline_version());
 			break; /* UNREACHABLE */
 		default:
 			usage(); /* die()'s */
