@@ -1,7 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 
 #include <errno.h>
-#include <stddef.h> /* Dependency for sline.h */
 #include <sline.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -93,7 +92,7 @@ prompt_input(char *expr)
 {
 	int sline_stat;
 
-	sline_stat = sline(expr, SCALC_EXPR_SIZE);
+	sline_stat = sline(expr, SCALC_EXPR_SIZE, NULL);
 
 	if (sline_stat < 0)
 		die("sline: %s", sline_errmsg());
