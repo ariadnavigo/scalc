@@ -5,7 +5,7 @@
 include config.mk
 
 SRC = cmd.c mem.c op.c scalc.c stack.c strlcpy.c utils.c
-OBJ = ${SRC:%.c=%.o}
+OBJ = ${SRC:.c=.o}
 
 all: options scalc
 
