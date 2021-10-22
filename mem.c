@@ -1,5 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
+#include <string.h>
+
 #include "mem.h"
 
 static int mem_var_to_i(char var);
@@ -16,6 +18,12 @@ mem_var_to_i(char var)
 		return -1;
 
 	return i;
+}
+
+void
+mem_clr(void)
+{
+	memset(mem, 0, sizeof(mem));
 }
 
 int
