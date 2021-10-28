@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "mem.h"
+#include "utils.h"
 
 static int mem_var_to_i(char var);
 
@@ -14,8 +15,10 @@ mem_var_to_i(char var)
 	int i;
 
 	i = var - 'A';
-	if (i < 0 || i >= MEM_SIZE)
+	if (i < 0 || i >= MEM_SIZE) {
+		err = MEM_ERR_NOT_FOUND;
 		return -1;
+	}
 
 	return i;
 }

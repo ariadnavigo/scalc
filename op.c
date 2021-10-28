@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "op.h"
+#include "utils.h"
 
 #define OP_E 2.71828182845904523536
 #define OP_PI 3.14159265358979323846
@@ -151,10 +152,11 @@ op(const char *oper)
 
 	for (ptr = op_defs; ptr->type != OP_NULL; ++ptr) {
 		if (strncmp(ptr->id, oper, OP_NAME_SIZE) == 0)
-			break;
+			return ptr;
 	}
 
 	/* If no match is found, we return the "Null" pointer */
+	err = OP_ERR_INVALID;
 	return ptr;
 }
 

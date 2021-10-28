@@ -14,4 +14,3 @@ int stack_drop(Stack *stack);
 int stack_dup(Stack *stack);
 int stack_peek(double *dest, Stack stack);
 int stack_swap(Stack *stack);
-const char *stack_errmsg(void);

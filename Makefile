@@ -22,13 +22,13 @@ config.h:
 
 cmd.o: mem.h op.h stack.h cmd.h strlcpy.h utils.h
 
-mem.o: mem.h
+mem.o: mem.h utils.h
 
-op.o: op.h
+op.o: op.h utils.h
 
 scalc.o: config.h mem.h op.h stack.h cmd.h strlcpy.h utils.h
 
-stack.o: stack.h
+stack.o: stack.h utils.h
 
 strlcpy.o: strlcpy.h
 

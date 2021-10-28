@@ -96,9 +96,9 @@ cmd(const char *name)
 
 	for (cmd_ptr = cmd_defs; cmd_ptr->type != CMD_NULL; ++cmd_ptr) {
 		if (strncmp(cmd_ptr->id, name, CMD_ID_SIZE) == 0)
-			break;
+			return cmd_ptr;
 	}
 
-	/* We return the "Null" pointer if we didn't find a match */
+	err = CMD_ERR_INVALID;
 	return cmd_ptr;
 }

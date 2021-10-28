@@ -101,47 +101,39 @@ prompt_input(char *expr)
 static void
 run_cmd(Stack *stack, const char *expr)
 {
-	int err;
 	double mem_val;
 	char expr_cpy[SCALC_EXPR_SIZE];
 	char *expr_ptr;
 	const CmdReg *cmd_ptr;
 
-	err = 0;
 	strlcpy(expr_cpy, expr, SCALC_EXPR_SIZE);
 	expr_ptr = strtok(expr_cpy, " ");
 	cmd_ptr = cmd(expr_ptr);
 
 	switch (cmd_ptr->type) {
 	case CMD_CMD:
-		err = (*cmd_ptr->func.cmd)();
+		(*cmd_ptr->func.cmd)();
 		break;
 	case CMD_MEM:
-		if ((expr_ptr = strtok(NULL, " ")) == NULL) {
-			fprintf(stderr, "%s: register required.\n", expr);
-			return;
-		}
-
-		if((err = stack_peek(&mem_val, *stack)) < 0)
+		if ((expr_ptr = strtok(NULL, " ")) == NULL)
 			break;
 
-		if ((*cmd_ptr->func.mem)(expr_ptr[0], mem_val) < 0) {
-			fprintf(stderr, "%s: bad register.\n", expr);
-			return;
-		}
+		if(stack_peek(&mem_val, *stack) < 0)
+			break;
+
+		if ((*cmd_ptr->func.mem)(expr_ptr[0], mem_val) < 0)
+			break;
 
 		break;
 	case CMD_STK:
-		err = (*cmd_ptr->func.stk)(stack);
+		(*cmd_ptr->func.stk)(stack);
 		break;
 	default:
-		fprintf(stderr, "%s: invalid command.\n", expr);
-		return;
+		break;
 	}
 
-	if (err < 0)
-		fprintf(stderr, "%s: %s\n", expr, stack_errmsg());
-
+	if (err != NO_ERR)
+		fprintf(stderr, "%s: %s\n", expr, errmsg());
 }
 
 static int
@@ -205,30 +197,26 @@ eval_math(const char *expr, Stack *stack)
 			goto pushnum;
 
 		op_ptr = op(ptr);
-		if (op_ptr->type == OP_NULL) {
-			fprintf(stderr, "%s: undefined operation.\n", ptr);
-			return;
-		}
+		if (op_ptr->type == OP_NULL)
+			goto printerr;
 
-		if (apply_op(&dx, op_ptr, stack) < 0) {
-			fprintf(stderr, "%s: %s\n", ptr, stack_errmsg());
-			return;
-		}
+		if (apply_op(&dx, op_ptr, stack) < 0)
+			goto printerr;
 
 pushnum:
-		if (stack_push(stack, dx) < 0) {
-			fprintf(stderr, "%s: %s\n", expr, stack_errmsg());
-			return;
-		}
+		if (stack_push(stack, dx) < 0)
+			goto printerr;
 		ptr = strtok(NULL, " ");
 	}
 
-	if (stack_peek(&dest, *stack) < 0) {
-		fprintf(stderr, "%s: %s\n", expr, stack_errmsg());
-		return;
-	}
+	if (stack_peek(&dest, *stack) < 0)
+		goto printerr;
 
 	print_num(dest);
+	return;
+
+printerr:
+	fprintf(stderr, "%s: %s\n", ptr, errmsg());
 }
 
 int
@@ -268,6 +256,7 @@ main(int argc, char *argv[])
 
 	stack_init(&stack);
 	while (feof(fp) == 0) {
+		err = NO_ERR; /* Reset err */
 		if (sline_mode > 0)
 			prompt_input(expr);
 		else if (file_input(expr, fp) < 0)

@@ -4,14 +4,7 @@
 #include <string.h>
 
 #include "stack.h"
-
-enum {
-	STK_SUCCESS,
-	STK_ERR_STACK_MAX,
-	STK_ERR_STACK_MIN
-};
-
-static int stack_err = STK_SUCCESS;
+#include "utils.h"
 
 int
 stack_init(Stack *stack)
@@ -34,7 +27,7 @@ stack_push(Stack *stack, double elem)
 	/* Let's avoid stack overflows */
 	if (++stack->sp == STK_STACK_SIZE) {
 		--stack->sp;
-		stack_err = STK_ERR_STACK_MAX;
+		err = STK_ERR_STACK_MAX;
 		return -1;
 	}
 
@@ -58,7 +51,7 @@ int
 stack_drop(Stack *stack)
 {
 	if (stack->sp < 0) {
-		stack_err = STK_ERR_STACK_MIN;
+		err = STK_ERR_STACK_MIN;
 		return -1;
 	}
 
@@ -85,7 +78,7 @@ int
 stack_peek(double *dest, Stack stack)
 {
 	if (stack.sp < 0) {
-		stack_err = STK_ERR_STACK_MIN;
+		err = STK_ERR_STACK_MIN;
 		return -1;
 	}
 
@@ -101,7 +94,7 @@ stack_swap(Stack *stack)
 
 	/* If less than 2 elements in stack */
 	if (stack->sp < 1) {
-		stack_err = STK_ERR_STACK_MIN;
+		err = STK_ERR_STACK_MIN;
 		return -1;
 	}
 
@@ -112,17 +105,4 @@ stack_swap(Stack *stack)
 	stack_push(stack, bx);
 
 	return 0;
-}
-
-const char *
-stack_errmsg(void)
-{
-	switch (stack_err) {
-	case STK_ERR_STACK_MAX:
-		return "too many elements stored in stack.";
-	case STK_ERR_STACK_MIN:
-		return "too few elements in stack.";
-	default:
-		return "unknown error.";
-	}
 }
