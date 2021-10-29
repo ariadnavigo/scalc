@@ -1,10 +1,10 @@
 /* See LICENSE file for copyright and license details. */
 
-#define STK_STACK_SIZE 32
+#define STACK_SIZE 32
 
 typedef struct {
 	int sp;
-	double elems[STK_STACK_SIZE];
+	double elems[STACK_SIZE];
 } Stack;
 
 int stack_init(Stack *stack);

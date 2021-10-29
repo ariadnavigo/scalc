@@ -25,9 +25,9 @@ int
 stack_push(Stack *stack, double elem)
 {
 	/* Let's avoid stack overflows */
-	if (++stack->sp == STK_STACK_SIZE) {
+	if (++stack->sp == STACK_SIZE) {
 		--stack->sp;
-		err = STK_ERR_STACK_MAX;
+		err = STACK_ERR_MAX;
 		return -1;
 	}
 
@@ -51,7 +51,7 @@ int
 stack_drop(Stack *stack)
 {
 	if (stack->sp < 0) {
-		err = STK_ERR_STACK_MIN;
+		err = STACK_ERR_MIN;
 		return -1;
 	}
 
@@ -78,7 +78,7 @@ int
 stack_peek(double *dest, Stack stack)
 {
 	if (stack.sp < 0) {
-		err = STK_ERR_STACK_MIN;
+		err = STACK_ERR_MIN;
 		return -1;
 	}
 
@@ -94,7 +94,7 @@ stack_swap(Stack *stack)
 
 	/* If less than 2 elements in stack */
 	if (stack->sp < 1) {
-		err = STK_ERR_STACK_MIN;
+		err = STACK_ERR_MIN;
 		return -1;
 	}
 

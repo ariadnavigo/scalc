@@ -25,9 +25,9 @@ errmsg(void)
 		return "register required.";
 	case OP_ERR_INVALID:
 		return "undefined operation.";
-	case STK_ERR_STACK_MAX:
+	case STACK_ERR_MAX:
 		return "too many elements stored in stack.";
-	case STK_ERR_STACK_MIN:
+	case STACK_ERR_MIN:
 		return "too few elements in stack.";
 	default:
 		return "success.";
