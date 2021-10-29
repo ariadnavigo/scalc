@@ -10,7 +10,6 @@
 #include "strlcpy.h"
 #include "utils.h"
 
-static int cmd_mclr(void);
 static int cmd_list(void);
 static int cmd_print(Stack *stack);
 static int cmd_show_stk(Stack *stack);
@@ -20,7 +19,7 @@ static const CmdReg cmd_defs[] = {
 	{ ":d", CMD_STK, { .stk = stack_drop } },
 	{ ":D", CMD_STK, { .stk = stack_init } },
 	{ ":dup", CMD_STK, { .stk = stack_dup } },
-	{ ":mclr", CMD_CMD, { .cmd = cmd_mclr } },
+	{ ":mclr", CMD_CMD, { .cmd = mem_clr } },
 	{ ":list", CMD_CMD, { .cmd = cmd_list } },
 	{ ":p", CMD_STK, { .stk = cmd_print } },
 	{ ":P", CMD_STK, { .stk = cmd_show_stk } },
@@ -29,14 +28,6 @@ static const CmdReg cmd_defs[] = {
 	{ ":ver", CMD_CMD, { .cmd = cmd_ver } },
 	{ "", CMD_NULL, { .cmd = NULL } }
 };
-
-static int
-cmd_mclr(void)
-{
-	mem_clr();
-	
-	return 0;
-}
 
 static int
 cmd_list(void)

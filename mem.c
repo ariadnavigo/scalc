@@ -23,10 +23,12 @@ mem_var_to_i(char var)
 	return i;
 }
 
-void
+int
 mem_clr(void)
 {
 	memset(mem, 0, sizeof(mem));
+
+	return 0;
 }
 
 int
