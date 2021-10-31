@@ -111,22 +111,22 @@ run_cmd(Stack *stack, const char *expr)
 	cmd_ptr = cmd(expr_ptr);
 
 	switch (cmd_ptr->type) {
-	case CMD_CMD:
-		(*cmd_ptr->func.cmd)();
+	case CMD_NOARGS:
+		(*cmd_ptr->func.noargs)();
 		break;
-	case CMD_MEM:
+	case CMD_SETTER:
 		if ((expr_ptr = strtok(NULL, " ")) == NULL)
 			break;
 
 		if(stack_peek(&mem_val, *stack) < 0)
 			break;
 
-		if ((*cmd_ptr->func.mem)(expr_ptr[0], mem_val) < 0)
+		if ((*cmd_ptr->func.setter)(expr_ptr[0], mem_val) < 0)
 			break;
 
 		break;
-	case CMD_STK:
-		(*cmd_ptr->func.stk)(stack);
+	case CMD_STACK:
+		(*cmd_ptr->func.stack)(stack);
 		break;
 	default:
 		break;

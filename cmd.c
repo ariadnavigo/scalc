@@ -16,17 +16,17 @@ static int cmd_show_stk(Stack *stack);
 static int cmd_ver(void);
 
 static const CmdReg cmd_defs[] = {
-	{ ":d", CMD_STK, { .stk = stack_drop } },
-	{ ":D", CMD_STK, { .stk = stack_init } },
-	{ ":dup", CMD_STK, { .stk = stack_dup } },
-	{ ":mclr", CMD_CMD, { .cmd = mem_clr } },
-	{ ":list", CMD_CMD, { .cmd = cmd_list } },
-	{ ":p", CMD_STK, { .stk = cmd_print } },
-	{ ":P", CMD_STK, { .stk = cmd_show_stk } },
-	{ ":sav", CMD_MEM, { .mem = mem_set } },
-	{ ":swp", CMD_STK, { .stk = stack_swap } },
-	{ ":ver", CMD_CMD, { .cmd = cmd_ver } },
-	{ "", CMD_NULL, { .cmd = NULL } }
+	{ ":d", CMD_STACK, { .stack = stack_drop } },
+	{ ":D", CMD_STACK, { .stack = stack_init } },
+	{ ":dup", CMD_STACK, { .stack = stack_dup } },
+	{ ":mclr", CMD_NOARGS, { .noargs = mem_clr } },
+	{ ":list", CMD_NOARGS, { .noargs = cmd_list } },
+	{ ":p", CMD_STACK, { .stack = cmd_print } },
+	{ ":P", CMD_STACK, { .stack = cmd_show_stk } },
+	{ ":sav", CMD_SETTER, { .setter = mem_set } },
+	{ ":swp", CMD_STACK, { .stack = stack_swap } },
+	{ ":ver", CMD_NOARGS, { .noargs = cmd_ver } },
+	{ "", CMD_NULL, { .noargs = NULL } }
 };
 
 static int
