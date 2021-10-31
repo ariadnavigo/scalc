@@ -12,7 +12,7 @@
 
 static int cmd_list(void);
 static int cmd_print(Stack *stack);
-static int cmd_show_stk(Stack *stack);
+static int cmd_show_stack(Stack *stack);
 static int cmd_ver(void);
 
 static const CmdReg cmd_defs[] = {
@@ -22,7 +22,7 @@ static const CmdReg cmd_defs[] = {
 	{ ":mclr", CMD_NOARGS, { .noargs = mem_clr } },
 	{ ":list", CMD_NOARGS, { .noargs = cmd_list } },
 	{ ":p", CMD_STACK, { .stack = cmd_print } },
-	{ ":P", CMD_STACK, { .stack = cmd_show_stk } },
+	{ ":P", CMD_STACK, { .stack = cmd_show_stack } },
 	{ ":sav", CMD_SETTER, { .setter = mem_set } },
 	{ ":swp", CMD_STACK, { .stack = stack_swap } },
 	{ ":ver", CMD_NOARGS, { .noargs = cmd_ver } },
@@ -57,7 +57,7 @@ cmd_print(Stack *stack)
 }
 
 static int
-cmd_show_stk(Stack *stack)
+cmd_show_stack(Stack *stack)
 {
 	int i;
 
