@@ -3,10 +3,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "stack.h" /* Dependency for cmd.h */
+#include "cmd.h"
 #include "mem.h"
 #include "op.h"
-#include "stack.h"
-#include "cmd.h" /* Depends on stack.h */
 #include "strlcpy.h"
 #include "utils.h"
 
