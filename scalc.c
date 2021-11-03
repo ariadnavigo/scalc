@@ -23,7 +23,7 @@ static void usage(void);
 static void cleanup(void);
 static void prompt_input(char *expr);
 
-static void run_cmd(Stack *stack, const char *expr);
+static void eval_cmd(Stack *stack, const char *expr);
 static int apply_op(double *dx, const OpReg *op_ptr, Stack *stack);
 static void eval_math(const char *expr, Stack *stack);
 
@@ -99,7 +99,7 @@ prompt_input(char *expr)
 }
 
 static void
-run_cmd(Stack *stack, const char *expr)
+eval_cmd(Stack *stack, const char *expr)
 {
 	double mem_val;
 	char expr_cpy[SCALC_EXPR_SIZE];
@@ -268,7 +268,7 @@ main(int argc, char *argv[])
 		if (strncmp(expr, ":quit", SCALC_EXPR_SIZE) == 0)
 			return 0;
 		else if (expr[0] == ':')
-			run_cmd(&stack, expr);
+			eval_cmd(&stack, expr);
 		else
 			eval_math(expr, &stack);
 	}
