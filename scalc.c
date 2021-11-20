@@ -23,12 +23,14 @@ static void usage(void);
 static void cleanup(void);
 static void prompt_input(char *expr);
 
-static void eval_cmd(Stack *stack, const char *expr);
-static int apply_op(double *dx, const OpReg *op_ptr, Stack *stack);
-static void eval_math(const char *expr, Stack *stack);
+static void eval_cmd(const char *expr);
+static int apply_op(double *dx, const OpReg *op_ptr);
+static void eval_math(const char *expr);
 
 static FILE *fp;
 static int sline_mode;
+
+Stack stack; /* Not static, as it is used in cmd.c */
 
 static void
 die(const char *fmt, ...)
@@ -99,9 +101,8 @@ prompt_input(char *expr)
 }
 
 static void
-eval_cmd(Stack *stack, const char *expr)
+eval_cmd(const char *expr)
 {
-	double mem_val;
 	char expr_cpy[SCALC_EXPR_SIZE];
 	char *expr_ptr;
 	const CmdReg *cmd_ptr;
@@ -110,34 +111,13 @@ eval_cmd(Stack *stack, const char *expr)
 	expr_ptr = strtok(expr_cpy, " ");
 	cmd_ptr = cmd(expr_ptr);
 
-	switch (cmd_ptr->type) {
-	case CMD_NOARGS:
-		(*cmd_ptr->func.noargs)();
-		break;
-	case CMD_SETTER:
-		if ((expr_ptr = strtok(NULL, " ")) == NULL)
-			break;
-
-		if(stack_peek(&mem_val, *stack) < 0)
-			break;
-
-		if ((*cmd_ptr->func.setter)(expr_ptr[0], mem_val) < 0)
-			break;
-
-		break;
-	case CMD_STACK:
-		(*cmd_ptr->func.stack)(stack);
-		break;
-	default:
-		break;
-	}
-
-	if (err != NO_ERR)
+	expr_ptr = strtok(NULL, " ");
+	if ((*cmd_ptr->func)(expr_ptr) < 0)
 		fprintf(stderr, "%s: %s\n", expr, errmsg());
 }
 
 static int
-apply_op(double *dx, const OpReg *op_ptr, Stack *stack)
+apply_op(double *dx, const OpReg *op_ptr)
 {
 	int arg_i, arg_n;
 	double args[2];
@@ -158,7 +138,7 @@ apply_op(double *dx, const OpReg *op_ptr, Stack *stack)
 
 	/* Traversing backwards because we're poping off the stack */
 	for (arg_i = arg_n - 1; arg_i >= 0; --arg_i) {
-		if (stack_pop(&args[arg_i], stack) < 0)
+		if (stack_pop(&args[arg_i], &stack) < 0)
 			return -1;
 	}
 
@@ -178,7 +158,7 @@ apply_op(double *dx, const OpReg *op_ptr, Stack *stack)
 }
 
 static void
-eval_math(const char *expr, Stack *stack)
+eval_math(const char *expr)
 {
 	double dest, dx;
 	char expr_cpy[SCALC_EXPR_SIZE];
@@ -200,16 +180,16 @@ eval_math(const char *expr, Stack *stack)
 		if (op_ptr->type == OP_NULL)
 			goto printerr;
 
-		if (apply_op(&dx, op_ptr, stack) < 0)
+		if (apply_op(&dx, op_ptr) < 0)
 			goto printerr;
 
 pushnum:
-		if (stack_push(stack, dx) < 0)
+		if (stack_push(&stack, dx) < 0)
 			goto printerr;
 		ptr = strtok(NULL, " ");
 	}
 
-	if (stack_peek(&dest, *stack) < 0)
+	if (stack_peek(&dest, 0, stack) < 0)
 		goto printerr;
 
 	print_num(dest);
@@ -222,7 +202,6 @@ printerr:
 int
 main(int argc, char *argv[])
 {
-	Stack stack;
 	char *filearg;
 	char expr[SCALC_EXPR_SIZE];
 	int opt;
@@ -268,9 +247,9 @@ main(int argc, char *argv[])
 		if (strncmp(expr, ":quit", SCALC_EXPR_SIZE) == 0)
 			return 0;
 		else if (expr[0] == ':')
-			eval_cmd(&stack, expr);
+			eval_cmd(expr);
 		else
-			eval_math(expr, &stack);
+			eval_math(expr);
 	}
 
 	return 0;

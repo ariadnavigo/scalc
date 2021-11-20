@@ -39,7 +39,7 @@ stack_push(Stack *stack, double elem)
 int
 stack_pop(double *dest, Stack *stack)
 {
-	if (stack_peek(dest, *stack) < 0)
+	if (stack_peek(dest, 0, *stack) < 0)
 		return -1;
 
 	--stack->sp;
@@ -65,7 +65,7 @@ stack_dup(Stack *stack)
 {
 	double dup;
 
-	if (stack_peek(&dup, *stack) < 0)
+	if (stack_peek(&dup, 0, *stack) < 0)
 		return -1;
 
 	if (stack_push(stack, dup) < 0)
@@ -75,14 +75,16 @@ stack_dup(Stack *stack)
 }
 
 int
-stack_peek(double *dest, Stack stack)
+stack_peek(double *dest, int i, Stack stack)
 {
-	if (stack.sp < 0) {
+	int index;
+
+	if ((index = stack.sp - i) < 0) {
 		err = STACK_ERR_MIN;
 		return -1;
 	}
 
-	*dest = stack.elems[stack.sp];
+	*dest = stack.elems[index];
 
 	return 0;
 }
