@@ -30,8 +30,16 @@ accepts some commands,
 listed here for convenience,
 which modify scalc's behavior during a session:
 .TP
-.B :d
+.BI ":d [" n ]
 Drops the last element in the stack.
+If the optional
+.I n
+argument is provided,
+the last
+.I n
+elements in the stack are dropped.
+.I n
+is provided
 .TP
 .B :D
 Drops all elements in the stack.
@@ -45,11 +53,19 @@ List all available mathematical operations.
 .B :mclr
 Clear out all memory registers.
 .TP
-.B :p
+.BI ":p [" n ]
 Shows the last element in the stack.
-.TP
-.B :P
-Shows all elements in the stack.
+If the optional argument
+.I n
+is a positive number,
+the last
+.I n
+elements in the stack will be printed to stdout.
+Otherwise, 
+if
+.I n
+is any negative number,
+all elements in the stack will be printed to stdout.
 .TP
 .B :quit
 Quits
