@@ -16,7 +16,6 @@ static int cmd_dup(const char *args);
 static int cmd_mclr(const char *args);
 static int cmd_list(const char *args);
 static int cmd_p(const char *args);
-static int cmd_P(const char *args);
 static int cmd_sav(const char *args);
 static int cmd_swp(const char *args);
 static int cmd_ver(const char *args);
@@ -28,7 +27,6 @@ static const CmdReg cmd_defs[] = {
 	{ ":mclr", cmd_mclr },
 	{ ":list", cmd_list },
 	{ ":p", cmd_p },
-	{ ":P", cmd_P },
 	{ ":sav", cmd_sav },
 	{ ":swp", cmd_swp },
 	{ ":ver", cmd_ver },
@@ -88,11 +86,19 @@ cmd_p(const char *args)
 {
 	int i, n;
 	double buf;
+	
+	if (stack.sp < 0) {
+		err = STACK_ERR_EMPTY;
+		return -1;
+	}
 
 	if (args == NULL || sscanf(args, "%d", &n) == EOF)
 		n = 1;
 
-	/* Isn't peeking down the stack */
+	/* If n is neg, we want to print the whole stack at once. */
+	if (n < 0)
+		n = stack.sp + 1;
+
 	for (i = 0; i < n; ++i) {
 		buf = 0.0;
 		if (stack_peek(&buf, i, stack) < 0)
@@ -100,22 +106,6 @@ cmd_p(const char *args)
 
 		print_num(buf);
 	}
-
-	return 0;
-}
-
-static int
-cmd_P(const char *args)
-{
-	int i;
-
-	if (stack.sp < 0) {
-		printf("Stack is empty.\n");
-		return 0;
-	}
-
-	for (i = 0; i < stack.sp + 1; ++i)
-		print_num(stack.elems[i]);
 
 	return 0;
 }
