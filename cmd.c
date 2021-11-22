@@ -86,7 +86,7 @@ cmd_list(const char *args)
 static int
 cmd_p(const char *args)
 {
-	int i, n, err;
+	int i, n;
 	double buf;
 
 	if (args == NULL || sscanf(args, "%d", &n) == EOF)
@@ -95,7 +95,7 @@ cmd_p(const char *args)
 	/* Isn't peeking down the stack */
 	for (i = 0; i < n; ++i) {
 		buf = 0.0;
-		if ((err = stack_peek(&buf, i, stack)) < 0)
+		if (stack_peek(&buf, i, stack) < 0)
 			break;
 
 		print_num(buf);
