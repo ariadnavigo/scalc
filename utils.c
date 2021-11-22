@@ -17,6 +17,8 @@ const char *
 errmsg(void)
 {
 	switch (err) {
+	case CMD_ERR_FEW_ARGS:
+		return "too few arguments passed.";
 	case CMD_ERR_INVALID:
 		return "invalid command.";
 	case MEM_ERR_NOT_FOUND:
