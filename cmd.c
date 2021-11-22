@@ -87,11 +87,6 @@ cmd_p(const char *args)
 	int i, n;
 	double buf;
 	
-	if (stack.sp < 0) {
-		err = STACK_ERR_EMPTY;
-		return -1;
-	}
-
 	if (args == NULL || sscanf(args, "%d", &n) == EOF)
 		n = 1;
 
