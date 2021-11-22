@@ -110,10 +110,17 @@ eval_cmd(const char *expr)
 	strlcpy(expr_cpy, expr, SCALC_EXPR_SIZE);
 	expr_ptr = strtok(expr_cpy, " ");
 	cmd_ptr = cmd(expr_ptr);
+	if (strncmp(cmd_ptr->id, "", CMD_ID_SIZE) == 0)
+		goto printerr;
 
 	expr_ptr = strtok(NULL, " ");
 	if ((*cmd_ptr->func)(expr_ptr) < 0)
-		fprintf(stderr, "%s: %s\n", expr, errmsg());
+		goto printerr;
+
+	return;
+
+printerr:
+	fprintf(stderr, "%s: %s\n", expr, errmsg());
 }
 
 static int
