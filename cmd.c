@@ -96,7 +96,7 @@ cmd_p(const char *args)
 	for (i = 0; i < n; ++i) {
 		buf = 0.0;
 		if ((err = stack_peek(&buf, i, stack)) < 0)
-			return -1;
+			break;
 
 		print_num(buf);
 	}
