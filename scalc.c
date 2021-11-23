@@ -30,8 +30,6 @@ static void eval_math(const char *expr);
 static FILE *fp;
 static int sline_mode;
 
-Stack stack; /* Not static, as it is used in cmd.c */
-
 static void
 die(const char *fmt, ...)
 {
@@ -145,7 +143,7 @@ apply_op(double *dx, const OpReg *op_ptr)
 
 	/* Traversing backwards because we're poping off the stack */
 	for (arg_i = arg_n - 1; arg_i >= 0; --arg_i) {
-		if (stack_pop(&args[arg_i], &stack) < 0)
+		if (stack_pop(&args[arg_i]) < 0)
 			return -1;
 	}
 
@@ -191,12 +189,12 @@ eval_math(const char *expr)
 			goto printerr;
 
 pushnum:
-		if (stack_push(&stack, dx) < 0)
+		if (stack_push(dx) < 0)
 			goto printerr;
 		ptr = strtok(NULL, " ");
 	}
 
-	if (stack_peek(&dest, 0, stack) < 0)
+	if (stack_peek(&dest, 0) < 0)
 		goto printerr;
 
 	print_num(dest);
@@ -240,7 +238,7 @@ main(int argc, char *argv[])
 			die("Terminal error: %s", sline_errmsg());
 	}
 
-	stack_init(&stack);
+	stack_init();
 	while (feof(fp) == 0) {
 		err = NO_ERR; /* Reset err */
 		if (sline_mode > 0)

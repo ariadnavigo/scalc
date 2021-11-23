@@ -36,8 +36,6 @@ static const CmdReg cmd_defs[] = {
 	{ "", NULL }
 };
 
-extern Stack stack;
-
 static int
 get_args(const char *args, const char *fmt, ...)
 {
@@ -66,7 +64,7 @@ cmd_d(const char *args)
 		n = 1;
 
 	for (i = 0; i < n; ++i) {
-		if ((res = stack_drop(&stack)) < 0)
+		if ((res = stack_drop()) < 0)
 			return -1;
 	}
 
@@ -78,7 +76,7 @@ cmd_D(const char *args)
 {
 	get_args(args, NULL);
 
-	return stack_init(&stack);
+	return stack_init();
 }
 
 static int
@@ -86,7 +84,7 @@ cmd_dup(const char *args)
 {
 	get_args(args, NULL);
 
-	return stack_dup(&stack);
+	return stack_dup();
 }
 
 static int
@@ -126,7 +124,7 @@ cmd_p(const char *args)
 
 	for (i = 0; i < n; ++i) {
 		buf = 0.0;
-		if (stack_peek(&buf, i, stack) < 0)
+		if (stack_peek(&buf, i) < 0)
 			break;
 
 		print_num(buf);
@@ -146,7 +144,7 @@ cmd_sav(const char *args)
 		return -1;
 	}
 
-	if (stack_peek(&buf, 0, stack) < 0)
+	if (stack_peek(&buf, 0) < 0)
 		return -1;
 
 	return mem_set(var, buf);
@@ -157,7 +155,7 @@ cmd_swp(const char *args)
 {
 	get_args(args, NULL);
 
-	return stack_swap(&stack);
+	return stack_swap();
 }
 
 static int

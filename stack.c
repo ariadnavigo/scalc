@@ -6,8 +6,10 @@
 #include "stack.h"
 #include "utils.h"
 
+Stack stack;
+
 int
-stack_init(Stack *stack)
+stack_init(void)
 {
 	/*
 	 * We only initialize the "pointer." There is NO need to zero-out stuff
@@ -16,66 +18,66 @@ stack_init(Stack *stack)
 	 * current size of the stack.
 	 */
 
-	stack->sp = -1;
+	stack.sp = -1;
 
 	return 0;
 }
 
 int
-stack_push(Stack *stack, double elem)
+stack_push(double elem)
 {
 	/* Let's avoid stack overflows */
-	if (++stack->sp == STACK_SIZE) {
-		--stack->sp;
+	if (++stack.sp == STACK_SIZE) {
+		--stack.sp;
 		err = STACK_ERR_MAX;
 		return -1;
 	}
 
-	stack->elems[stack->sp] = elem;
+	stack.elems[stack.sp] = elem;
 
 	return 0;
 }
 
 int
-stack_pop(double *dest, Stack *stack)
+stack_pop(double *dest)
 {
-	if (stack_peek(dest, 0, *stack) < 0)
+	if (stack_peek(dest, 0) < 0)
 		return -1;
 
-	--stack->sp;
+	--stack.sp;
 
 	return 0;
 }
 
 int
-stack_drop(Stack *stack)
+stack_drop(void)
 {
-	if (stack->sp < 0) {
+	if (stack.sp < 0) {
 		err = STACK_ERR_MIN;
 		return -1;
 	}
 
-	--stack->sp;
+	--stack.sp;
 
 	return 0;
 }
 
 int
-stack_dup(Stack *stack)
+stack_dup(void)
 {
 	double dup;
 
-	if (stack_peek(&dup, 0, *stack) < 0)
+	if (stack_peek(&dup, 0) < 0)
 		return -1;
 
-	if (stack_push(stack, dup) < 0)
+	if (stack_push(dup) < 0)
 		return -1;
 
 	return 0;
 }
 
 int
-stack_peek(double *dest, int i, Stack stack)
+stack_peek(double *dest, int i)
 {
 	int index;
 
@@ -90,21 +92,21 @@ stack_peek(double *dest, int i, Stack stack)
 }
 
 int
-stack_swap(Stack *stack)
+stack_swap(void)
 {
 	double ax, bx;
 
 	/* If less than 2 elements in stack */
-	if (stack->sp < 1) {
+	if (stack.sp < 1) {
 		err = STACK_ERR_MIN;
 		return -1;
 	}
 
 	/* This is totally safe after the test above */
-	stack_pop(&ax, stack);
-	stack_pop(&bx, stack);
-	stack_push(stack, ax);
-	stack_push(stack, bx);
+	stack_pop(&ax);
+	stack_pop(&bx);
+	stack_push(ax);
+	stack_push(bx);
 
 	return 0;
 }
