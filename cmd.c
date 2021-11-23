@@ -103,7 +103,7 @@ cmd_list(const char *args)
 static int
 cmd_p(const char *args)
 {
-	int i, n;
+	int n;
 	double buf;
 	
 	if (get_args(args, "%d", &n) < 0)
@@ -111,14 +111,17 @@ cmd_p(const char *args)
 
 	/* If n is neg, we want to print the whole stack at once. */
 	if (n < 0)
-		n = stack.sp + 1;
+		n = stack.sp;
+	else
+		--n; /* Substract one so n becomes an array index. */
 
-	for (i = 0; i < n; ++i) {
+	while (n >= 0) {
 		buf = 0.0;
-		if (stack_peek(&buf, i) < 0)
-			break;
+		if (stack_peek(&buf, n) < 0)
+			return -1;
 
 		print_num(buf);
+		--n;
 	}
 
 	return 0;

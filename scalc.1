@@ -56,18 +56,21 @@ List all available mathematical operations.
 Clear out all memory registers.
 .TP
 .BI ":p [" n ]
-Shows the last element in the stack.
-If the optional argument
+Prints
 .I n
-is a positive number,
-the last
+elements in the stack to stdout
+(n = 1 by default).
+If
 .I n
-elements in the stack will be printed to stdout.
-Otherwise, 
+is negative
+(< 0),
+all elements in the stack are printed.
+Top elements in the stack are printed last.
+The command shall fail,
+not printing any elements from the stack,
 if
 .I n
-is any negative number,
-all elements in the stack will be printed to stdout.
+is greater than the number of elements stored in the stack.
 .TP
 .B :quit
 Quits
