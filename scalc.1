@@ -31,18 +31,20 @@ listed here for convenience,
 which modify scalc's behavior during a session:
 .TP
 .BI ":d [" n ]
-Drops the last element in the stack.
-If the optional
+Drops the last 
 .I n
-argument is provided,
-the last
+elements in the stack
+(n = 1 by default).
+If
 .I n
-elements in the stack are dropped.
+is negative
+(< 0),
+all elements in the stack are dropped.
+The command shall fail,
+not dropping any elements from the stack,
+if
 .I n
-is provided
-.TP
-.B :D
-Drops all elements in the stack.
+is greater than the number of elements stored in the stack.
 .TP
 .B :dup
 Duplicate last element in the stack.

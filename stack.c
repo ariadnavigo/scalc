@@ -50,14 +50,16 @@ stack_pop(double *dest)
 }
 
 int
-stack_drop(void)
+stack_drop(int n)
 {
-	if (stack.sp < 0) {
+	if (n > stack.sp + 1 || stack.sp < 0) {
 		err = STACK_ERR_MIN;
 		return -1;
 	}
 
-	--stack.sp;
+	stack.sp -= n;
+	if (stack.sp < 0)
+		stack.sp = -1;
 
 	return 0;
 }

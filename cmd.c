@@ -14,7 +14,6 @@
 static int get_args(const char *args, const char *fmt, ...);
 
 static int cmd_d(const char *args);
-static int cmd_D(const char *args);
 static int cmd_dup(const char *args);
 static int cmd_mclr(const char *args);
 static int cmd_list(const char *args);
@@ -25,7 +24,6 @@ static int cmd_ver(const char *args);
 
 static const CmdReg cmd_defs[] = {
 	{ ":d", cmd_d },
-	{ ":D", cmd_D },
 	{ ":dup", cmd_dup },
 	{ ":mclr", cmd_mclr },
 	{ ":list", cmd_list },
@@ -58,25 +56,18 @@ get_args(const char *args, const char *fmt, ...)
 static int
 cmd_d(const char *args)
 {
-	int i, n, res;
+	int n;
 
 	if (get_args(args, "%d", &n) < 0)
 		n = 1;
 
-	for (i = 0; i < n; ++i) {
-		if ((res = stack_drop()) < 0)
-			return -1;
-	}
+	if (n < 0)
+		return stack_init();
+
+	if (stack_drop(n) < 0)
+		return -1;
 
 	return 0;
-}
-
-static int
-cmd_D(const char *args)
-{
-	get_args(args, NULL);
-
-	return stack_init();
 }
 
 static int
