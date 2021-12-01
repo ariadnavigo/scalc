@@ -1,6 +1,8 @@
 /* See LICENSE for copyright and license details. */
 
+#include <errno.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "config.h"
 #include "utils.h"
@@ -19,6 +21,8 @@ errmsg(void)
 	switch (err) {
 	case CMD_ERR_FEW_ARGS:
 		return "too few arguments passed.";
+	case CMD_ERR_FILE_IO:
+		return strerror(errno);
 	case CMD_ERR_INVALID:
 		return "invalid command.";
 	case MEM_ERR_NOT_FOUND:

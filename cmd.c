@@ -8,12 +8,14 @@
 #include "cmd.h"
 #include "mem.h"
 #include "op.h"
+#include "sline.h"
 #include "strlcpy.h"
 #include "utils.h"
 
 static int get_args(const char *args, const char *fmt, ...);
 
 static int cmd_d(const char *args);
+static int cmd_dmp(const char *args);
 static int cmd_dup(const char *args);
 static int cmd_mclr(const char *args);
 static int cmd_list(const char *args);
@@ -24,6 +26,7 @@ static int cmd_ver(const char *args);
 
 static const CmdReg cmd_defs[] = {
 	{ ":d", cmd_d },
+	{ ":dmp", cmd_dmp },
 	{ ":dup", cmd_dup },
 	{ ":mclr", cmd_mclr },
 	{ ":list", cmd_list },
@@ -66,6 +69,36 @@ cmd_d(const char *args)
 
 	if (stack_drop(n) < 0)
 		return -1;
+
+	return 0;
+}
+
+static int
+cmd_dmp(const char *args)
+{
+	int i;
+	FILE *fp;
+	const char *hist_ptr;
+
+	if (args == NULL || strlen(args) == 0) {
+		err = CMD_ERR_FEW_ARGS;
+		return -1;
+	}
+
+	if ((fp = fopen(args, "w")) == NULL) {
+		err = CMD_ERR_FILE_IO;
+		return -1;
+	}
+
+	for (i = 0; (hist_ptr = sline_history_get(i)) != NULL; ++i) {
+		/* We skip commands and blank lines */
+		if (strlen(hist_ptr) == 0 || hist_ptr[0] == ':')
+			continue;
+
+		fprintf(fp, "%s\n", hist_ptr);
+	}
+
+	fclose(fp);
 
 	return 0;
 }
