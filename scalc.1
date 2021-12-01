@@ -46,6 +46,13 @@ if
 .I n
 is greater than the number of elements stored in the stack.
 .TP
+.BI :dmp " path" 
+Record all math operations of the session into a file at
+.IR path .
+This file can later be read by
+.B scalc
+if passed as a command-line argument.
+.TP
 .B :dup
 Duplicate last element in the stack.
 .TP
