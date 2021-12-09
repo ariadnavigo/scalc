@@ -49,7 +49,7 @@ die(const char *fmt, ...)
 static void
 usage(void)
 {
-	die("usage: scalc [-v] [file]");
+	die("usage: scalc [-iv] [file]");
 }
 
 static void

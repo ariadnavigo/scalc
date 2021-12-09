@@ -5,7 +5,7 @@ scalc \- Simple calculator
 .SH SYNOPSIS
 .PP
 .B scalc
-.RB [ \-v ]
+.RB [ \-iv ]
 .RI [ file ]
 .SH DESCRIPTION
 .PP
@@ -114,6 +114,13 @@ can be easily extended with new mathematical functions by adding them to the
 source file.
 The source file itself includes detailed instructions on how to do so.
 .SH OPTIONS
+.TP
+.B \-i
+Switch to interactive mode after finishing reading from
+.IR file .
+The contents of the stack resulting from the operations in
+.I file
+are kept upon switching to interactive mode.
 .TP
 .B \-v
 Show version information and exit.
