@@ -21,6 +21,8 @@
 static void die(const char *fmt, ...);
 static void usage(void);
 static void cleanup(void);
+
+static void inter_setup(FILE *fp);
 static int file_input(char *expr, FILE *fp);
 static void prompt_input(char *expr);
 
