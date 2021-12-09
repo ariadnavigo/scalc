@@ -62,6 +62,15 @@ cleanup(void)
 		fclose(fp);
 }
 
+static void
+inter_setup(FILE *fp)
+{
+	if ((sline_mode = isatty(fileno(fp))) > 0) {
+		if (sline_setup(SCALC_EXPR_SIZE) < 0)
+			die("Terminal error: %s", sline_errmsg());
+	}
+}
+
 static int
 file_input(char *expr, FILE *fp)
 {
@@ -211,10 +220,14 @@ main(int argc, char *argv[])
 {
 	char *filearg;
 	char expr[SCALC_EXPR_SIZE];
-	int opt;
+	int opt, force_i;
 
-	while ((opt = getopt(argc, argv, ":v")) != -1) {
+	force_i = -1;
+	while ((opt = getopt(argc, argv, ":iv")) != -1) {
 		switch (opt) {
+		case 'i':
+			force_i = 0;
+			break;
 		case 'v':
 			die("scalc %s (sline %s)", VERSION, sline_version());
 			break; /* UNREACHABLE */
@@ -235,18 +248,14 @@ main(int argc, char *argv[])
 	else if ((fp = fopen(filearg, "r")) == NULL)
 		die("Could not open %s: %s", filearg, strerror(errno));
 
-	if ((sline_mode = isatty(fileno(fp))) > 0) {
-		if (sline_setup(SCALC_EXPR_SIZE) < 0)
-			die("Terminal error: %s", sline_errmsg());
-	}
-
+	inter_setup(fp);
 	stack_init();
 	while (feof(fp) == 0) {
 		err = NO_ERR; /* Reset err */
-		if (sline_mode > 0)
+		if (sline_mode > 0) 
 			prompt_input(expr);
 		else if (file_input(expr, fp) < 0)
-			break;
+			goto switch_and_bait;
 
 		if (strlen(expr) == 0)
 			continue;
@@ -257,6 +266,20 @@ main(int argc, char *argv[])
 			eval_cmd(expr);
 		else
 			eval_math(expr);
+
+		continue;
+
+switch_and_bait:
+		/* "Switch and bait" to interactive mode if -i was used. */
+
+		if (force_i < 0) {
+			break;
+		} else {
+			fclose(fp);
+			fp = stdin;
+			inter_setup(fp);
+			continue;
+		}
 	}
 
 	return 0;
