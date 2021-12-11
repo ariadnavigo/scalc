@@ -22,7 +22,7 @@
 static void die(const char *fmt, ...);
 static void usage(void);
 static void cleanup(void);
-static int not_blank(const char *str);
+static const char *chomp_lead(const char *str);
 
 static void inter_setup(FILE *fp);
 static int file_input(char *expr, FILE *fp);
@@ -66,16 +66,14 @@ cleanup(void)
 		fclose(fp);
 }
 
-static int
-not_blank(const char *str)
+static const char *
+chomp_lead(const char *str)
 {
-	while (*str != '\0') {
-		if (isspace(*str) == 0)
-			return 1;
+	while (isspace(*str) != 0) {
 		++str;
 	}
 
-	return 0;
+	return str;
 }
 
 static void
@@ -235,6 +233,7 @@ int
 main(int argc, char *argv[])
 {
 	char *filearg;
+	const char *expr_ptr;
 	char expr[SCALC_EXPR_SIZE];
 	int opt, force_i;
 
@@ -273,15 +272,16 @@ main(int argc, char *argv[])
 		else if (file_input(expr, fp) < 0)
 			goto switch_and_bait;
 
-		if (strlen(expr) == 0 || not_blank(expr) == 0)
+		expr_ptr = chomp_lead(expr);
+		if (strlen(expr_ptr) == 0)
 			continue;
 
-		if (strncmp(expr, ":quit", SCALC_EXPR_SIZE) == 0)
+		if (strncmp(expr_ptr, ":quit", SCALC_EXPR_SIZE) == 0)
 			return 0;
-		else if (expr[0] == ':')
-			eval_cmd(expr);
+		else if (expr_ptr[0] == ':')
+			eval_cmd(expr_ptr);
 		else
-			eval_math(expr);
+			eval_math(expr_ptr);
 
 		continue;
 
