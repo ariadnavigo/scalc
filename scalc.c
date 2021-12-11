@@ -1,5 +1,6 @@
 /* See LICENSE file for copyright and license details. */
 
+#include <ctype.h>
 #include <errno.h>
 #include <sline.h>
 #include <stdarg.h>
@@ -21,6 +22,7 @@
 static void die(const char *fmt, ...);
 static void usage(void);
 static void cleanup(void);
+static int not_blank(const char *str);
 
 static void inter_setup(FILE *fp);
 static int file_input(char *expr, FILE *fp);
@@ -62,6 +64,18 @@ cleanup(void)
 
 	if (fp != stdin && fp != NULL)
 		fclose(fp);
+}
+
+static int
+not_blank(const char *str)
+{
+	while (*str != '\0') {
+		if (isspace(*str) == 0)
+			return 1;
+		++str;
+	}
+
+	return 0;
 }
 
 static void
@@ -259,7 +273,7 @@ main(int argc, char *argv[])
 		else if (file_input(expr, fp) < 0)
 			goto switch_and_bait;
 
-		if (strlen(expr) == 0)
+		if (strlen(expr) == 0 || not_blank(expr) == 0)
 			continue;
 
 		if (strncmp(expr, ":quit", SCALC_EXPR_SIZE) == 0)
