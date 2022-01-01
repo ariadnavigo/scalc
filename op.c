@@ -46,28 +46,28 @@ static double op_cst_e(void);
 static double op_cst_pi(void);
 
 const OpReg op_defs[] = {
-	{ "+", OP_ARG2, { .n2 = op_add } },
-	{ "-", OP_ARG2, { .n2 = op_subst } },
-	{ "*", OP_ARG2, { .n2 = op_mult } },
-	{ "/", OP_ARG2, { .n2 = op_div } },
-	{ "^", OP_ARG2, { .n2 = pow } },
-	{ "%", OP_ARG1, { .n1 = op_prcnt } },
-	{ "abs", OP_ARG1, { .n1 = fabs } },
-	{ "ln", OP_ARG1, { .n1 = log } },
-	{ "sqrt", OP_ARG1, { .n1 = sqrt } },
-	{ "mod", OP_ARG2, { .n2 = op_mod } },
-	{ "!", OP_ARG1, { .n1 = op_fact } },
-	{ "P", OP_ARG2, { .n2 = op_npr } },
-	{ "C", OP_ARG2, { .n2 = op_ncr } },
-	{ "sin", OP_ARG1, { .n1 = sin } },
-	{ "cos", OP_ARG1, { .n1 = cos } },
-	{ "tan", OP_ARG1, { .n1 = tan } },
-	{ "asin", OP_ARG1, { .n1 = asin } },
-	{ "acos", OP_ARG1, { .n1 = acos } },
-	{ "atan", OP_ARG1, { .n1 = atan } },
-	{ "e", OP_ARG0, { .n0 = op_cst_e } },
-	{ "pi", OP_ARG0, { .n0 = op_cst_pi } },
-	{ "", OP_NULL, { .n0 = NULL } } /* Dummy "terminator" entry */
+	{ "+", 2, { .n2 = op_add } },
+	{ "-", 2, { .n2 = op_subst } },
+	{ "*", 2, { .n2 = op_mult } },
+	{ "/", 2, { .n2 = op_div } },
+	{ "^", 2, { .n2 = pow } },
+	{ "%", 1, { .n1 = op_prcnt } },
+	{ "abs", 1, { .n1 = fabs } },
+	{ "ln", 1, { .n1 = log } },
+	{ "sqrt", 1, { .n1 = sqrt } },
+	{ "mod", 2, { .n2 = op_mod } },
+	{ "!", 1, { .n1 = op_fact } },
+	{ "P", 2, { .n2 = op_npr } },
+	{ "C", 2, { .n2 = op_ncr } },
+	{ "sin", 1, { .n1 = sin } },
+	{ "cos", 1, { .n1 = cos } },
+	{ "tan", 1, { .n1 = tan } },
+	{ "asin", 1, { .n1 = asin } },
+	{ "acos", 1, { .n1 = acos } },
+	{ "atan", 1, { .n1 = atan } },
+	{ "e", 0, { .n0 = op_cst_e } },
+	{ "pi", 0, { .n0 = op_cst_pi } },
+	{ "", -1, { .n0 = NULL } } /* Dummy "terminator" entry */
 };
 
 static double
@@ -150,7 +150,7 @@ op(const char *oper)
 {
 	const OpReg *ptr;
 
-	for (ptr = op_defs; ptr->type != OP_NULL; ++ptr) {
+	for (ptr = op_defs; ptr->arg_n != -1; ++ptr) {
 		if (strncmp(ptr->id, oper, OP_NAME_SIZE) == 0)
 			return ptr;
 	}

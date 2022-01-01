@@ -149,37 +149,26 @@ printerr:
 static int
 apply_op(double *dx, const OpReg *op_ptr)
 {
-	int arg_i, arg_n;
+	int arg_i;
 	double args[2];
 
-	switch (op_ptr->type) {
-	case OP_ARG2:
-		arg_n = 2;
-		break;
-	case OP_ARG1:
-		arg_n = 1;
-		break;
-	case OP_ARG0:
-		arg_n = 0;
-		break;
-	default:
+	if (op_ptr->arg_n < 0)
 		return -1;
-	}
 
 	/* Traversing backwards because we're poping off the stack */
-	for (arg_i = arg_n - 1; arg_i >= 0; --arg_i) {
+	for (arg_i = op_ptr->arg_n - 1; arg_i >= 0; --arg_i) {
 		if (stack_pop(&args[arg_i]) < 0)
 			return -1;
 	}
 
-	switch (op_ptr->type) {
-	case OP_ARG2:
+	switch (op_ptr->arg_n) {
+	case 2:
 		*dx = (*op_ptr->func.n2)(args[0], args[1]);
 		return 0;
-	case OP_ARG1:
+	case 1:
 		*dx = (*op_ptr->func.n1)(args[0]);
 		return 0;
-	case OP_ARG0:
+	case 0:
 		*dx = (*op_ptr->func.n0)();
 		return 0;
 	default:
@@ -207,7 +196,7 @@ eval_math(const char *expr)
 			goto pushnum;
 
 		op_ptr = op(ptr);
-		if (op_ptr->type == OP_NULL)
+		if (op_ptr->arg_n < 0)
 			goto printerr;
 
 		if (apply_op(&dx, op_ptr) < 0)
