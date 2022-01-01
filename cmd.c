@@ -190,7 +190,7 @@ cmd_ver(const char *args)
 {
 	get_args(args, NULL);
 
-	printf("scalc %s\n", VERSION);
+	printf("scalc %s (sline %s)\n", VERSION, sline_version());
 
 	return 0;
 }
