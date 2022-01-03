@@ -208,3 +208,12 @@ cmd(const char *name)
 	err = CMD_ERR_INVALID;
 	return cmd_ptr;
 }
+
+int
+cmd_valid(const CmdReg *ptr)
+{
+	if (ptr->func == NULL)
+		return -1;
+
+	return 0;
+}

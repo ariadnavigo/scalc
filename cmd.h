@@ -8,4 +8,5 @@ typedef struct {
 } CmdReg;
 
 const CmdReg *cmd(const char *name);
+int cmd_valid(const CmdReg *ptr);
 
