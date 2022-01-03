@@ -13,5 +13,6 @@ typedef struct {
 } OpReg;
 
 const OpReg *op(const char *oper);
+int op_valid(const OpReg *ptr);
 
 extern const OpReg op_defs[];

@@ -152,7 +152,7 @@ apply_op(double *dx, const OpReg *op_ptr)
 	int arg_i;
 	double args[2];
 
-	if (op_ptr->arg_n < 0)
+	if (op_valid(op_ptr) < 0)
 		return -1;
 
 	/* Traversing backwards because we're poping off the stack */
@@ -172,7 +172,7 @@ apply_op(double *dx, const OpReg *op_ptr)
 		*dx = (*op_ptr->func.n0)();
 		return 0;
 	default:
-		return -1;
+		return -1; /* UNREACHABLE */
 	}
 }
 
@@ -196,9 +196,6 @@ eval_math(const char *expr)
 			goto pushnum;
 
 		op_ptr = op(ptr);
-		if (op_ptr->arg_n < 0)
-			goto printerr;
-
 		if (apply_op(&dx, op_ptr) < 0)
 			goto printerr;
 

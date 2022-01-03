@@ -150,7 +150,7 @@ op(const char *oper)
 {
 	const OpReg *ptr;
 
-	for (ptr = op_defs; ptr->arg_n != -1; ++ptr) {
+	for (ptr = op_defs; op_valid(ptr) == 0; ++ptr) {
 		if (strncmp(ptr->id, oper, OP_NAME_SIZE) == 0)
 			return ptr;
 	}
@@ -160,3 +160,25 @@ op(const char *oper)
 	return ptr;
 }
 
+int
+op_valid(const OpReg *ptr)
+{
+	switch (ptr->arg_n) {
+	case 2:
+		if (ptr->func.n0 == NULL)
+			return -1;
+		break;
+	case 1:
+		if (ptr->func.n1 == NULL)
+			return -1;
+		break;
+	case 0:
+		if (ptr->func.n0 == NULL)
+			return -1;
+		break;
+	default:
+		return -1;
+	}
+
+	return 0;
+}
