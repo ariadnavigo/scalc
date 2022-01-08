@@ -155,6 +155,16 @@ apply_op(double *dx, const OpReg *op_ptr)
 	if (op_valid(op_ptr) < 0)
 		return -1;
 
+	/* 
+	 * Testing if there are enough elements in the stack before we pop them 
+	 * out so in case of a shortage, the elements already there are not
+	 * popped.
+	 */
+	if (op_ptr->arg_n > stack.sp + 1) {
+		err = STACK_ERR_MIN;
+		return -1;
+	}
+
 	/* Traversing backwards because we're poping off the stack */
 	for (arg_i = op_ptr->arg_n - 1; arg_i >= 0; --arg_i) {
 		if (stack_pop(&args[arg_i]) < 0)
