@@ -17,24 +17,10 @@ options:
 	@echo "CC       = ${CC}"
 	@echo
 
+${OBJ}: config.h config.mk
+
 config.h:
 	cp config.def.h $@
-
-cmd.o: mem.h op.h stack.h cmd.h strlcpy.h utils.h
-
-mem.o: mem.h utils.h
-
-op.o: op.h utils.h
-
-scalc.o: config.h mem.h op.h stack.h cmd.h strlcpy.h utils.h
-
-stack.o: stack.h utils.h
-
-strlcpy.o: strlcpy.h
-
-utils.o: config.h utils.h
-
-${OBJ}: config.mk
 
 scalc: ${OBJ}
 	${CC} -o $@ ${OBJ} ${LDFLAGS} ${LIBS}
