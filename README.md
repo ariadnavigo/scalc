@@ -3,9 +3,6 @@
 scalc is a very simple stack-based calculator that aims to be small, flexible,
 and extensible.
 
-**This software is still in a very early stage of development. Expect many
-changes in the near future!**
-
 ## Build
 
 scalc requires:
