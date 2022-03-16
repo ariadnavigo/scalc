@@ -171,19 +171,14 @@ apply_op(double *dx, const OpReg *op_ptr)
 			return -1;
 	}
 
-	switch (op_ptr->arg_n) {
-	case 2:
+	if (op_ptr->arg_n == 2)
 		*dx = (*op_ptr->func.n2)(args[0], args[1]);
-		return 0;
-	case 1:
+	else if (op_ptr->arg_n == 1)
 		*dx = (*op_ptr->func.n1)(args[0]);
-		return 0;
-	case 0:
+	else
 		*dx = (*op_ptr->func.n0)();
-		return 0;
-	default:
-		return -1; /* UNREACHABLE */
-	}
+	
+	return 0;
 }
 
 static void
