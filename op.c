@@ -40,6 +40,9 @@ static double op_mod(double p, double q);
 static double op_fact(double n);
 static double op_npr(double n, double r);
 static double op_ncr(double n, double r);
+static double op_cot(double n);
+static double op_sec(double n);
+static double op_csc(double n);
 
 /* Constants */
 static double op_cst_e(void);
@@ -62,6 +65,9 @@ const OpReg op_defs[] = {
 	{ "sin", 1, { .n1 = sin } },
 	{ "cos", 1, { .n1 = cos } },
 	{ "tan", 1, { .n1 = tan } },
+	{ "cot", 1, { .n1 = op_cot } },
+	{ "sec", 1, { .n1 = op_sec } },
+	{ "csc", 1, { .n1 = op_csc } },
 	{ "asin", 1, { .n1 = asin } },
 	{ "acos", 1, { .n1 = acos } },
 	{ "atan", 1, { .n1 = atan } },
@@ -131,6 +137,24 @@ static double
 op_ncr(double n, double r)
 {
 	return op_fact(n) / (op_fact(r) * op_fact(n - r));
+}
+
+static double
+op_cot(double n)
+{
+	return 1 / tan(n);
+}
+
+static double
+op_sec(double n)
+{
+	return 1 / cos(n);
+}
+
+static double
+op_csc(double n)
+{
+	return 1 / sin(n);
 }
 
 static double
