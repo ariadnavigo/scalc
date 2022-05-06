@@ -43,6 +43,9 @@ static double op_ncr(double n, double r);
 static double op_cot(double n);
 static double op_sec(double n);
 static double op_csc(double n);
+static double op_acot(double n);
+static double op_asec(double n);
+static double op_acsc(double n);
 
 /* Constants */
 static double op_cst_e(void);
@@ -71,6 +74,9 @@ const OpReg op_defs[] = {
 	{ "asin", 1, { .n1 = asin } },
 	{ "acos", 1, { .n1 = acos } },
 	{ "atan", 1, { .n1 = atan } },
+	{ "acot", 1, { .n1 = op_acot } },
+	{ "asec", 1, { .n1 = op_asec } },
+	{ "acsc", 1, { .n1 = op_acsc } },
 	{ "e", 0, { .n0 = op_cst_e } },
 	{ "pi", 0, { .n0 = op_cst_pi } },
 	{ "", -1, { .n0 = NULL } } /* Dummy "terminator" entry */
@@ -155,6 +161,24 @@ static double
 op_csc(double n)
 {
 	return 1 / sin(n);
+}
+
+static double
+op_acot(double n)
+{
+	return op_cst_pi() / 2 - atan(n);
+}
+
+static double
+op_asec(double n)
+{
+	return acos(1 / n);
+}
+
+static double
+op_acsc(double n)
+{
+	return asin(1 / n);
 }
 
 static double
