@@ -170,7 +170,7 @@ op_csc(double n)
 static double
 op_acot(double n)
 {
-	return op_cst_pi() / 2 - atan(n);
+	return OP_PI / 2 - atan(n);
 }
 
 static double
@@ -188,13 +188,13 @@ op_acsc(double n)
 static double
 op_todeg(double n)
 {
-	return n * 180 / op_cst_pi();
+	return n * 180 / OP_PI;
 }
 
 static double
 op_torad(double n)
 {
-	return n * op_cst_pi() / 180;
+	return n * OP_PI / 180;
 }
 
 static double
