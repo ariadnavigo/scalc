@@ -46,6 +46,8 @@ static double op_csc(double n);
 static double op_acot(double n);
 static double op_asec(double n);
 static double op_acsc(double n);
+static double op_todeg(double n);
+static double op_torad(double n);
 
 /* Constants */
 static double op_cst_e(void);
@@ -77,6 +79,8 @@ const OpReg op_defs[] = {
 	{ "acot", 1, { .n1 = op_acot } },
 	{ "asec", 1, { .n1 = op_asec } },
 	{ "acsc", 1, { .n1 = op_acsc } },
+	{ "todeg", 1, { .n1 = op_todeg } },
+	{ "torad", 1, { .n1 = op_torad } },
 	{ "e", 0, { .n0 = op_cst_e } },
 	{ "pi", 0, { .n0 = op_cst_pi } },
 	{ "", -1, { .n0 = NULL } } /* Dummy "terminator" entry */
@@ -179,6 +183,18 @@ static double
 op_acsc(double n)
 {
 	return asin(1 / n);
+}
+
+static double
+op_todeg(double n)
+{
+	return n * 180 / op_cst_pi();
+}
+
+static double
+op_torad(double n)
+{
+	return n * op_cst_pi() / 180;
 }
 
 static double
