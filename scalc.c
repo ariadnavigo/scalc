@@ -90,7 +90,7 @@ file_input(char *expr, FILE *fp)
 {
 	static int line = 1;
 
-	char trash;
+	int trash;
 	char *last_chr;
 
 	if (fgets(expr, SCALC_EXPR_SIZE, fp) == NULL)
