@@ -40,6 +40,7 @@ static double op_mod(double p, double q);
 static double op_fact(double n);
 static double op_npr(double n, double r);
 static double op_ncr(double n, double r);
+static double op_tan(double n);
 static double op_cot(double n);
 static double op_sec(double n);
 static double op_csc(double n);
@@ -69,7 +70,7 @@ const OpReg op_defs[] = {
 	{ "C", 2, { .n2 = op_ncr } },
 	{ "sin", 1, { .n1 = sin } },
 	{ "cos", 1, { .n1 = cos } },
-	{ "tan", 1, { .n1 = tan } },
+	{ "tan", 1, { .n1 = op_tan } },
 	{ "cot", 1, { .n1 = op_cot } },
 	{ "sec", 1, { .n1 = op_sec } },
 	{ "csc", 1, { .n1 = op_csc } },
@@ -147,6 +148,15 @@ static double
 op_ncr(double n, double r)
 {
 	return op_fact(n) / (op_fact(r) * op_fact(n - r));
+}
+
+static double
+op_tan(double n)
+{
+	if (fmod(n, OP_PI / 2) == 0)
+		return NAN;
+
+	return tan(n);
 }
 
 static double
