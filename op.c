@@ -139,7 +139,7 @@ static double
 op_npr(double n, double r)
 {
 	if (r > n)
-		return 0;
+		return NAN;
 
 	return op_fact(n) / op_fact(n - r);
 }
@@ -147,6 +147,9 @@ op_npr(double n, double r)
 static double
 op_ncr(double n, double r)
 {
+	if (r > n)
+		return NAN;
+
 	return op_fact(n) / (op_fact(r) * op_fact(n - r));
 }
 
