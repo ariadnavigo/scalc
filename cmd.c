@@ -23,6 +23,7 @@ static int cmd_p(const char *args);
 static int cmd_sav(const char *args);
 static int cmd_swp(const char *args);
 static int cmd_ver(const char *args);
+static int cmd_whatis(const char *args);
 
 static const CmdReg cmd_defs[] = {
 	{ ":d", cmd_d },
@@ -34,6 +35,7 @@ static const CmdReg cmd_defs[] = {
 	{ ":sav", cmd_sav },
 	{ ":swp", cmd_swp },
 	{ ":ver", cmd_ver },
+	{ ":whatis", cmd_whatis },
 	{ "", NULL }
 };
 
@@ -191,6 +193,27 @@ cmd_ver(const char *args)
 	get_args(args, NULL);
 
 	printf("scalc %s (sline %s)\n", VERSION, sline_version());
+
+	return 0;
+}
+
+static int
+cmd_whatis(const char *args)
+{
+	const OpReg *op_ptr;
+	char desc[OP_DESC_SIZE];
+
+	if (get_args(args, "%s", desc) < 0) {
+		err = CMD_ERR_FEW_ARGS;
+		return -1;
+	}
+
+	op_ptr = op(args);
+	if (op_valid(op_ptr) < 0) {
+		return -1;
+	}
+
+	printf("%s: %s\n", op_ptr->id, op_ptr->desc);
 
 	return 0;
 }
