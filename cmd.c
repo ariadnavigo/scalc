@@ -26,17 +26,17 @@ static int cmd_ver(const char *args);
 static int cmd_whatis(const char *args);
 
 static const CmdReg cmd_defs[] = {
-	{ ":d", cmd_d },
-	{ ":dmp", cmd_dmp },
-	{ ":dup", cmd_dup },
-	{ ":mclr", cmd_mclr },
-	{ ":list", cmd_list },
-	{ ":p", cmd_p },
-	{ ":sav", cmd_sav },
-	{ ":swp", cmd_swp },
-	{ ":ver", cmd_ver },
-	{ ":whatis", cmd_whatis },
-	{ "", NULL }
+	{ ":d", cmd_d, "Drop the stack." },
+	{ ":dmp", cmd_dmp, "Dump session to file." },
+	{ ":dup", cmd_dup, "Duplicate last element in stack." },
+	{ ":mclr", cmd_mclr, "Clear all memory registers." },
+	{ ":list", cmd_list, "List all available operations." },
+	{ ":p", cmd_p, "Print stack." },
+	{ ":sav", cmd_sav, "Save value to register." },
+	{ ":swp", cmd_swp, "Swap the two last elements in stack." },
+	{ ":ver", cmd_ver, "Shows scalc version information." },
+	{ ":whatis", cmd_whatis, "Show info on command or operation." },
+	{ "", NULL, "" }
 };
 
 static int
