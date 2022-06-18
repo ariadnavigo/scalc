@@ -1,7 +1,6 @@
 # scalc - Simple calculator
 
-scalc is a very simple stack-based calculator that aims to be small, flexible,
-and extensible.
+scalc is a very simple stack-based calculator that aims to be small.
 
 ## Build
 
@@ -22,18 +21,6 @@ Customize the build process by changing ``config.mk`` to suit your needs.
 
 User configuration is performed by modifying ``config.h``. A set of defaults is
 provided in ``config.def.h``.
-
-### Extending scalc
-
-Unlike other extension systems you may find elsewhere, scalc adheres to a
-dwm-inspired[^1] way of extending itself: via source code. You may add new
-functions by following the instructions in the ``op.c`` source file, but in a
-nutshell you define your operations as unary or binary functions returning a
-double and register them into the ``op_defs`` array, specifying the information
-that is required. Don't hesitate sending a patch if you wanna share your
-function!
-
-[^1]: https://dwm.suckless.org/
 
 ## Install
 

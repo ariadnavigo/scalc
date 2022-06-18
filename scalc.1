@@ -10,8 +10,7 @@ scalc \- Simple calculator
 .SH DESCRIPTION
 .PP
 .B scalc
-is a very simple stack-based calculator
-that aims to be small, flexible, and extensible.
+is a very simple stack-based calculator that aims to be small.
 .PP
 .B scalc
 reads RPN expressions from standard input or, optionally, from
@@ -19,10 +18,14 @@ reads RPN expressions from standard input or, optionally, from
 Results are provided in double-precision floats to stdout.
 .PP
 Currently supported mathematical functions include
-basic arithmetic operations, square roots, and natural logarithms.
-All functions are defined in the
-.I op.c
-module in the source tree.
+basic arithmetic operations, square roots, trigonometry functions, 
+natural logarithms, etc.
+Type in the
+.B :list
+command on
+.B scalc's
+prompt
+to get a list of all supported mathematical operations.
 .SS Commands
 .PP
 .B scalc
@@ -81,7 +84,7 @@ is greater than the number of elements stored in the stack.
 .TP
 .B :quit
 Quits
-.B scalc.
+.BR scalc .
 .TP
 .BI :sav " reg"
 Saves the value on the top of the stack to register
@@ -110,13 +113,6 @@ just type in the label of the desired register.
 To store values in them refer to the
 .B :sav
 command above.
-.SS Extending scalc math functions
-.PP
-.B scalc
-can be easily extended with new mathematical functions by adding them to the
-.I op.c
-source file.
-The source file itself includes detailed instructions on how to do so.
 .SH OPTIONS
 .TP
 .B \-i
