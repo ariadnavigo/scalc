@@ -201,19 +201,32 @@ static int
 cmd_whatis(const char *args)
 {
 	const OpReg *op_ptr;
-	char desc[OP_DESC_SIZE];
+	const CmdReg *cmd_ptr;
+	char query[OP_DESC_SIZE];
+	const char *id, *desc;
 
-	if (get_args(args, "%s", desc) < 0) {
+	if (get_args(args, "%s", query) < 0) {
 		err = CMD_ERR_FEW_ARGS;
 		return -1;
 	}
 
-	op_ptr = op(args);
-	if (op_valid(op_ptr) < 0) {
-		return -1;
+	if (args[0] == ':') {
+		cmd_ptr = cmd(args);
+		if (cmd_valid(cmd_ptr) < 0)
+			return -1;
+
+		id = cmd_ptr->id;
+		desc = cmd_ptr->desc;
+	} else {
+		op_ptr = op(args);
+		if (op_valid(op_ptr) < 0)
+			return -1;
+		
+		id = op_ptr->id;
+		desc = op_ptr->desc;
 	}
 
-	printf("%s: %s\n", op_ptr->id, op_ptr->desc);
+	printf("%s: %s\n", id, desc);
 
 	return 0;
 }
