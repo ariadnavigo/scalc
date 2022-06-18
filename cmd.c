@@ -212,15 +212,19 @@ cmd_whatis(const char *args)
 
 	if (args[0] == ':') {
 		cmd_ptr = cmd(args);
-		if (cmd_valid(cmd_ptr) < 0)
+		if (cmd_valid(cmd_ptr) < 0) {
+			err = CMD_ERR_WHATIS_NOT_FOUND;
 			return -1;
+		}
 
 		id = cmd_ptr->id;
 		desc = cmd_ptr->desc;
 	} else {
 		op_ptr = op(args);
-		if (op_valid(op_ptr) < 0)
+		if (op_valid(op_ptr) < 0) {
+			err = CMD_ERR_WHATIS_NOT_FOUND;
 			return -1;
+		}
 		
 		id = op_ptr->id;
 		desc = op_ptr->desc;

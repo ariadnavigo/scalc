@@ -25,6 +25,8 @@ errmsg(void)
 		return strerror(errno);
 	case CMD_ERR_INVALID:
 		return "invalid command.";
+	case CMD_ERR_WHATIS_NOT_FOUND:
+		return "nothing appropriate."; /* Like whatis(1)! */
 	case MEM_ERR_NOT_FOUND:
 		return "bad register.";
 	case MEM_ERR_REG_ARG:
