@@ -2,6 +2,30 @@
 
 scalc is a very simple stack-based calculator that aims to be small.
 
+## Basic usage
+
+scalc presents the user with an interactive prompt. Operations are written in
+Reverse Polish Notation and values are stored in a stack. Supported operations
+include basic arithmetics, logarithms, trignometry, etc. scalc also supports
+commands that modify the behavior of the stack and scalc itself.
+
+```
+$ ./scalc
+> 1 2 +
+3.000000000
+> 4
+4.000000000
+> +
+7.000000000
+> 2 / 18 +
+21.500000000
+> ln
+3.068052935
+> :quit
+```
+
+ou may check the ``scalc(1)`` manpage for further usage information.
+
 ## Build
 
 scalc requires:
