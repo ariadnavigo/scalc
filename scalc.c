@@ -235,8 +235,9 @@ main(int argc, char *argv[])
 			force_i = 0;
 			break;
 		case 'v':
-			die("scalc %s (sline %s)", VERSION, sline_version());
-			break; /* UNREACHABLE */
+			printf("scalc %s ", VERSION);
+			printf("(sline %s)\n", sline_version());
+			return 0;
 		default:
 			usage(); /* die()'s */
 		}
