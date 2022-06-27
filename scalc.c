@@ -239,7 +239,8 @@ main(int argc, char *argv[])
 			printf("(sline %s)\n", sline_version());
 			return 0;
 		default:
-			usage(); /* die()'s */
+			usage();
+			break;
 		}
 	}
 
