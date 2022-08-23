@@ -32,8 +32,8 @@ scalc requires:
 
 1. A POSIX-like system
 2. A C99 compiler
-3. [sline](https://sr.ht/~arivigo/sline): Unless you really know what you're
-   doing, use the latest release, not the master git branch. 
+3. [sline](https://github.com/ariadnavigo/sline): Unless you really know what 
+   you're doing, use the latest release, not the master git branch. 
 
 Build by using:
 
@@ -57,16 +57,6 @@ You may install scalc by running the following command as root:
 This will install the binary under ``$PREFIX/bin``, as defined by your
 environment, or ``/usr/local/bin`` by default. The Makefile supports the
 ``$DESTDIR`` variable as well.
-
-## Contributing
-
-All contributions are welcome! If you wish to send in patches, ideas, or report
-a bug, you may do so by sending an email to the
-[scalc-devel](https://lists.sr.ht/~arivigo/scalc-devel) mailing list.
-
-If interested in getting some news from the project, you may also want to
-subscribe to the low-volume
-[scalc-announce](https://lists.sr.ht/~arivigo/scalc-announce) mailing list!
 
 ## License
 
