@@ -1,6 +1,7 @@
 /* See LICENSE for copyright and license details. */
 
 #include <stdarg.h>
+#include <stddef.h> /* Dependency for strlcpy.h */
 #include <stdio.h>
 #include <string.h>
 

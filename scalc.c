@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <sline.h>
 #include <stdarg.h>
+#include <stddef.h> /* Dependency for strlcpy.h */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
