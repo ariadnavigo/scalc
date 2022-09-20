@@ -2,9 +2,9 @@
 
 #include <ctype.h>
 #include <errno.h>
+#include <stddef.h> /* Dependency for sline.h, strlcpy.h */
 #include <sline.h>
 #include <stdarg.h>
-#include <stddef.h> /* Dependency for strlcpy.h */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -81,7 +81,8 @@ static void
 inter_setup(FILE *fp)
 {
 	if ((sline_mode = isatty(fileno(fp))) > 0) {
-		if (sline_setup(SCALC_EXPR_SIZE) < 0)
+		sline_hist_entry_size = SCALC_EXPR_SIZE;
+		if (sline_setup() < 0)
 			die("Terminal error: %s", sline_errmsg());
 	}
 }
