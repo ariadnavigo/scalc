@@ -24,7 +24,7 @@ $ ./scalc
 > :quit
 ```
 
-ou may check the ``scalc(1)`` manpage for further usage information.
+You may check the ``scalc(1)`` manpage for further usage information.
 
 ## Build
 
