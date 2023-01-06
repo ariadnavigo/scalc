@@ -28,11 +28,10 @@ You may check the ``scalc(1)`` manpage for further usage information.
 
 ## Build
 
-scalc requires:
+scalc is supported on Linux and OpenBSD, and requires:
 
-1. A POSIX-like system
-2. A C99 compiler
-3. [sline 2.0+](https://github.com/ariadnavigo/sline)
+1. A C99 compiler
+2. [sline 2.0+](https://github.com/ariadnavigo/sline)
 
 Build by using:
 
