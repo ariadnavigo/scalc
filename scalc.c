@@ -229,6 +229,8 @@ main(int argc, char *argv[])
 	const char *expr_ptr;
 	char expr[SCALC_EXPR_SIZE];
 	int opt, force_i;
+	
+	atexit(cleanup);
 
 	force_i = -1;
 	while ((opt = getopt(argc, argv, ":iv")) != -1) {
@@ -245,8 +247,6 @@ main(int argc, char *argv[])
 			break;
 		}
 	}
-
-	atexit(cleanup);
 
 	if (optind < argc)
 		filearg = argv[optind];
